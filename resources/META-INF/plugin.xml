@@ -1,0 +1,42 @@
+<idea-plugin>
+  <id>com.liubs.jaredit</id>
+  <name>JarEditor</name>
+  <version>1.0</version>
+  <vendor email="Liubsyy@gmail.com" url="https://github.com/Liubsyy/JarEdit-idea-plugin">Liubsyy</vendor>
+
+  <description><![CDATA[
+
+    JarEditor is used to directly edit classes/resources in Jar without decompression.
+
+    ]]></description>
+
+  <change-notes><![CDATA[
+      <h3>1.0</h3>
+      <ul>
+        <li>Init plugin</li>
+      </ul>
+    ]]>
+  </change-notes>
+
+  <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+  <idea-version since-build="203"/>
+
+  <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+       on how to target different products -->
+  <depends>com.intellij.modules.platform</depends>
+  <depends>com.intellij.java</depends>
+
+
+  <extensions defaultExtensionNs="com.intellij">
+    <fileEditorProvider implementation="com.liubs.jareditor.editor.MyFileEditorProvider"/>
+
+    <notificationGroup id="JarEditorNotice"
+                       isLogByDefault="true"
+                       displayType="BALLOON"/>
+  </extensions>
+
+  <actions>
+    <!-- Add your actions here -->
+  </actions>
+
+</idea-plugin>
