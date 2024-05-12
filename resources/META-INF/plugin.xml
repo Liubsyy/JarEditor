@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.liubs.jaredit</id>
   <name>JarEditor</name>
-  <version>1.0</version>
+  <version>1.1</version>
   <vendor email="Liubsyy@gmail.com" url="https://github.com/Liubsyy/JarEdit-idea-plugin">Liubsyy</vendor>
 
   <description><![CDATA[
