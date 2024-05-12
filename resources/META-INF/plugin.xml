@@ -11,6 +11,12 @@
     ]]></description>
 
   <change-notes><![CDATA[
+
+      <h3>1.1</h3>
+      <ul>
+        <li>Support deleting files in jar</li>
+      </ul>
+
       <h3>1.0</h3>
       <ul>
         <li>Init plugin</li>
@@ -36,7 +42,13 @@
   </extensions>
 
   <actions>
-    <!-- Add your actions here -->
+
+
+    <group id="JarEditorProjectGroup"  text="JarEditor" description="JarEditor" popup="true">
+      <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+
+      <action id="jarEditorDeleteFiles" class="com.liubs.jareditor.action.JarEditorDeleteFiles" text="Delete File(s)" description="DeleteFiles"/>
+    </group>
   </actions>
 
 </idea-plugin>

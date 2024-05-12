@@ -33,7 +33,11 @@ public class JarBuilder {
         this.jarFile = jarFile;
     }
 
-    public JarBuildResult writeJar( boolean compareEntry) {
+    public JarBuilder(String jarFile) {
+        this.jarFile = jarFile;
+    }
+
+    public JarBuildResult writeJar(boolean compareEntry) {
 
         JarBuildResult jarBuildResult;
         File tempJarFile = null;
@@ -105,9 +109,6 @@ public class JarBuilder {
                 NoticeInfo.info("*** Compare difference :"+jarFile+" END ***");
 
             }
-
-
-
             jarBuildResult = new JarBuildResult(true, null);
         } catch (IOException e) {
             jarBuildResult = new JarBuildResult(false, "Build jar failed: " + ExceptionUtil.getExceptionTracing(e));
@@ -119,6 +120,46 @@ public class JarBuilder {
         return jarBuildResult;
     }
 
+
+    public JarBuildResult deleteFiles(Set<String> deleteEntries){
+        JarBuildResult jarBuildResult;
+        File tempJarFile = null;
+        try {
+            Path jarPath = Paths.get(jarFile);
+
+            if (!Files.exists(jarPath)) {
+                return new JarBuildResult(false, "File does not exist: " + jarFile);
+            }
+
+            // 临时文件替代内存流
+            tempJarFile = Files.createTempFile("tempJar", ".jar").toFile();
+
+            try (JarFile originalJar = new JarFile(jarFile);
+                 JarOutputStream tempJarOutputStream = new JarOutputStream(new FileOutputStream(tempJarFile))) {
+                copyExistingEntries(originalJar, tempJarOutputStream, deleteEntries,true);
+            }
+
+            // 将临时 JAR 文件内容写回目标 JAR 文件
+            try (FileInputStream tempInputStream = new FileInputStream(tempJarFile);
+                 FileOutputStream fileOutputStream = new FileOutputStream(jarFile)) {
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = tempInputStream.read(buffer)) != -1) {
+                    fileOutputStream.write(buffer, 0, bytesRead);
+                }
+            }
+            jarBuildResult = new JarBuildResult(true, null);
+        } catch (IOException e) {
+            jarBuildResult = new JarBuildResult(false, "Build jar failed: " + ExceptionUtil.getExceptionTracing(e));
+        } finally {
+            if (tempJarFile != null && tempJarFile.exists()) {
+                tempJarFile.delete(); // 删除临时文件
+            }
+        }
+        return jarBuildResult;
+    }
+
+
     private void copyExistingEntries(JarFile originalJar, JarOutputStream tempJarOutputStream, Path classesDir) throws IOException {
         Set<String> classesToReplace = new HashSet<>();
         Files.walk(classesDir)
@@ -127,60 +168,81 @@ public class JarBuilder {
                     String relativePath = classesDir.relativize(path).toString().replace("\\", "/");
                     classesToReplace.add(relativePath);
                 });
+        copyExistingEntries(originalJar,tempJarOutputStream,classesToReplace,false);
+
+    }
+
+    private void copyExistingEntries(JarFile originalJar, JarOutputStream tempJarOutputStream, Set<String> excludeEntries,boolean resoleDir) throws IOException {
 
         byte[] buffer = new byte[1024];
         Enumeration<JarEntry> entries = originalJar.entries();
         while (entries.hasMoreElements()) {
             JarEntry entry = entries.nextElement();
-            if (!classesToReplace.contains(entry.getName())) {
-                JarEntry newEntry = new JarEntry(entry.getName());
-                newEntry.setTime(entry.getTime());
 
-                // 如果原条目使用 STORED 方法，需要显式设置大小、压缩大小和 CRC-32
-                if (entry.getMethod() == JarEntry.STORED) {
-                    long size = entry.getSize();
-                    long compressedSize = entry.getCompressedSize();
-                    long crc = entry.getCrc();
-
-                    if (size == -1 || compressedSize == -1 || crc == -1) {
-                        CRC32 crc32 = new CRC32();
-                        long computedSize = 0;
-
-                        try (InputStream entryInputStream = originalJar.getInputStream(entry)) {
-                            int bytesRead;
-                            while ((bytesRead = entryInputStream.read(buffer)) != -1) {
-                                crc32.update(buffer, 0, bytesRead);
-                                computedSize += bytesRead;
-                            }
-                        }
-
-                        size = computedSize;
-                        compressedSize = computedSize;
-                        crc = crc32.getValue();
-                    }
-
-                    newEntry.setSize(size);
-                    newEntry.setCompressedSize(compressedSize);
-                    newEntry.setCrc(crc);
-                    newEntry.setMethod(JarEntry.STORED);
-
-                    //NoticeInfo.error("STORED ENTRY:"+entry);
-                } else {
-                    newEntry.setMethod(JarEntry.DEFLATED);
-                }
-
-
-                tempJarOutputStream.putNextEntry(newEntry);
-
-                try (InputStream entryInputStream = originalJar.getInputStream(entry)) {
-                    int bytesRead;
-                    while ((bytesRead = entryInputStream.read(buffer)) != -1) {
-                        tempJarOutputStream.write(buffer, 0, bytesRead);
+            if(resoleDir) {
+                boolean entryLoop = true;
+                for(String excludeEntry : excludeEntries) {
+                    if(entry.getName().startsWith(excludeEntry)) {
+                        entryLoop = false;
+                        break;
                     }
                 }
-
-                tempJarOutputStream.closeEntry();
+                if(!entryLoop) {
+                    continue;
+                }
+            }else {
+                if(excludeEntries.contains(entry.getName())) {
+                    continue;
+                }
             }
+
+            JarEntry newEntry = new JarEntry(entry.getName());
+            newEntry.setTime(entry.getTime());
+
+            // 如果原条目使用 STORED 方法，需要显式设置大小、压缩大小和 CRC-32
+            if (entry.getMethod() == JarEntry.STORED) {
+                long size = entry.getSize();
+                long compressedSize = entry.getCompressedSize();
+                long crc = entry.getCrc();
+
+                if (size == -1 || compressedSize == -1 || crc == -1) {
+                    CRC32 crc32 = new CRC32();
+                    long computedSize = 0;
+
+                    try (InputStream entryInputStream = originalJar.getInputStream(entry)) {
+                        int bytesRead;
+                        while ((bytesRead = entryInputStream.read(buffer)) != -1) {
+                            crc32.update(buffer, 0, bytesRead);
+                            computedSize += bytesRead;
+                        }
+                    }
+
+                    size = computedSize;
+                    compressedSize = computedSize;
+                    crc = crc32.getValue();
+                }
+
+                newEntry.setSize(size);
+                newEntry.setCompressedSize(compressedSize);
+                newEntry.setCrc(crc);
+                newEntry.setMethod(JarEntry.STORED);
+
+                //NoticeInfo.error("STORED ENTRY:"+entry);
+            } else {
+                newEntry.setMethod(JarEntry.DEFLATED);
+            }
+
+
+            tempJarOutputStream.putNextEntry(newEntry);
+
+            try (InputStream entryInputStream = originalJar.getInputStream(entry)) {
+                int bytesRead;
+                while ((bytesRead = entryInputStream.read(buffer)) != -1) {
+                    tempJarOutputStream.write(buffer, 0, bytesRead);
+                }
+            }
+
+            tempJarOutputStream.closeEntry();
         }
     }
 
