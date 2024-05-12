@@ -14,6 +14,7 @@
 
       <h3>1.1</h3>
       <ul>
+        <li>Support adding files in jar</li>
         <li>Support deleting files in jar</li>
       </ul>
 
@@ -47,7 +48,11 @@
     <group id="JarEditorProjectGroup"  text="JarEditor" description="JarEditor" popup="true">
       <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
 
-      <action id="jarEditorDeleteFiles" class="com.liubs.jareditor.action.JarEditorDeleteFiles" text="Delete File(s)" description="DeleteFiles"/>
+      <group id="jarEditorNew"  text="New" description="New" popup="true">
+        <action id="jarEditorAddJavaFile" class="com.liubs.jareditor.action.JarEditorAddJavaFile" text="Class" description="NewClass"/>
+        <action id="jarEditorAddResourceFile" class="com.liubs.jareditor.action.JarEditorAddResourceFile" text="File" description="NewFile"/>
+      </group>
+      <action id="jarEditorDeleteFiles" class="com.liubs.jareditor.action.JarEditorDeleteFiles" text="Delete" description="Delete"/>
     </group>
   </actions>
 

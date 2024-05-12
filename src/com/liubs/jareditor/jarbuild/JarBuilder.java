@@ -70,14 +70,7 @@ public class JarBuilder {
             }
 
             // 将临时 JAR 文件内容写回目标 JAR 文件
-            try (FileInputStream tempInputStream = new FileInputStream(tempJarFile);
-                 FileOutputStream fileOutputStream = new FileOutputStream(jarFile)) {
-                byte[] buffer = new byte[1024];
-                int bytesRead;
-                while ((bytesRead = tempInputStream.read(buffer)) != -1) {
-                    fileOutputStream.write(buffer, 0, bytesRead);
-                }
-            }
+            writeTargetJar(tempJarFile);
 
             Map<String, byte[]> newEntryMap = null;
             if(compareEntry) {
@@ -121,6 +114,47 @@ public class JarBuilder {
     }
 
 
+    /**
+     * 在jar内新增一个空文件以便写代码
+     * @param filePath
+     * @return
+     */
+    public JarBuildResult addFile(String filePath){
+        JarBuildResult jarBuildResult;
+        File tempJarFile = null;
+        try {
+            Path jarPath = Paths.get(jarFile);
+
+            if (!Files.exists(jarPath)) {
+                return new JarBuildResult(false, "File does not exist: " + jarFile);
+            }
+
+            // 临时文件替代内存流
+            tempJarFile = Files.createTempFile("tempJar", ".jar").toFile();
+
+            try (JarFile originalJar = new JarFile(jarFile);
+                JarOutputStream tempJarOutputStream = new JarOutputStream(new FileOutputStream(tempJarFile))) {
+                copyExistingEntries(originalJar, tempJarOutputStream, new HashSet<>(),true);
+
+                //write a empty file
+                String jarEntryName = filePath.replace("\\", "/");
+                tempJarOutputStream.putNextEntry(new JarEntry(jarEntryName));
+                tempJarOutputStream.closeEntry();
+            }
+
+            // 将临时 JAR 文件内容写回目标 JAR 文件
+            writeTargetJar(tempJarFile);
+            jarBuildResult = new JarBuildResult(true, null);
+        } catch (IOException e) {
+            jarBuildResult = new JarBuildResult(false, "Build jar failed: " + ExceptionUtil.getExceptionTracing(e));
+        } finally {
+            if (tempJarFile != null && tempJarFile.exists()) {
+                tempJarFile.delete(); // 删除临时文件
+            }
+        }
+        return jarBuildResult;
+    }
+
     public JarBuildResult deleteFiles(Set<String> deleteEntries){
         JarBuildResult jarBuildResult;
         File tempJarFile = null;
@@ -140,14 +174,7 @@ public class JarBuilder {
             }
 
             // 将临时 JAR 文件内容写回目标 JAR 文件
-            try (FileInputStream tempInputStream = new FileInputStream(tempJarFile);
-                 FileOutputStream fileOutputStream = new FileOutputStream(jarFile)) {
-                byte[] buffer = new byte[1024];
-                int bytesRead;
-                while ((bytesRead = tempInputStream.read(buffer)) != -1) {
-                    fileOutputStream.write(buffer, 0, bytesRead);
-                }
-            }
+            writeTargetJar(tempJarFile);
             jarBuildResult = new JarBuildResult(true, null);
         } catch (IOException e) {
             jarBuildResult = new JarBuildResult(false, "Build jar failed: " + ExceptionUtil.getExceptionTracing(e));
@@ -157,6 +184,18 @@ public class JarBuilder {
             }
         }
         return jarBuildResult;
+    }
+
+    private void writeTargetJar(File tempJarFile) throws IOException {
+        // 将临时 JAR 文件内容写回目标 JAR 文件
+        try (FileInputStream tempInputStream = new FileInputStream(tempJarFile);
+             FileOutputStream fileOutputStream = new FileOutputStream(jarFile)) {
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = tempInputStream.read(buffer)) != -1) {
+                fileOutputStream.write(buffer, 0, bytesRead);
+            }
+        }
     }
 
 
