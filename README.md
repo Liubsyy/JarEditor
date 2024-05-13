@@ -5,8 +5,9 @@
 JarEditor is an IDEA plugin that can modify the files in JAR directly without decompression, including class and resource files.
 
 ## Features
-- Edit class files in JAR directly and compile them without decompression
-- Edit resources files in JAR directly without decompression
+- Edit class/resource files in JAR directly without decompression
+- Add new file in JAR
+- Delete file/dictionary in JAR
 
 ## Quick start
 
@@ -21,6 +22,10 @@ After installing the plugin JarEditor from marketplace, you can see a tab page t
 After clicking Jar Editor, you can directly modify the decompiled code. After modification, click **Save/Compile** to compile and save the currently modified java content. Then click **Build Jar** to write the compiled and saved class file into the Jar package.
 
 Modifying the resource files in the jar package is also supported. The process is the same as the class file. After modification, you need to save it and then Build Jar.
+
+In the project view of the jar package, right-click to see JarEditor->Add/Delete and other operations, where you can add and delete files.
+<img src="./img/JarEditor_add_delete.png" width="480" height="470" />
+
 
 ### Some mechanisms
 - The JDK that the compilation depends on is the JDK of the project project. You can choose the target version of the compiled class. By default, it is consistent with the class version of the jar package.
