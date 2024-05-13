@@ -23,11 +23,14 @@ After clicking Jar Editor, you can directly modify the decompiled code. After mo
 
 Modifying the resource files in the jar package is also supported. The process is the same as the class file. After modification, you need to save it and then Build Jar.
 
+
+### 3. Other operations of JarEditor
 In the project view of the jar package, right-click to see JarEditor->Add/Delete and other operations, where you can add and delete files.
+
 <img src="./img/JarEditor_add_delete.png" width="480" height="470" />
 
 
-### Some mechanisms
+## Some mechanisms
 - The JDK that the compilation depends on is the JDK of the project project. You can choose the target version of the compiled class. By default, it is consistent with the class version of the jar package.
 - The classpath you depend on when compiling java is the dependency of the project. If the dependency package cannot be found, you can add the dependency.
 - Save/Compile will save the modified files to the jar_edit subdirectory of the directory where the jar package is located. Build Jar will incrementally write the files in the jar_edit directory to the jar, and finally delete this directory.
