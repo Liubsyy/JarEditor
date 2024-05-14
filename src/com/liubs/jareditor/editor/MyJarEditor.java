@@ -1,9 +1,6 @@
 package com.liubs.jareditor.editor;
 
-/**
- * @author Liubsyy
- * @date 2024/5/8
- */
+import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -11,11 +8,14 @@ import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory;
 import com.intellij.openapi.fileEditor.*;
+import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.util.UserDataHolderBase;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
+import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.util.PsiErrorElementUtil;
 import com.liubs.jareditor.sdk.JavacToolProvider;
 import com.liubs.jareditor.util.ClassVersionUtil;
@@ -28,17 +28,19 @@ import java.awt.*;
 import java.beans.PropertyChangeListener;
 
 
+/**
+ * @author Liubsyy
+ * @date 2024/5/8
+ */
 public class MyJarEditor extends UserDataHolderBase implements FileEditor {
     private final Project project;
     private final JPanel panel = new JPanel(new BorderLayout());
     private final VirtualFile file;
     private final Editor editor;
 
-    private  ComboBox<String> selectJDKVersionComboBox;
+    private ComboBox<String> selectJDKVersionComboBox;
 
     private JarEditorCore jarEditorCore;
-
-
 
 
     @Nullable
@@ -50,24 +52,12 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
     public MyJarEditor(Project project, VirtualFile file) {
         this.project = project;
         this.file = file;
-
-        String decompiledText = getDecompiledText(project, file);
-        Document document = EditorFactory.getInstance().createDocument(decompiledText);
-        this.editor = EditorFactory.getInstance().createEditor(document, project);
-        if (editor instanceof EditorEx) {
-            EditorEx editorEx = (EditorEx) editor;
-            editorEx.setHighlighter(EditorHighlighterFactory.getInstance().createEditorHighlighter(project, file));
-            editorEx.setCaretVisible(true);
-            editorEx.setEmbeddedIntoDialogWrapper(true);
-        }
-
-
-        jarEditorCore = new JarEditorCore(project, file, editor);
+        this.editor = createEditor();
+        this.jarEditorCore = new JarEditorCore(project, file, editor);
 
         panel.add(editor.getComponent(), BorderLayout.CENTER);
 
         // Create buttons and their panel
-
         JButton compileButton = new JButton("Save/Compile");
         JButton rebuildJar = new JButton("Build Jar");
         JButton resetButton = new JButton("Reset");
@@ -104,6 +94,55 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         compileButton.addActionListener(e -> saveChanges());
         rebuildJar.addActionListener(e -> buildJar());
         resetButton.addActionListener(e -> cancelChanges());
+    }
+
+    private Editor createEditor(){
+        String decompiledText = getDecompiledText(project, file);
+
+        String fileExtension = file.getExtension();
+        Editor editor = null;
+
+        if(null != fileExtension) {
+            String fileName = file.getName();
+            if("class".equals(fileExtension)) {
+                fileExtension = JavaFileType.DEFAULT_EXTENSION;
+                fileName = fileName.replace(".class", ".java");
+            }
+
+            try{
+                FileType fileType = FileTypeManager.getInstance().getFileTypeByExtension(fileExtension);
+
+                LightVirtualFile virtualFile = new LightVirtualFile(fileName,
+                        fileType, decompiledText);
+                PsiFile psiFile = PsiManager.getInstance(project).findFile(virtualFile);
+
+                if(null != psiFile && null != psiFile.getVirtualFile()) {
+                    //editor = FileEditorManager.getInstance(project).openTextEditor(new OpenFileDescriptor(project, psiFile.getVirtualFile()), true);
+                    editor = EditorFactory.getInstance().createEditor(psiFile.getViewProvider().getDocument(), project);
+                }
+
+            }catch (Throwable e) {
+                e.printStackTrace();
+            }
+        }
+
+
+        //default editor
+        if(null == editor) {
+            Document document = EditorFactory.getInstance().createDocument(decompiledText);
+            editor = EditorFactory.getInstance().createEditor(document, project);
+        }
+
+        if(null != editor){
+            if (editor instanceof EditorEx) {
+                EditorEx editorEx = (EditorEx) editor;
+                editorEx.setHighlighter(EditorHighlighterFactory.getInstance().createEditorHighlighter(project, file));
+                editorEx.setCaretVisible(true);
+                editorEx.setEmbeddedIntoDialogWrapper(true);
+            }
+        }
+
+        return editor;
     }
 
     private String getDecompiledText(Project project, VirtualFile file) {
@@ -182,6 +221,11 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
 
     @Override
     public void dispose() {
-        EditorFactory.getInstance().releaseEditor(editor);
+        try{
+            EditorFactory.getInstance().releaseEditor(editor);
+        }catch (Throwable e) {}
+
     }
+
+
 }
