@@ -44,7 +44,13 @@ public class JarEditorDeleteFiles extends AnAction {
             }
             String entryPathFromJar = MyPathUtil.getEntryPathFromJar(file.getPath());
             if(null != entryPathFromJar) {
-                deleteEntries.add(entryPathFromJar.replace("\\", "/"));
+                if(file.isDirectory()) {
+                    //删除文件夹 /dir 导致/dir2 也删除的问题
+                    deleteEntries.add(entryPathFromJar.replace("\\", "/")+"/");
+                }else {
+                    deleteEntries.add(entryPathFromJar.replace("\\", "/"));
+                }
+
             }
         }
 
