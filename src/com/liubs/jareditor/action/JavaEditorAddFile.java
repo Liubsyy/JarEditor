@@ -3,14 +3,10 @@ package com.liubs.jareditor.action;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.JarFileSystem;
-import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.liubs.jareditor.jarbuild.JarBuilder;
@@ -47,6 +43,9 @@ public abstract class JavaEditorAddFile  extends AnAction {
         }
 
         String entryPath = preInput(project,entryPathFromJar);
+        if(null == entryPath) {
+            return;
+        }
 
         ProgressManager.getInstance().run(new Task.Backgroundable(null, "Add file in JAR...", false) {
             @Override

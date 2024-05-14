@@ -5,12 +5,10 @@ import com.intellij.openapi.ui.Messages;
 import com.liubs.jareditor.util.StringUtils;
 
 /**
- * New Java file
  * @author Liubsyy
- * @date 2024/5/12
+ * @date 2024/5/14
  */
-public class JarEditorAddJavaFile  extends JavaEditorAddFile {
-
+public class JarEditorAddDictionary  extends JavaEditorAddFile {
     @Override
     protected String preInput(Project project, String entryPathFromJar) {
         String userInput = Messages.showInputDialog(
@@ -22,7 +20,8 @@ public class JarEditorAddJavaFile  extends JavaEditorAddFile {
         if(StringUtils.isEmpty(userInput)) {
             return null;
         }
-        return entryPathFromJar+"/"+userInput+".class";
-    }
 
+        //文件夹以/结尾
+        return entryPathFromJar+"/"+userInput+"/";
+    }
 }

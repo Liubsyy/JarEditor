@@ -2,6 +2,7 @@ package com.liubs.jareditor.action;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import com.liubs.jareditor.util.StringUtils;
 
 /**
  * @author Liubsyy
@@ -16,6 +17,9 @@ public class JarEditorAddResourceFile  extends JavaEditorAddFile {
                 "Create New File",
                 Messages.getQuestionIcon()
         );
+        if(StringUtils.isEmpty(userInput)) {
+            return null;
+        }
         return entryPathFromJar+"/"+userInput;
     }
 }

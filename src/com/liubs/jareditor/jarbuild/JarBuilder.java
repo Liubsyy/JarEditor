@@ -219,14 +219,15 @@ public class JarBuilder {
             JarEntry entry = entries.nextElement();
 
             if(resoleDir) {
-                boolean entryLoop = true;
+                boolean needCopy = true;
                 for(String excludeEntry : excludeEntries) {
                     if(entry.getName().startsWith(excludeEntry)) {
-                        entryLoop = false;
+                        needCopy = false;
                         break;
                     }
                 }
-                if(!entryLoop) {
+                //删除的文件或者文件夹不需要copy
+                if( !needCopy ) {
                     continue;
                 }
             }else {

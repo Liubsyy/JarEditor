@@ -7,6 +7,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.liubs.jareditor.jarbuild.JarBuilder;
@@ -52,6 +53,17 @@ public class JarEditorDeleteFiles extends AnAction {
                 }
 
             }
+        }
+
+        int response = Messages.showYesNoDialog(
+                e.getProject(),
+                "Are you sure you want to delete "+deleteEntries+"?", // 消息内容
+                "Confirmation", // 窗口标题
+                Messages.getQuestionIcon() // 使用一个问号图标
+        );
+
+        if (response != Messages.YES) {
+            return;
         }
 
         if(deleteEntries.isEmpty()) {
