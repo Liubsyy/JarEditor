@@ -18,7 +18,9 @@ import com.intellij.psi.*;
 import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.util.PsiErrorElementUtil;
 import com.liubs.jareditor.sdk.JavacToolProvider;
+import com.liubs.jareditor.template.TemplateManager;
 import com.liubs.jareditor.util.ClassVersionUtil;
+import com.liubs.jareditor.util.StringUtils;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -102,6 +104,10 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         String fileExtension = file.getExtension();
         Editor editor = null;
 
+        if(StringUtils.isEmpty(decompiledText)) {
+            decompiledText = TemplateManager.getText(fileExtension, file.getPath());
+        }
+
         if(null != fileExtension) {
             String fileName = file.getName();
             if("class".equals(fileExtension)) {
@@ -150,7 +156,7 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         if (psiFile != null && !PsiErrorElementUtil.hasErrors(project, file)) {
             return psiFile.getText(); // 默认反编译器反编译结果
         }
-        return "Unable to decompile file.";
+        return "";
     }
 
 
