@@ -130,6 +130,7 @@ public class JarEditorCore {
                     NoticeInfo.info("Compile successfully,output=%s",MyPathUtil.getJarEditClassPath(file.getPath()));
 
                 } catch (Exception e) {
+                    e.printStackTrace();
                     NoticeInfo.error("Compile err:%s",e.getMessage());
                 }
 
