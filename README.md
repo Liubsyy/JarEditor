@@ -4,6 +4,8 @@
 
 JarEditor is an IDEA plugin that can modify the files in JAR directly without decompression, including class and resource files.
 
+**Plugin marketplace** : [https://plugins.jetbrains.com/plugin/24397-jareditor](https://plugins.jetbrains.com/plugin/24397-jareditor)
+
 ## Features
 - Edit class/resource files in JAR directly without decompression
 - Add new file in JAR
