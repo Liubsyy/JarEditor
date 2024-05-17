@@ -3,6 +3,7 @@ package com.liubs.jareditor.compile;
 import com.liubs.jareditor.util.MyFileUtil;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -74,17 +75,17 @@ public class MyJavacCompiler implements IMyCompiler{
 
             List<String> javaFilesPaths = new ArrayList<>();
             sourceCodes.forEach((className, sourceCode) -> {
-                try {
-                    String fileName = className.replace('.', File.separatorChar) + ".java";
-                    File file = new File(sourceDir.getAbsoluteFile(), fileName);
-                    file.getParentFile().mkdirs(); // 确保父目录存在
-                    try (FileWriter writer = new FileWriter(file)) {
-                        writer.write(sourceCode); // 写入代码到文件
-                    }
-                    javaFilesPaths.add(file.getAbsolutePath());
-                } catch (IOException e) {
-                    System.err.println("Error writing to file for class " + className + ": " + e.getMessage());
+                String fileName = className.replace('.', File.separatorChar) + ".java";
+                File file = new File(sourceDir.getAbsoluteFile(), fileName);
+                file.getParentFile().mkdirs(); // 确保父目录存在
+                // 使用 OutputStreamWriter 并指定 UTF-8 编码
+                try (OutputStreamWriter writer = new OutputStreamWriter(
+                        new FileOutputStream(file), StandardCharsets.UTF_8)) {
+                    writer.write(sourceCode); // 写入代码到文件
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
+                javaFilesPaths.add(file.getAbsolutePath());
             });
 
 
@@ -92,6 +93,8 @@ public class MyJavacCompiler implements IMyCompiler{
             String javacPath = javaHome + "/bin/javac";  //javac路径 安装路径
             String classPath = classPaths.toString();
             List<String> commands = new ArrayList<>();
+            commands.add("-encoding");
+            commands.add("UTF-8");
             commands.add(javacPath);
             commands.add("-d");
             commands.add(outDir.getAbsolutePath());
