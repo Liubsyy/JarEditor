@@ -93,9 +93,9 @@ public class MyJavacCompiler implements IMyCompiler{
             String javacPath = javaHome + "/bin/javac";  //javac路径 安装路径
             String classPath = classPaths.toString();
             List<String> commands = new ArrayList<>();
+            commands.add(javacPath);
             commands.add("-encoding");
             commands.add("UTF-8");
-            commands.add(javacPath);
             commands.add("-d");
             commands.add(outDir.getAbsolutePath());
             commands.add("-source");
