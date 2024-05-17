@@ -102,7 +102,11 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
 
             selectVersionComboBox = new ComboBox<>();
             String classVersion = ClassVersionUtil.detectClassVersion(file);
-            int maxJdkVersion = JavacToolProvider.getMaxJdkVersion();
+            int maxJdkVersion = -1;
+            try{
+                maxJdkVersion = JavacToolProvider.getMaxJdkVersion();
+            }catch (Throwable eex){}
+
             if(maxJdkVersion < 0) {
                 maxJdkVersion = 21;
             }
