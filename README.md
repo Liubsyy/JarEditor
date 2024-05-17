@@ -8,7 +8,7 @@ JarEditor is an IDEA plugin that can modify the files in JAR directly without de
 
 ## Features
 - Edit class/resource files in JAR directly without decompression
-- Add new file in JAR
+- Add new file/dictionary in JAR
 - Delete file/dictionary in JAR
 
 ## Quick start
