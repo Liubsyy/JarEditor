@@ -2,6 +2,7 @@ package com.liubs.jareditor.sdk;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.JavaSdk;
+import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ProjectRootManager;
 
@@ -44,6 +45,16 @@ public class JavacToolProvider {
         }
 
         return -1;
+    }
+    public static int getMaxJdkVersion() {
+        int maxVersion = -1;
+        Sdk[] allJdks = ProjectJdkTable.getInstance().getAllJdks();
+        for(Sdk sdk : allJdks) {
+            if(sdk!=null && sdk.getSdkType() instanceof JavaSdk) {
+                maxVersion = Math.max(maxVersion,  parseJavaVersion(sdk.getVersionString()));
+            }
+        }
+        return maxVersion;
     }
 
     private static int parseJavaVersion(String versionString) {

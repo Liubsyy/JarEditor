@@ -81,6 +81,14 @@ public class MyPathUtil {
 
         return split[0]+"_temp/"+JAR_EDIT_CLASS_PATH;
     }
+    public static String getJarEditTemp(String classNameInJar){
+        String[] split = classNameInJar.split(".jar!/");
+        if(split.length!=2) {
+            return null;
+        }
+
+        return split[0]+"_temp";
+    }
 
 
 }
