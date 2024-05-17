@@ -2,36 +2,32 @@ package com.liubs.jareditor.editor;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.JarFileSystem;
-import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.PathUtil;
 import com.liubs.jareditor.compile.CompilationResult;
-import com.liubs.jareditor.compile.MyJavaCompiler;
+import com.liubs.jareditor.compile.IMyCompiler;
+import com.liubs.jareditor.compile.MyJavacCompiler;
+import com.liubs.jareditor.compile.MyRuntimeCompiler;
 import com.liubs.jareditor.jarbuild.JarBuildResult;
 import com.liubs.jareditor.jarbuild.JarBuilder;
 import com.liubs.jareditor.sdk.DependentManager;
 import com.liubs.jareditor.sdk.JavacToolProvider;
 import com.liubs.jareditor.sdk.NoticeInfo;
-import com.liubs.jareditor.util.ExceptionUtil;
 import com.liubs.jareditor.util.MyFileUtil;
 import com.liubs.jareditor.util.MyPathUtil;
-import com.liubs.jareditor.util.OSUtil;
+import com.liubs.jareditor.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -104,25 +100,29 @@ public class JarEditorCore {
 
     }
 
-    public void compileJavaCode(String targetVersion) {
+    public void compileJavaCode(String javaHome,String targetVersion) {
 
         // 存储类路径依赖的集合
         Set<String> classpaths = new HashSet<>();
         DependentManager.getDependentLib(project).forEach(c-> classpaths.add(PathUtil.getLocalPath(c.getPath())));
 
         //编译器
-        MyJavaCompiler myJavaCompiler = new MyJavaCompiler();
-        myJavaCompiler.setCompiler(JavacToolProvider.getJavaCompilerFromProjectSdk(project));
-        myJavaCompiler.setTargetVersion(targetVersion);
-        myJavaCompiler.addClassPaths(classpaths);
-        myJavaCompiler.setOutputDirectory(MyPathUtil.getJarEditClassPath(file.getPath()));
+        IMyCompiler myCompiler;
+        if(StringUtils.isEmpty(javaHome)) {
+            myCompiler = new MyRuntimeCompiler(JavacToolProvider.getJavaCompilerFromProjectSdk());
+        }else {
+            myCompiler = new MyJavacCompiler(javaHome);
+        }
+        myCompiler.setTargetVersion(targetVersion);
+        myCompiler.addClassPaths(classpaths);
+        myCompiler.setOutputDirectory(MyPathUtil.getJarEditClassPath(file.getPath()));
         //source code
-        myJavaCompiler.addSourceCode(MyPathUtil.getClassNameFromJar(file.getPath()) ,editor.getDocument().getText());
+        myCompiler.addSourceCode(MyPathUtil.getClassNameFromJar(file.getPath()) ,editor.getDocument().getText());
 
         ProgressManager.getInstance().run(new Task.Backgroundable(null, "Compiling...", false) {
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 try {
-                    CompilationResult compilationResult = myJavaCompiler.compile();
+                    CompilationResult compilationResult = myCompiler.compile();
                     if(!compilationResult.isSuccess()) {
                         NoticeInfo.error("Compile err: \n%s",compilationResult.getErrors());
                         return;

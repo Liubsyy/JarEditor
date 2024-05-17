@@ -7,11 +7,6 @@ import com.intellij.openapi.roots.ProjectRootManager;
 
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
-import java.io.File;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,41 +16,17 @@ import java.util.regex.Pattern;
  * @date 2024/5/9
  */
 public class JavacToolProvider {
-    private static final Map<String, ClassLoader> classLoaderCache = new ConcurrentHashMap<>();
 
-    public static JavaCompiler getJavaCompilerFromProjectSdk(Project project) {
 
-        if(null != project) {
-            Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
-            if(null != projectSdk) {
-                String javaHome = projectSdk.getHomePath();
-                if (javaHome != null) {
-                    try {
-                        // 从缓存中获取 ClassLoader
-                        ClassLoader projectJdkClassLoader = classLoaderCache.computeIfAbsent(javaHome, path -> {
-                            try {
-                                return new URLClassLoader(
-                                        new URL[]{
-                                                new File(path).toURI().toURL()
-                                        },
-                                        ClassLoader.getSystemClassLoader()
-                                );
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
-                            }
-                        });
+    public static JavaCompiler getJavaCompilerFromProjectSdk() {
 
-                        // 使用缓存的 ClassLoader 加载 Java 编译器类
-                        Class<?> javacToolClass = projectJdkClassLoader.loadClass("com.sun.tools.javac.api.JavacTool");
-                        return (JavaCompiler) javacToolClass.getDeclaredConstructor().newInstance();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
+        try {
+            Class<?> javacToolClass = Class.forName("com.sun.tools.javac.api.JavacTool");
+            return (JavaCompiler) javacToolClass.getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        //实在没有的话，就用IDEA运行时依赖的jdk吧
         return ToolProvider.getSystemJavaCompiler();
     }
 

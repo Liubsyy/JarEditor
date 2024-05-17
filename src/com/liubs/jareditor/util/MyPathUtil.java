@@ -37,6 +37,24 @@ public class MyPathUtil {
     }
 
     /**
+     * /path/a.jar!/com/liubs/AAA.class===>AAA
+     * @param classNameInJar
+     * @return
+     */
+    public static String getJarNameFromClassJar(String classNameInJar) {
+        String[] split = classNameInJar.split(".jar!/");
+        if(split.length!=2) {
+            return null;
+        }
+        int i = split[0].lastIndexOf("/");
+        if(i > -1) {
+            return split[0].substring(i+1);
+        }
+        return split[0];
+    }
+
+
+    /**
      * find jar path
      * /path/a.jar!/com/liubs/A.class转换成/path
      * @return
@@ -49,12 +67,19 @@ public class MyPathUtil {
         return split[0].substring(0, split[0].lastIndexOf("/"));
     }
 
+    /**
+     * 获取编译输出目录
+     * /path/a.jar!/com/liubs/A.class转换成 /path/a_temp/jar_edit_out
+     * @param classNameInJar
+     * @return
+     */
     public static String getJarEditClassPath(String classNameInJar){
-        String jarRootPath = getJarRootPath(classNameInJar);
-        if(null == jarRootPath) {
+        String[] split = classNameInJar.split(".jar!/");
+        if(split.length!=2) {
             return null;
         }
-        return jarRootPath+"/"+JAR_EDIT_CLASS_PATH;
+
+        return split[0]+"_temp/"+JAR_EDIT_CLASS_PATH;
     }
 
 

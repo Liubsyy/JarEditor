@@ -9,42 +9,51 @@ import java.util.*;
 /**
  * 运行时编译器
  */
-public class MyJavaCompiler {
+public class MyRuntimeCompiler implements IMyCompiler {
     private JavaCompiler compiler;
-    private List<String> classPaths;
-    private List<JavaFileObject> sourceCodes;
+    private List<String> classPaths = new ArrayList<>();
+    private List<JavaFileObject> sourceCodes = new ArrayList<>();
     private String outputDirectory = "jar_edit_out";
 
+    private String sourceVersion = "8";  // 默认目标版本
     private String targetVersion = "8";  // 默认目标版本
 
-    public MyJavaCompiler() {
-        this.compiler = ToolProvider.getSystemJavaCompiler();
-        this.sourceCodes = new ArrayList<>();
-        this.classPaths = new ArrayList<>();
+    public MyRuntimeCompiler() {
+        this(ToolProvider.getSystemJavaCompiler());
     }
-
-    public void setCompiler(JavaCompiler compiler) {
+    public MyRuntimeCompiler(JavaCompiler compiler) {
         this.compiler = compiler;
     }
 
+
+    @Override
     public void addClassPaths(Collection<String> classPaths) {
         this.classPaths.addAll(classPaths);
     }
 
+    @Override
     public void setOutputDirectory(String outputDirectory) {
         this.outputDirectory = outputDirectory;
     }
 
+    @Override
     public void addSourceCode(String className,String srcCode){
         sourceCodes.add(new JavaSourceObject(className,srcCode));
     }
 
+    @Override
     public void setTargetVersion(String targetVersion) {
+        if("1.1".equals(targetVersion)){
+            this.sourceVersion = "1.3"; // -source 1.1已经不支持了
+        }else {
+            this.sourceVersion = targetVersion;
+        }
         this.targetVersion = targetVersion;
     }
 
 
 
+    @Override
     public CompilationResult compile() {
         if(null == this.compiler) {
             return new CompilationResult(false,
@@ -57,15 +66,16 @@ public class MyJavaCompiler {
         }
 
         options.add("-source");
-        options.add(targetVersion);
+        options.add(sourceVersion);
         options.add("-target");
         options.add(targetVersion);
 
-        options.add("-Xlint:unchecked");
+        options.add("-Xlint:none");
         options.add("-g");
 
         DiagnosticCollector<JavaFileObject> diagnostics  = new DiagnosticCollector<>();
         StandardJavaFileManager standardFileManager = compiler.getStandardFileManager(diagnostics, null, null);
+
         MyJavaFileManager fileManager = new MyJavaFileManager(standardFileManager, outputDirectory);
         JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnostics, options, null, sourceCodes);
 

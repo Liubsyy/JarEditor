@@ -18,6 +18,7 @@ import com.intellij.psi.*;
 import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.util.PsiErrorElementUtil;
 import com.liubs.jareditor.sdk.JavacToolProvider;
+import com.liubs.jareditor.sdk.SDKManager;
 import com.liubs.jareditor.template.TemplateManager;
 import com.liubs.jareditor.util.ClassVersionUtil;
 import com.liubs.jareditor.util.StringUtils;
@@ -28,6 +29,9 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.awt.*;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -40,7 +44,10 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
     private final VirtualFile file;
     private final Editor editor;
 
-    private ComboBox<String> selectJDKVersionComboBox;
+    private ComboBox<String> selectJDKComboBox;
+    private ArrayList<String> javaHomes = new ArrayList<>();
+
+    private ComboBox<String> selectVersionComboBox;
 
     private JarEditorCore jarEditorCore;
 
@@ -67,7 +74,20 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
         if("class".equals(file.getExtension())){
-            selectJDKVersionComboBox = new ComboBox<>();
+            //选中jdk
+            selectJDKComboBox = new ComboBox<>();
+            selectJDKComboBox.addItem("SDK Default");
+            buttonPanel.add(new JLabel("JDK"));
+            javaHomes.add("");
+
+            for(SDKManager.JDKItem jdkItem : SDKManager.getAllJDKs()){
+                selectJDKComboBox.addItem(jdkItem.name);
+                javaHomes.add(jdkItem.javaHome);
+            }
+            selectJDKComboBox.setSelectedItem("SDK Default");
+            buttonPanel.add(selectJDKComboBox);
+
+            selectVersionComboBox = new ComboBox<>();
             String classVersion = ClassVersionUtil.detectClassVersion(file);
             int projectJdkVersion = JavacToolProvider.getProjectJdkVersion(project);
             if(projectJdkVersion < 0) {
@@ -75,15 +95,15 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
             }
             for(int i=1;i<=projectJdkVersion;i++) {
                 if(ClassVersionUtil.ELDEN_VERSIONS.containsKey(i)) {
-                    selectJDKVersionComboBox.addItem(ClassVersionUtil.ELDEN_VERSIONS.get(i));
+                    selectVersionComboBox.addItem(ClassVersionUtil.ELDEN_VERSIONS.get(i));
                 }else {
-                    selectJDKVersionComboBox.addItem(String.valueOf(i));
+                    selectVersionComboBox.addItem(String.valueOf(i));
                 }
             }
-            selectJDKVersionComboBox.setSelectedItem(classVersion);
+            selectVersionComboBox.setSelectedItem(classVersion);
 
             buttonPanel.add(new JLabel("Compiled Version"));
-            buttonPanel.add(selectJDKVersionComboBox);
+            buttonPanel.add(selectVersionComboBox);
         }
 
         buttonPanel.add(compileButton);
@@ -162,7 +182,11 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
 
     private void saveChanges() {
         if("class".equals(file.getExtension())){
-            jarEditorCore.compileJavaCode((String) selectJDKVersionComboBox.getSelectedItem());
+            String javaHome = null;
+            if(selectJDKComboBox.getSelectedIndex()>0) {
+                javaHome = javaHomes.get(selectJDKComboBox.getSelectedIndex());
+            }
+            jarEditorCore.compileJavaCode(javaHome,(String) selectVersionComboBox.getSelectedItem());
         }else {
             jarEditorCore.saveResource();
         }
