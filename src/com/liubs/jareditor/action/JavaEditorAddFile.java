@@ -55,15 +55,24 @@ public abstract class JavaEditorAddFile  extends AnAction {
         if(null == entryPath) {
             return;
         }
-        if(JarUtil.existEntry(jarPath,entryPath)) {
-            NoticeInfo.error("Already exists: %s",entryPath);
-            return;
-        }
+
+
+        //对话框输入完后提示弹不出来，不知道为什么
+//        if(JarUtil.existEntry(jarPath,entryPath)) {
+//            NoticeInfo.error("Already exists: %s",entryPath);
+//            return;
+//        }
 
         ProgressManager.getInstance().run(new Task.Backgroundable(null, "Add file in JAR...", false) {
             @Override
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 try {
+
+                     if(JarUtil.existEntry(jarPath,entryPath)) {
+                         NoticeInfo.error("Already exists: %s",entryPath);
+                        return;
+                     }
+
                     JarBuilder jarBuilder = new JarBuilder(jarPath);
                     jarBuilder.addFile(entryPath);
 
