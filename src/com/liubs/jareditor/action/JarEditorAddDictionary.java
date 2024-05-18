@@ -13,8 +13,8 @@ public class JarEditorAddDictionary  extends JavaEditorAddFile {
     protected String preInput(Project project, String entryPathFromJar) {
         String userInput = Messages.showInputDialog(
                 project,
-                "Enter name for new class:",
-                "Create New Class",
+                "Enter name for new dictionary:",
+                "Create New Dictionary",
                 Messages.getQuestionIcon()
         );
         if(StringUtils.isEmpty(userInput)) {

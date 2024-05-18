@@ -26,6 +26,8 @@ import java.util.Set;
 public class JarEditorDeleteFiles extends AnAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
+
+        //支持多选删除
         VirtualFile[] selectedFiles = e.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY);
 
         if(e.getProject() == null) {
