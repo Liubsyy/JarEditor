@@ -94,8 +94,6 @@ public class MyJavacCompiler implements IMyCompiler{
             String classPath = classPaths.toString();
             List<String> commands = new ArrayList<>();
             commands.add(javacPath);
-            commands.add("-encoding");
-            commands.add("UTF-8");
             commands.add("-d");
             commands.add(outDir.getAbsolutePath());
             commands.add("-source");
@@ -111,6 +109,8 @@ public class MyJavacCompiler implements IMyCompiler{
             commands.add(String.join(" ",javaFilesPaths));
 
             ProcessBuilder processBuilder = new ProcessBuilder(commands);
+            //windows下控制台javac中文乱码问题，改编码都不好使，干脆直接输出英文算了
+            processBuilder.environment().put("JAVA_TOOL_OPTIONS", "-Dfile.encoding=UTF-8 -Duser.language=en");
 
             Process process = processBuilder.start();
             StringBuilder resultBuilder = new StringBuilder();
@@ -118,6 +118,9 @@ public class MyJavacCompiler implements IMyCompiler{
             try (BufferedReader stdOutReader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
                 String line;
                 while ((line = stdOutReader.readLine()) != null) {
+                    if(line.contains("JAVA_TOOL_OPTIONS")) {
+                        continue;
+                    }
                     resultBuilder.append(line);
                 }
             }
