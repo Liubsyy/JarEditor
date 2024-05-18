@@ -7,9 +7,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 
 /**
@@ -74,6 +76,28 @@ public class JarUtil {
             }
         }
         return allClassBytes;
+    }
+
+    /**
+     * 是否已经存在entry
+     * @param jarFilePath
+     * @param entryPath
+     * @return
+     * @throws IOException
+     */
+    public static boolean existEntry(String jarFilePath, String entryPath)  {
+        try (JarFile jarFile = new JarFile(jarFilePath)) {
+            Enumeration<JarEntry> entries = jarFile.entries();
+            while (entries.hasMoreElements()) {
+                JarEntry entry = entries.nextElement();
+                if (entry.getName().equals(entryPath)) {
+                    return true;
+                }
+            }
+        }catch (Throwable e) {
+            return false;
+        }
+        return false;
     }
 
 }

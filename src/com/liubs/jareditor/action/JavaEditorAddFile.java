@@ -11,6 +11,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.liubs.jareditor.jarbuild.JarBuilder;
 import com.liubs.jareditor.sdk.NoticeInfo;
+import com.liubs.jareditor.util.JarUtil;
 import com.liubs.jareditor.util.MyPathUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,6 +36,14 @@ public abstract class JavaEditorAddFile  extends AnAction {
             NoticeInfo.warning("No file selected");
             return;
         }
+        if(!selectedFile.isDirectory()) {
+            selectedFile = selectedFile.getParent();
+            if(null == selectedFile) {
+                NoticeInfo.warning("You need choose a folder in jar !");
+                return;
+            }
+        }
+
         final String jarPath = MyPathUtil.getJarPathFromJar(selectedFile.getPath());
         final String entryPathFromJar = MyPathUtil.getEntryPathFromJar(selectedFile.getPath());
         if(null == jarPath) {
@@ -44,6 +53,10 @@ public abstract class JavaEditorAddFile  extends AnAction {
 
         String entryPath = preInput(project,entryPathFromJar);
         if(null == entryPath) {
+            return;
+        }
+        if(JarUtil.existEntry(jarPath,entryPath)) {
+            NoticeInfo.error("Already exists: %s",entryPath);
             return;
         }
 

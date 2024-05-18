@@ -7,6 +7,8 @@
   <description><![CDATA[
 
     JarEditor is used to directly edit classes/resources in Jar without decompression.
+    <br>
+    It also supports adding/deleting files/folders in Jar.
 
     ]]></description>
 
@@ -14,15 +16,13 @@
 
      <h3>1.3</h3>
       <ul>
-        <li>Choose jdk for compilation</li>
+        <li>Support choosing JDK for compilation</li>
       </ul>
 
       <h3>1.0-1.2</h3>
       <ul>
         <li>Init plugin</li>
-        <li>Support adding files in jar</li>
-        <li>Support deleting files in jar</li>
-        <li>Support adding dictionary</li>
+        <li>Support adding/deleting dictionary/files in jar</li>
       </ul>
     ]]>
   </change-notes>
