@@ -30,6 +30,7 @@ import java.util.jar.JarFile;
 public class SpringBootDependency implements IDependencyHandler{
 
 
+    @Override
     public List<String> dependentClassPaths(String jarPath, String dependencyRootPath) {
         List<String> copiedFiles = new ArrayList<>();
         try (JarFile jarFile = new JarFile(jarPath)) {
@@ -64,6 +65,17 @@ public class SpringBootDependency implements IDependencyHandler{
             e.printStackTrace();
         }
         return copiedFiles;
+    }
+
+    @Override
+    public String filter(String filePath, String packageName) {
+        if(filePath.contains("BOOT-INF/classes/")) {
+            return packageName.replace("BOOT-INF.classes.", "");
+        }
+        if(filePath.contains("BOOT-INF/lib/")) {
+            return packageName.replace("BOOT-INF.lib.", "");
+        }
+        return packageName;
     }
 
 }

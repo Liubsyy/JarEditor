@@ -9,4 +9,6 @@ import java.util.List;
 public interface IDependencyHandler {
 
     List<String> dependentClassPaths(String jarPath,String dependencyRootPath);
+
+    String filter(String filePath,String packageName);
 }

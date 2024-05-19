@@ -110,8 +110,7 @@ public class JarEditorCore {
         ProjectDependency.getDependentLib(project).forEach(c-> classpaths.add(PathUtil.getLocalPath(c.getPath())));
 
 
-        ExtraDependencyManager extraDependency = new ExtraDependencyManager(
-                    MyPathUtil.getJarPathFromJar(file.getPath()), MyPathUtil.getJarEditTemp(file.getPath()) );
+        ExtraDependencyManager extraDependency = new ExtraDependencyManager();
 
         String srcCode = editor.getDocument().getText();
         String packageName = JavaFileUtil.extractPackageName(srcCode);
@@ -127,11 +126,11 @@ public class JarEditorCore {
                     if(!externalPrefix.startsWith("/")) {
                         externalPrefix  = "/"+externalPrefix;
                     }
-                    extraDependency.registryHandlers();
+                    extraDependency.registryNotStandardJarHandlers();
                 }
             }
         }
-        List<String> extraPaths = extraDependency.handleAndGetDependencyPaths();
+        List<String> extraPaths = extraDependency.handleAndGetDependencyPaths( MyPathUtil.getJarPathFromJar(file.getPath()), MyPathUtil.getJarEditTemp(file.getPath()));
         classpaths.addAll(extraPaths);
 
         //编译器

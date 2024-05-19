@@ -18,7 +18,8 @@ public class MyPathUtil {
         if(split.length!=2) {
             return null;
         }
-        return split[1].replace("/",".").replace(".class","");
+        String replace = split[1].replace("/", ".");
+        return replace.endsWith(".class") ? replace.substring(0,replace.lastIndexOf(".class")) : replace;
     }
 
     public static String getJarPathFromJar(String classNameInJar) {
