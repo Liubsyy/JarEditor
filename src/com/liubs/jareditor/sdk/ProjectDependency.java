@@ -16,7 +16,7 @@ import java.util.List;
  * @author Liubsyy
  * @date 2024/5/9
  */
-public class DependentManager {
+public class ProjectDependency {
 
     public static List<VirtualFile> getDependentLib(Project project) {
 
@@ -27,7 +27,7 @@ public class DependentManager {
             // 获取模块的根模型
             ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
 
-            // 获取模块的订单条目（类路径、库依赖等）
+            // 获取模块的条目（类路径、库依赖等）
             for (OrderEntry orderEntry : moduleRootManager.getOrderEntries()) {
                 if (orderEntry instanceof LibraryOrderEntry) {
                     LibraryOrderEntry libraryOrderEntry = (LibraryOrderEntry) orderEntry;

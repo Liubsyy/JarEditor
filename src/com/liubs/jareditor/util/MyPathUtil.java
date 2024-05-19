@@ -73,7 +73,7 @@ public class MyPathUtil {
      * @param classNameInJar
      * @return
      */
-    public static String getJarEditClassPath(String classNameInJar){
+    public static String getJarEditOutput(String classNameInJar){
         String[] split = classNameInJar.split(".jar!/");
         if(split.length!=2) {
             return null;

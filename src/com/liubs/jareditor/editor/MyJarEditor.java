@@ -15,6 +15,8 @@ import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.util.UserDataHolderBase;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
+import com.intellij.psi.impl.PsiFileFactoryImpl;
+import com.intellij.psi.impl.file.PsiJavaDirectoryFactory;
 import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.util.PsiErrorElementUtil;
 import com.liubs.jareditor.sdk.JavacToolProvider;
@@ -63,6 +65,7 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
     public MyJarEditor(Project project, VirtualFile file) {
         this.project = project;
         this.file = file;
+
         this.editor = createEditor();
         this.jarEditorCore = new JarEditorCore(project, file, editor);
 

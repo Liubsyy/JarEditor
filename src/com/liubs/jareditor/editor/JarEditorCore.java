@@ -13,11 +13,13 @@ import com.liubs.jareditor.compile.CompilationResult;
 import com.liubs.jareditor.compile.IMyCompiler;
 import com.liubs.jareditor.compile.MyJavacCompiler;
 import com.liubs.jareditor.compile.MyRuntimeCompiler;
+import com.liubs.jareditor.dependency.ExtraDependencyManager;
 import com.liubs.jareditor.jarbuild.JarBuildResult;
 import com.liubs.jareditor.jarbuild.JarBuilder;
-import com.liubs.jareditor.sdk.DependentManager;
+import com.liubs.jareditor.sdk.ProjectDependency;
 import com.liubs.jareditor.sdk.JavacToolProvider;
 import com.liubs.jareditor.sdk.NoticeInfo;
+import com.liubs.jareditor.util.JavaFileUtil;
 import com.liubs.jareditor.util.MyFileUtil;
 import com.liubs.jareditor.util.MyPathUtil;
 import com.liubs.jareditor.util.StringUtils;
@@ -28,6 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -78,7 +81,7 @@ public class JarEditorCore {
         }
 
         // 选择目标目录
-        String destinationDirectory = MyPathUtil.getJarEditClassPath(filePath);
+        String destinationDirectory = MyPathUtil.getJarEditOutput(filePath);
 
         if (destinationDirectory == null || destinationDirectory.isEmpty()) {
             return;
@@ -104,7 +107,32 @@ public class JarEditorCore {
 
         // 存储类路径依赖的集合
         Set<String> classpaths = new HashSet<>();
-        DependentManager.getDependentLib(project).forEach(c-> classpaths.add(PathUtil.getLocalPath(c.getPath())));
+        ProjectDependency.getDependentLib(project).forEach(c-> classpaths.add(PathUtil.getLocalPath(c.getPath())));
+
+
+        ExtraDependencyManager extraDependency = new ExtraDependencyManager(
+                    MyPathUtil.getJarPathFromJar(file.getPath()), MyPathUtil.getJarEditTemp(file.getPath()) );
+
+        String srcCode = editor.getDocument().getText();
+        String packageName = JavaFileUtil.extractPackageName(srcCode);
+        String externalPrefix = "";
+        if(StringUtils.isNotEmpty(packageName)) {
+            String entryPathFromJar = MyPathUtil.getEntryPathFromJar(file.getPath());
+            String packagePath = packageName.replace(".", "/");
+            if(null != entryPathFromJar && !entryPathFromJar.startsWith(packagePath) ) {
+                // /opt/TestDemo.jar!/BOOT-INF/classes/com/liubs/web/Test.class
+                int i = entryPathFromJar.indexOf(packagePath);
+                if(i > -1) {
+                    externalPrefix = entryPathFromJar.substring(0,i);
+                    if(!externalPrefix.startsWith("/")) {
+                        externalPrefix  = "/"+externalPrefix;
+                    }
+                    extraDependency.registryHandlers();
+                }
+            }
+        }
+        List<String> extraPaths = extraDependency.handleAndGetDependencyPaths();
+        classpaths.addAll(extraPaths);
 
         //编译器
         IMyCompiler myCompiler;
@@ -122,9 +150,9 @@ public class JarEditorCore {
         }
         myCompiler.setTargetVersion(targetVersion);
         myCompiler.addClassPaths(classpaths);
-        myCompiler.setOutputDirectory(MyPathUtil.getJarEditClassPath(file.getPath()));
+        myCompiler.setOutputDirectory(MyPathUtil.getJarEditOutput(file.getPath())+externalPrefix);
         //source code
-        myCompiler.addSourceCode(MyPathUtil.getClassNameFromJar(file.getPath()) ,editor.getDocument().getText());
+        myCompiler.addSourceCode(MyPathUtil.getClassNameFromJar(file.getPath()) ,srcCode);
 
         ProgressManager.getInstance().run(new Task.Backgroundable(null, "Compiling...", false) {
             public void run(@NotNull ProgressIndicator progressIndicator) {
@@ -134,7 +162,7 @@ public class JarEditorCore {
                         NoticeInfo.error("Compile err: \n%s",compilationResult.getErrors());
                         return;
                     }
-                    NoticeInfo.info("Compile successfully,output=%s",MyPathUtil.getJarEditClassPath(file.getPath()));
+                    NoticeInfo.info("Compile successfully,output=%s",MyPathUtil.getJarEditOutput(file.getPath()));
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -147,7 +175,7 @@ public class JarEditorCore {
 
 
     public void buildJar(){
-        String jarEditClassPath = MyPathUtil.getJarEditClassPath(file.getPath());
+        String jarEditClassPath = MyPathUtil.getJarEditOutput(file.getPath());
         if(null == jarEditClassPath){
             return;
         }
@@ -166,7 +194,7 @@ public class JarEditorCore {
                     if(jarPath == null) {
                         return;
                     }
-                    String jarEditClassPath = MyPathUtil.getJarEditClassPath(file.getPath());
+                    String jarEditClassPath = MyPathUtil.getJarEditOutput(file.getPath());
                     JarBuilder jarBuilder = new JarBuilder(jarEditClassPath , jarPath);
 //                    JarBuildResult jarBuildResult = jarBuilder.writeJar(true);
                     JarBuildResult jarBuildResult = jarBuilder.writeJar(false);
@@ -178,7 +206,7 @@ public class JarEditorCore {
 
                     //Reload from Disk
                     ArrayList<VirtualFile> filesToRefresh = new ArrayList<>();
-                    DependentManager.getDependentLib(project).forEach(c->{
+                    ProjectDependency.getDependentLib(project).forEach(c->{
                         if(file.getPath().contains(jarPath)){
                             filesToRefresh.add(file);
                         }
