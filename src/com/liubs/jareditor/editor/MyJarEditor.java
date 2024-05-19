@@ -1,5 +1,6 @@
 package com.liubs.jareditor.editor;
 
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
@@ -15,8 +16,6 @@ import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.util.UserDataHolderBase;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
-import com.intellij.psi.impl.PsiFileFactoryImpl;
-import com.intellij.psi.impl.file.PsiJavaDirectoryFactory;
 import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.util.PsiErrorElementUtil;
 import com.liubs.jareditor.sdk.JavacToolProvider;
@@ -165,6 +164,13 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
                 if(null != psiFile && null != psiFile.getVirtualFile()) {
                     //editor = FileEditorManager.getInstance(project).openTextEditor(new OpenFileDescriptor(project, psiFile.getVirtualFile()), true);
                     editor = EditorFactory.getInstance().createEditor(psiFile.getViewProvider().getDocument(), project);
+
+                    // springboot项目暂时先禁用语法检测
+                    if(file.getPath().contains("BOOT-INF")) {
+                        DaemonCodeAnalyzer daemonCodeAnalyzer = DaemonCodeAnalyzer.getInstance(project);
+                        daemonCodeAnalyzer.setHighlightingEnabled(psiFile, false);
+                    }
+
                 }
 
             }catch (Throwable e) {
