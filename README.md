@@ -2,7 +2,7 @@
 
 <img src="./img/logo.png" width="80" height="80" />
 
-IDEA plugin for modifying the files in JAR directly without decompression, including class and resource files.
+IDEA plugin for modifying files in JAR directly without decompression, including class and resource files.
 
 **Plugin marketplace** : [https://plugins.jetbrains.com/plugin/24397-jareditor](https://plugins.jetbrains.com/plugin/24397-jareditor)
 
