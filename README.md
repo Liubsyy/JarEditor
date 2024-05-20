@@ -1,11 +1,11 @@
 
 <div align="center">
-  <img align="center" src="./img/logo.png" width="120" height="120" />
+  <img align="center" src="./img/logo.png" width="100" height="100" />
 </div>
 
 <h2 align="center"/>JarEditor <sup><em>liubsyy</em></sup></h2>
 
-<h4 align="center"><strong>English</strong> | <a href="./README_CN.md">简体中文</a></h4>
+<!--<h4 align="center"><strong>English</strong> | <a href="./README_CN.md">简体中文</a></h4>-->
 
 IDEA plugin for modifying files in JAR directly without decompression, including class and resource files.
 
