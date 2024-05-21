@@ -7,14 +7,14 @@
 
 <!--<h4 align="center"><strong>English</strong> | <a href="./README_CN.md">简体中文</a></h4>-->
 
-IDEA plugin for modifying files in JAR directly without decompression, including class and resource files.
+IDEA plugin for modifying files in jar directly without decompression, including class and resource files.
 
 **Plugin marketplace** : [https://plugins.jetbrains.com/plugin/24397-jareditor](https://plugins.jetbrains.com/plugin/24397-jareditor)
 
 ## Features
-- Edit class/resource files in JAR directly without decompression
-- Add new file/dictionary in JAR
-- Delete file/dictionary in JAR
+- Edit class/resource files in jar directly without decompression
+- Add new file/dictionary in jar
+- Delete file/dictionary in jar
 - Support springboot fatjar
 
 ## Quick start
