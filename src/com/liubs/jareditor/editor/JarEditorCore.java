@@ -140,7 +140,7 @@ public class JarEditorCore {
             //比如IDEA2020.3自带JDK11, IDEA2022.3自带JDK17
             myCompiler = new MyRuntimeCompiler(JavacToolProvider.getJavaCompilerFromProjectSdk());
         }else {
-            //javac外部命令编译，为什么还用javac编译而是全部用上面的运行时动态编译呢？
+            //javac外部命令编译，为什么还用javac编译而不是全部用上面的运行时动态编译呢？
             //首先有一个前提：插件运行在IDEA自带JDK上, 比如: IDEA2020.3自带JDK11, IDEA2022.3自带JDK17
             //假如IDEA2020.3去编译JDK17的话是有问题的，因为IDEA2020.3自带JDK11,而JDK11是无法加载JDK17的类库进行动态编译的
             //这张方案看似很low，但却是比较靠谱比较稳定的方案
