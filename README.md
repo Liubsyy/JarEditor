@@ -32,14 +32,14 @@ After installation , you can see a tab page to switch to Jar Editor in the .clas
 
 <img src="./img/JarEditor_whole.png" width="720" height="460" />
 
-Modify your source code, click **Save/Compile** to compile and save the currently modified java content. 
+After modification, click **Save/Compile** to compile and save the currently modified java content. 
 
 Finally click **Build Jar** to write the compiled and saved class file into the Jar package.
 
 Modifying the resource files in the jar package is also supported.
 
 ### 3. Other operations of JarEditor
-In the project view of the jar package, right-click to see JarEditor->Add/Delete and other operations, where you can add and delete files.
+In the project view of the jar package, right-click to see **JarEditor->New/Delete** and other operations, where you can add and delete files.
 
 <img src="./img/JarEditor_add_delete.png" width="480" height="470" />
 
