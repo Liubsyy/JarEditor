@@ -107,8 +107,6 @@ public class JarEditorCore {
 
         // 存储类路径依赖的集合
         Set<String> classpaths = new HashSet<>();
-        ProjectDependency.getDependentLib(project).forEach(c-> classpaths.add(PathUtil.getLocalPath(c.getPath())));
-
 
         ExtraDependencyManager extraDependency = new ExtraDependencyManager();
 
@@ -132,6 +130,9 @@ public class JarEditorCore {
         }
         List<String> extraPaths = extraDependency.handleAndGetDependencyPaths( MyPathUtil.getJarPathFromJar(file.getPath()), MyPathUtil.getJarEditTemp(file.getPath()));
         classpaths.addAll(extraPaths);
+
+        ProjectDependency.getDependentLib(project).forEach(c-> classpaths.add(PathUtil.getLocalPath(c.getPath())));
+
 
         //编译器
         IMyCompiler myCompiler;

@@ -57,6 +57,12 @@ public class JarEditorDeleteFiles extends AnAction {
             }
         }
 
+        if(deleteEntries.isEmpty()) {
+            NoticeInfo.warning("Please select any file to delete!!");
+            return;
+        }
+
+
         int response = Messages.showYesNoDialog(
                 e.getProject(),
                 "Are you sure you want to delete "+deleteEntries+"?", // 消息内容
@@ -68,10 +74,7 @@ public class JarEditorDeleteFiles extends AnAction {
             return;
         }
 
-        if(deleteEntries.isEmpty()) {
-            NoticeInfo.warning("Please select any file to delete!!");
-            return;
-        }
+
         final String jarPath = MyPathUtil.getJarPathFromJar(selectedFiles[0].getPath());
 
         try{
