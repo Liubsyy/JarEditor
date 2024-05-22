@@ -28,7 +28,7 @@ First install the plugin JarEditor from marketplace, IDEA at least version **202
 ### 2. Edit and Save Jar
 After installation , you can see a tab page to switch to Jar Editor in the .class decompiled file.
 
-`External jars: File->Project Structure->Libraries and then decompile the jar.`
+`External jars: File->Project Structure->Libraries->Add Library , then you can see the decompiled jar.`
 
 <img src="./img/JarEditor_whole.png" width="720" height="460" />
 
