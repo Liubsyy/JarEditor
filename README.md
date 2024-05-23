@@ -7,6 +7,10 @@
 
 <!--<h4 align="center"><strong>English</strong> | <a href="./README_CN.md">简体中文</a></h4>-->
 
+[![License](https://img.shields.io/badge/License-Apache2.0-blue.svg)](https://github.com/Liubsyy/JarEditor/blob/master/LICENSE)
+[![](https://img.shields.io/jetbrains/plugin/d/24397)](https://plugins.jetbrains.com/plugin/24397-jareditor)
+
+
 IDEA plugin for modifying files in jar directly without decompression, including class and resource files.
 
 **Plugin marketplace** : [https://plugins.jetbrains.com/plugin/24397-jareditor](https://plugins.jetbrains.com/plugin/24397-jareditor)
