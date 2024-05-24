@@ -9,7 +9,7 @@
 
 [![License](https://img.shields.io/badge/License-Apache2.0-blue.svg)](https://github.com/Liubsyy/JarEditor/blob/master/LICENSE)
 [![](https://img.shields.io/jetbrains/plugin/d/24397)](https://plugins.jetbrains.com/plugin/24397-jareditor)
-![release](https://img.shields.io/badge/release-v1.3-red.svg)
+![release](https://img.shields.io/badge/release-v1.3.1-red.svg)
 
 IDEA plugin for modifying files in jar directly without decompression, including class and resource files.
 
