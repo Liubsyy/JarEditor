@@ -20,6 +20,9 @@ public class JarEditorAddDictionary  extends JavaEditorAddFile {
         if(StringUtils.isEmpty(userInput)) {
             return null;
         }
+        if(null == entryPathFromJar) {
+            return userInput+"/";
+        }
 
         //文件夹以/结尾
         return entryPathFromJar+"/"+userInput+"/";

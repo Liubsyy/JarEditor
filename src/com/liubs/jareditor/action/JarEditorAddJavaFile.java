@@ -22,6 +22,9 @@ public class JarEditorAddJavaFile  extends JavaEditorAddFile {
         if(StringUtils.isEmpty(userInput)) {
             return null;
         }
+        if(null == entryPathFromJar){
+            return userInput+".class";
+        }
         return entryPathFromJar+"/"+userInput+".class";
     }
 

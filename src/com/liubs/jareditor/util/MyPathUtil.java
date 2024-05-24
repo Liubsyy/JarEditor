@@ -29,6 +29,8 @@ public class MyPathUtil {
         }
         return split[0]+".jar";
     }
+
+
     public static String getEntryPathFromJar(String fullPath) {
         String[] split = fullPath.split(".jar!/");
         if(split.length!=2) {

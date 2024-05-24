@@ -20,6 +20,9 @@ public class JarEditorAddResourceFile  extends JavaEditorAddFile {
         if(StringUtils.isEmpty(userInput)) {
             return null;
         }
+        if(null == entryPathFromJar) {
+            return userInput;
+        }
         return entryPathFromJar+"/"+userInput;
     }
 }

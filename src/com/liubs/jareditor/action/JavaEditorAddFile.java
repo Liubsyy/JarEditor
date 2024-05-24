@@ -44,7 +44,9 @@ public abstract class JavaEditorAddFile  extends AnAction {
             }
         }
 
-        final String jarPath = MyPathUtil.getJarPathFromJar(selectedFile.getPath());
+        boolean isJarRoot = "jar".equals(selectedFile.getExtension());
+        final String jarPath = isJarRoot ?
+                selectedFile.getPath().replace(".jar!/",".jar") : MyPathUtil.getJarPathFromJar(selectedFile.getPath());
         final String entryPathFromJar = MyPathUtil.getEntryPathFromJar(selectedFile.getPath());
         if(null == jarPath) {
             NoticeInfo.warning("This operation only in JAR !!!");
