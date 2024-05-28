@@ -26,7 +26,7 @@ IDEA plugin for modifying files in jar directly without decompression, including
 ### 1. Insatall plugin from marketplace
 First install the plugin JarEditor from marketplace, IDEA at least version **2020.3**
 
-<img src="./img/jareditor_marketplace.png" width="720" height="480" />
+<img src="./img/JarEditor_install.png" width="720" height="545" />
 
 
 ### 2. Edit and Save Jar
@@ -34,7 +34,7 @@ After installation , you can see a tab page to switch to Jar Editor in the .clas
 
 `External jars: File->Project Structure->Libraries->Add Library , then you can see the decompiled jar.`
 
-<img src="./img/JarEditor_whole.png" width="720" height="460" />
+<img src="./img/JarEditor_show.png" width="720" height="469" />
 
 After modification, click **Save/Compile** to compile and save the currently modified java content. 
 
@@ -45,7 +45,7 @@ Modifying the resource files in the jar package is also supported.
 ### 3. Other operations of JarEditor
 In the project view of the jar package, right-click to see **JarEditor->New/Delete** and other operations, where you can add and delete files.
 
-<img src="./img/JarEditor_add_delete.png" width="480" height="470" />
+<img src="./img/JarEditor_new_delete.png" width="480" height="476" />
 
 
 ## Some mechanisms
