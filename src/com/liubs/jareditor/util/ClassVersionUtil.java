@@ -17,6 +17,8 @@ public class ClassVersionUtil {
 
     //上古时期的版本
     public static final Map<Integer, String> ELDEN_VERSIONS = new TreeMap<>();
+
+    //常用版本
     public static final Map<Integer, String> JAVA_VERSIONS = new TreeMap<>();
 
     static {
@@ -49,6 +51,9 @@ public class ClassVersionUtil {
     }
 
     public static String detectClassVersion(VirtualFile file) {
+        if(!"class".equals(file.getExtension())){
+            return null;
+        }
         try (InputStream inputStream = file.getInputStream()) {
 
             // Skip first 4 bytes (magic number)

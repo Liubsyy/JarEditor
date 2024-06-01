@@ -9,10 +9,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.PathUtil;
-import com.liubs.jareditor.compile.CompilationResult;
-import com.liubs.jareditor.compile.IMyCompiler;
-import com.liubs.jareditor.compile.MyJavacCompiler;
-import com.liubs.jareditor.compile.MyRuntimeCompiler;
+import com.liubs.jareditor.compile.*;
 import com.liubs.jareditor.dependency.ExtraDependencyManager;
 import com.liubs.jareditor.jarbuild.JarBuildResult;
 import com.liubs.jareditor.jarbuild.JarBuilder;
@@ -137,10 +134,12 @@ public class JarEditorCore {
         //编译器
         IMyCompiler myCompiler;
         if(StringUtils.isEmpty(javaHome)) {
-            //默认使用运行时动态编译，基于IDEA运行时自带的JDK编译，相对javac命令编译更快
+            //默认使用运行时动态编译，基于IDEA运行时自带的JDK编译，比外部javac命令编译更快
             //比如IDEA2020.3自带JDK11, IDEA2022.3自带JDK17
             myCompiler = new MyRuntimeCompiler(JavacToolProvider.getJavaCompilerFromProjectSdk());
-        }else {
+        } else if(javaHome.contains("kotlinc")){
+            myCompiler = new MyKotlincCompiler(javaHome);
+        } else {
             //javac外部命令编译，为什么还用javac编译而不是全部用上面的运行时动态编译呢？
             //首先有一个前提：插件运行在IDEA自带JDK上, 比如: IDEA2020.3自带JDK11, IDEA2022.3自带JDK17
             //假如IDEA2020.3去编译JDK17的话是有问题的，因为IDEA2020.3自带JDK11,而JDK11是无法加载JDK17的类库进行动态编译的

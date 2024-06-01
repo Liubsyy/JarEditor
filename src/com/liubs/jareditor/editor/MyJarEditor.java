@@ -42,10 +42,11 @@ import java.util.Set;
  */
 public class MyJarEditor extends UserDataHolderBase implements FileEditor {
     private final Project project;
-    private final JPanel panel = new JPanel(new BorderLayout());
+    private final JPanel mainPanel = new JPanel(new BorderLayout());
     private final VirtualFile file;
     private final Editor editor;
 
+    private JCheckBox needCompiled;
     private ComboBox<String> selectJDKComboBox;
     private ArrayList<String> javaHomes = new ArrayList<>();
 
@@ -53,6 +54,7 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
 
     private JarEditorCore jarEditorCore;
 
+    private ArrayList<JComponent> compiledUIComponents = new ArrayList<>();
 
     private static String lastSelectItem = null;
 
@@ -65,78 +67,101 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
     public MyJarEditor(Project project, VirtualFile file) {
         this.project = project;
         this.file = file;
-
         this.editor = createEditor();
         this.jarEditorCore = new JarEditorCore(project, file, editor);
 
-        panel.add(editor.getComponent(), BorderLayout.CENTER);
+        mainPanel.add(editor.getComponent(), BorderLayout.CENTER);
 
-        // Create buttons and their panel
-        JButton compileButton = new JButton("Save/Compile");
+        // Create UI
+        needCompiled = new JCheckBox("Compile");
+        JButton saveButton = new JButton("Save");
         JButton rebuildJar = new JButton("Build Jar");
         JButton resetButton = new JButton("Reset");
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-
-        if("class".equals(file.getExtension())){
-            //选中jdk
-            selectJDKComboBox = new ComboBox<>();
-            selectJDKComboBox.addItem("SDK Default");
-            buttonPanel.add(new JLabel("JDK"));
-            javaHomes.add("");
-
-            Set<String> allItems = new HashSet<>();
-            for(SDKManager.JDKItem jdkItem : SDKManager.getAllJDKs()){
-                allItems.add(jdkItem.name);
-                selectJDKComboBox.addItem(jdkItem.name);
-                javaHomes.add(jdkItem.javaHome);
-            }
-            selectJDKComboBox.setSelectedItem("SDK Default");
-            try{
-                if(null != lastSelectItem && allItems.contains(lastSelectItem)) {
-                    selectJDKComboBox.setSelectedItem(lastSelectItem);
-                }
-            }catch (Throwable ee) {
-                selectJDKComboBox.setSelectedItem("SDK Default");
-            }
-
-            selectJDKComboBox.addActionListener((e)-> lastSelectItem = (String) selectJDKComboBox.getSelectedItem());
-            buttonPanel.add(selectJDKComboBox);
-
-            selectVersionComboBox = new ComboBox<>();
-            String classVersion = ClassVersionUtil.detectClassVersion(file);
-            int maxJdkVersion = -1;
-            try{
-                maxJdkVersion = JavacToolProvider.getMaxJdkVersion();
-            }catch (Throwable eex){}
-
-            if(maxJdkVersion < 0) {
-                maxJdkVersion = 21;
-            }
-            for(int i=1;i<=maxJdkVersion;i++) {
-                if(ClassVersionUtil.ELDEN_VERSIONS.containsKey(i)) {
-                    selectVersionComboBox.addItem(ClassVersionUtil.ELDEN_VERSIONS.get(i));
-                }else {
-                    selectVersionComboBox.addItem(String.valueOf(i));
-                }
-            }
-            selectVersionComboBox.setSelectedItem(classVersion);
-
-            buttonPanel.add(new JLabel("Compiled Version"));
-            buttonPanel.add(selectVersionComboBox);
-        }
-
-        buttonPanel.add(compileButton);
+        addCompiledUI(buttonPanel);
+        buttonPanel.add(needCompiled);
+        buttonPanel.add(saveButton);
         buttonPanel.add(rebuildJar);
         buttonPanel.add(resetButton);
 
-        // Add the button panel to the main panel
-        panel.add(buttonPanel, BorderLayout.SOUTH);
+        needCompiled.setSelected("class".equals(file.getExtension()) || "kt".equals(file.getExtension()));
+        compiledUIVisible(needCompiled.isSelected());
 
-        compileButton.addActionListener(e -> saveChanges());
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        //add action listener
+        needCompiled.addActionListener(e -> compiledUIVisible(needCompiled.isSelected()));
+        saveButton.addActionListener(e -> saveChanges());
         rebuildJar.addActionListener(e -> buildJar());
         resetButton.addActionListener(e -> cancelChanges());
     }
+
+
+    private void compiledUIVisible(boolean visible){
+        compiledUIComponents.forEach(c->{
+            c.setVisible(visible);
+        });
+    }
+
+    private void addCompiledUI(JPanel buttonPanel){
+        //select SDK
+        selectJDKComboBox = new ComboBox<>();
+        selectJDKComboBox.addItem("SDK Default");
+        JLabel sdkLabel = new JLabel("SDK");
+        buttonPanel.add(sdkLabel);
+
+        Set<String> allItems = new HashSet<>();
+        javaHomes.add("");
+        for(SDKManager.JDKItem jdkItem : SDKManager.getAllJDKs()){
+            allItems.add(jdkItem.name);
+            selectJDKComboBox.addItem(jdkItem.name);
+            javaHomes.add(jdkItem.javaHome);
+        }
+        selectJDKComboBox.setSelectedItem("SDK Default");
+        try{
+            if(null != lastSelectItem && allItems.contains(lastSelectItem)) {
+                selectJDKComboBox.setSelectedItem(lastSelectItem);
+            }
+        }catch (Throwable ee) {
+            selectJDKComboBox.setSelectedItem("SDK Default");
+        }
+
+        selectJDKComboBox.addActionListener((e)-> lastSelectItem = (String) selectJDKComboBox.getSelectedItem());
+        buttonPanel.add(selectJDKComboBox);
+
+        //select version
+        selectVersionComboBox = new ComboBox<>();
+        String classVersion = ClassVersionUtil.detectClassVersion(file);
+        int maxJdkVersion = -1;
+        try{
+            maxJdkVersion = JavacToolProvider.getMaxJdkVersion();
+        }catch (Throwable eex){}
+
+        if(maxJdkVersion < 0) {
+            maxJdkVersion = 21;
+        }
+        for(int i=1;i<=maxJdkVersion;i++) {
+            if(ClassVersionUtil.ELDEN_VERSIONS.containsKey(i)) {
+                selectVersionComboBox.addItem(ClassVersionUtil.ELDEN_VERSIONS.get(i));
+            }else {
+                selectVersionComboBox.addItem(String.valueOf(i));
+            }
+        }
+        if(StringUtils.isNotEmpty(classVersion)) {
+            selectVersionComboBox.setSelectedItem(classVersion);
+        }
+        JLabel compiled_version = new JLabel("Compiled Version");
+        buttonPanel.add(compiled_version);
+        buttonPanel.add(selectVersionComboBox);
+
+
+        compiledUIComponents.add(sdkLabel);
+        compiledUIComponents.add(selectJDKComboBox);
+        compiledUIComponents.add(compiled_version);
+        compiledUIComponents.add(selectVersionComboBox);
+    }
+
 
     private Editor createEditor(){
         String decompiledText = getDecompiledText(project, file);
@@ -211,7 +236,7 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
 
 
     private void saveChanges() {
-        if("class".equals(file.getExtension())){
+        if(needCompiled.isSelected()){
             String javaHome = null;
             if(selectJDKComboBox.getSelectedIndex()>0) {
                 javaHome = javaHomes.get(selectJDKComboBox.getSelectedIndex());
@@ -242,7 +267,7 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
 
     @Override
     public @NotNull JComponent getComponent() {
-        return panel;
+        return mainPanel;
     }
 
     @Override
