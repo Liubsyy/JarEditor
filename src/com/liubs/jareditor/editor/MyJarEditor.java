@@ -18,6 +18,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.util.PsiErrorElementUtil;
+import com.liubs.jareditor.decompile.MyDecompiler;
 import com.liubs.jareditor.sdk.JavacToolProvider;
 import com.liubs.jareditor.sdk.SDKManager;
 import com.liubs.jareditor.template.TemplateManager;
@@ -200,7 +201,10 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
     private String getDecompiledText(Project project, VirtualFile file) {
         PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
         if (psiFile != null && !PsiErrorElementUtil.hasErrors(project, file)) {
-            return psiFile.getText(); // 默认反编译器反编译结果
+            if("kotlin".equalsIgnoreCase(psiFile.getLanguage().getDisplayName())) {
+                return MyDecompiler.decompileText(file);
+            }
+            return psiFile.getText(); //default text;
         }
         return "";
     }
