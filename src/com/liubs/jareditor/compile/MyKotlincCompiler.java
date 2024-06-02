@@ -20,6 +20,13 @@ public class MyKotlincCompiler extends ProcessCommandCompiler{
         return "kt";
     }
 
+    @Override
+    public void addSourceCode(String className, String srcCode) {
+        if(className.endsWith(".kt")) {
+            className = className.replace(".kt" ,"");
+        }
+        super.addSourceCode(className, srcCode);
+    }
 
     /**
      * Kotlin supported versions: [1.6, 1.8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19...]
