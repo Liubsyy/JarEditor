@@ -102,18 +102,15 @@ public class SDKSettingDialog extends DialogWrapper {
         // Create dynamic list model for left panel
         DefaultListModel<String> connectionList = new DefaultListModel<>();
         JBList<String> list = new JBList<>(connectionList);
-        SDKSettingStorage sdkSettingStorage = SDKSettingStorage.getInstance();
-        if(null != sdkSettingStorage) {
-            for(SDKSettingStorage.MyItem e : sdkSettingStorage.getMySdks()) {
-                SDKSettingStorage.MyItem connectionItemTemp = new SDKSettingStorage.MyItem();
-                if(StringUtils.isEmpty(e.getName()) || StringUtils.isEmpty(e.getPath())) {
-                    continue;
-                }
-                connectionItemTemp.setName(e.getName());
-                connectionItemTemp.setPath(e.getPath());
-                allItems.add(connectionItemTemp);
-                connectionList.addElement(e.getName());
+        for(SDKSettingStorage.MyItem e : SDKSettingStorage.getMySdksDefaultProjectSdks()) {
+            SDKSettingStorage.MyItem connectionItemTemp = new SDKSettingStorage.MyItem();
+            if(StringUtils.isEmpty(e.getName()) || StringUtils.isEmpty(e.getPath())) {
+                continue;
             }
+            connectionItemTemp.setName(e.getName());
+            connectionItemTemp.setPath(e.getPath());
+            allItems.add(connectionItemTemp);
+            connectionList.addElement(e.getName());
         }
         JBScrollPane leftScroll = new JBScrollPane(list);
 

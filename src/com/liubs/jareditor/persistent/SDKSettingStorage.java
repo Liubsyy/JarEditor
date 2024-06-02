@@ -6,12 +6,15 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.util.xmlb.annotations.Tag;
+import com.intellij.util.xmlb.annotations.XCollection;
 import com.liubs.jareditor.sdk.SDKManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author Liubsyy
@@ -22,6 +25,7 @@ import java.util.List;
         storages = @Storage("JarEditorSDKSettings.xml")
 )
 public class SDKSettingStorage implements PersistentStateComponent<SDKSettingStorage> {
+    @XCollection(elementName = "items")
     private List<MyItem> mySdks = new ArrayList<>();
 
     @Nullable
@@ -41,6 +45,16 @@ public class SDKSettingStorage implements PersistentStateComponent<SDKSettingSto
 
 
     public List<MyItem> getMySdks() {
+        return mySdks;
+    }
+
+    public void setMySdks(List<MyItem> mySdks) {
+        this.mySdks = mySdks;
+    }
+
+
+    public static List<MyItem> getMySdksDefaultProjectSdks(){
+        List<MyItem> mySdks = SDKSettingStorage.getInstance().getMySdks();
         if(mySdks.isEmpty()) {
             List<MyItem> defaultSDKs = new ArrayList<>();
             for(SDKManager.JDKItem jdkItem : SDKManager.getAllJDKs()){
@@ -51,12 +65,11 @@ public class SDKSettingStorage implements PersistentStateComponent<SDKSettingSto
             }
             return defaultSDKs;
         }
-        return mySdks;
+
+        return mySdks.stream().filter(Objects::nonNull).collect(Collectors.toList());
     }
 
-    public void setMySdks(List<MyItem> mySdks) {
-        this.mySdks = mySdks;
-    }
+
 
     @Tag("item")
     public static class MyItem {
@@ -77,6 +90,20 @@ public class SDKSettingStorage implements PersistentStateComponent<SDKSettingSto
 
         public void setPath(String path) {
             this.path = path;
+        }
+
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            MyItem myItem = (MyItem) o;
+            return Objects.equals(name, myItem.name) && Objects.equals(path, myItem.path);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(name, path);
         }
     }
 }

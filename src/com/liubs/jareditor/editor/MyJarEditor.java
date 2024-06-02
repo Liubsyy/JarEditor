@@ -113,7 +113,7 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         selectJDKComboBox.addItem("SDK Default");
         Set<String> allItems = new HashSet<>();
         javaHomes.add("");
-        for(SDKSettingStorage.MyItem sdkItem : SDKSettingStorage.getInstance().getMySdks()){
+        for(SDKSettingStorage.MyItem sdkItem : SDKSettingStorage.getMySdksDefaultProjectSdks()){
             allItems.add(sdkItem.getName());
             selectJDKComboBox.addItem(sdkItem.getName());
             javaHomes.add(sdkItem.getPath());
