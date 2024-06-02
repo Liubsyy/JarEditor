@@ -15,9 +15,7 @@ import com.liubs.jareditor.util.MyPathUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -81,11 +79,9 @@ public class JarEditorCopyFile extends AnAction {
                         NoticeInfo.error(copyResult.getError());
                         return;
                     }
-                    NoticeInfo.info("Export successfully, path="+clipboardPath);
-//                    NoticeInfo.info("Copy successfully, you can paste to another place from clipboard now !!!");
+                    NoticeInfo.info("Copy successfully, you can paste to another place from clipboard now !!!");
                 }catch (Throwable e) {
-                    NoticeInfo.error("Export err",e.getMessage());
-//                    NoticeInfo.error("Copy files to clipboard err",e.getMessage());
+                    NoticeInfo.error("Copy files to clipboard err",e.getMessage());
                 }
             }
         });

@@ -70,7 +70,7 @@
       </group>
       <action id="jarEditorDeleteFiles" class="com.liubs.jareditor.action.JarEditorDeleteFiles" text="Delete" description="Delete"/>
       <action id="jarEditorRenameFile" class="com.liubs.jareditor.action.JarEditorRenameFile" text="Rename" description="Rename"/>
-      <action id="jarEditorCopyFile" class="com.liubs.jareditor.action.JarEditorCopyFile" text="Export Files" description="Export Files"/>
+      <action id="jarEditorCopyFile" class="com.liubs.jareditor.action.JarEditorCopyFile" text="Copy" description="Copy"/>
       <action id="jarEditorPasteFile" class="com.liubs.jareditor.action.JarEditorPasteFile" text="Paste" description="Paste"/>
     </group>
   </actions>
