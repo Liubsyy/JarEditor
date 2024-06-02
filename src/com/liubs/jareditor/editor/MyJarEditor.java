@@ -21,6 +21,7 @@ import com.intellij.util.PsiErrorElementUtil;
 import com.liubs.jareditor.decompile.MyDecompiler;
 import com.liubs.jareditor.persistent.SDKSettingStorage;
 import com.liubs.jareditor.sdk.JavacToolProvider;
+import com.liubs.jareditor.sdk.NoticeInfo;
 import com.liubs.jareditor.template.TemplateManager;
 import com.liubs.jareditor.util.ClassVersionUtil;
 import com.liubs.jareditor.util.StringUtils;
@@ -101,6 +102,11 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
     }
 
     private void compiledUIVisible(boolean visible){
+        if("class".equals(file.getExtension()) && !visible){
+            NoticeInfo.warning("Class file must be compiled !!!");
+            needCompiled.setSelected(true);
+            return;
+        }
         compiledUIComponents.forEach(c->{
             c.setVisible(visible);
         });
