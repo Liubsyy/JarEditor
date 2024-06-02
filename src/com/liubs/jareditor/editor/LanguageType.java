@@ -3,10 +3,8 @@ package com.liubs.jareditor.editor;
 import com.liubs.jareditor.compile.MyJavacCompiler;
 import com.liubs.jareditor.compile.MyKotlincCompiler;
 import com.liubs.jareditor.compile.ProcessCommandCompiler;
-import com.liubs.jareditor.util.OSUtil;
 import com.liubs.jareditor.util.StringUtils;
 
-import java.io.File;
 
 /**
  * @author Liubsyy
@@ -40,12 +38,6 @@ public enum LanguageType {
     }
 
     public ProcessCommandCompiler buildCompiler(String commandHome){
-        File file = new File(commandName);
-        if(OSUtil.isWindows()) {
-            if(!file.exists() && new File(commandName+".bat").exists()) {
-                commandHome = commandHome+".bat";
-            }
-        }
         if(null == compilerFactory) {
             return null;
         }

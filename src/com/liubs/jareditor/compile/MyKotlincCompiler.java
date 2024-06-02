@@ -1,5 +1,7 @@
 package com.liubs.jareditor.compile;
 
+import com.liubs.jareditor.util.OSUtil;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,10 +48,18 @@ public class MyKotlincCompiler extends ProcessCommandCompiler{
     @Override
     protected List<String> buildCommand(CommandParam commandParam) {
         // kotlinc
-        String javacPath = commandHome + "/bin/kotlinc";  //kotlinc
+        String kotlinc = commandHome + "/bin/kotlinc";  //kotlinc
+
+        File file = new File(kotlinc);
+        if(OSUtil.isWindows()) {
+            if(!file.exists() && new File(kotlinc+".bat").exists()) {
+                kotlinc = kotlinc+".bat";
+            }
+        }
+
         String classPath = classPaths.toString();
         List<String> commands = new ArrayList<>();
-        commands.add(javacPath);
+        commands.add(kotlinc);
         commands.add("-d");
         commands.add(commandParam.getOutPutPath());
         commands.add("-jvm-target");
