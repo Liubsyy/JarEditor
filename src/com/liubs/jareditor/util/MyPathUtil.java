@@ -7,6 +7,8 @@ package com.liubs.jareditor.util;
 public class MyPathUtil {
 
     public static final String JAR_EDIT_CLASS_PATH = "jar_edit_out";
+    public static final String CLIPBOARD_TO_FILE = "clipboard_to_file";
+    public static final String FILE_TO_CLIPBOARD = "file_to_clipboard";
 
     /**
      * /path/a.jar!/com/liubs/A.class转换成com.liubs.A
@@ -84,6 +86,31 @@ public class MyPathUtil {
 
         return split[0]+"_temp/"+JAR_EDIT_CLASS_PATH;
     }
+
+    public static String getCLIPBOARD_TO_FILE(String classNameInJar){
+        if(classNameInJar.endsWith(".jar!/")) {
+            return classNameInJar.replace(".jar!/","")+"_temp/"+CLIPBOARD_TO_FILE;
+        }
+        String[] split = classNameInJar.split(".jar!/");
+        if(split.length!=2) {
+            return null;
+        }
+
+        return split[0]+"_temp/"+CLIPBOARD_TO_FILE;
+    }
+    public static String getFILE_TO_CLIPBOARD(String classNameInJar){
+        if(classNameInJar.endsWith(".jar!/")) {
+            return classNameInJar.replace(".jar!/","")+"_temp/"+FILE_TO_CLIPBOARD;
+        }
+        String[] split = classNameInJar.split(".jar!/");
+        if(split.length!=2) {
+            return null;
+        }
+
+        return split[0]+"_temp/"+FILE_TO_CLIPBOARD;
+    }
+
+
     public static String getJarEditTemp(String classNameInJar){
         String[] split = classNameInJar.split(".jar!/");
         if(split.length!=2) {

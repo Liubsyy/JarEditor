@@ -20,6 +20,7 @@
         <li>Choose whether to compile or not</li>
         <li>SDK settings</li>
         <li>Support renaming file/dictionary</li>
+        <li>Supports copying file/dictionary from clipboard</li>
       </ul>
 
      <h3>1.3</h3>
@@ -63,12 +64,14 @@
 
       <group id="jarEditorNew"  text="New" description="New" popup="true">
         <action id="jarEditorAddJavaFile" class="com.liubs.jareditor.action.JarEditorAddJavaFile" text="Class" description="NewClass" icon="AllIcons.Nodes.Class" />
-        <action id="jarEditorAddKotlinFile" class="com.liubs.jareditor.action.JarEditorAddKotlinFile" text="Kotlin" description="NewKotlin" icon="AllIcons.FileTypes.Any_type" />
+        <action id="jarEditorAddKotlinFile" class="com.liubs.jareditor.action.JarEditorAddKotlinFile" text="Kotlin" description="NewKotlin" icon="AllIcons.Nodes.Class" />
         <action id="jarEditorAddResourceFile" class="com.liubs.jareditor.action.JarEditorAddResourceFile" text="File" description="NewFile" icon="AllIcons.FileTypes.Any_type" />
         <action id="jarEditorAddDictionary" class="com.liubs.jareditor.action.JarEditorAddDictionary" text="Dictionary" description="NewDictionary" icon="AllIcons.Nodes.Folder" />
       </group>
       <action id="jarEditorDeleteFiles" class="com.liubs.jareditor.action.JarEditorDeleteFiles" text="Delete" description="Delete"/>
       <action id="jarEditorRenameFile" class="com.liubs.jareditor.action.JarEditorRenameFile" text="Rename" description="Rename"/>
+      <action id="jarEditorCopyFile" class="com.liubs.jareditor.action.JarEditorCopyFile" text="Copy" description="Copy"/>
+      <action id="jarEditorPasteFile" class="com.liubs.jareditor.action.JarEditorPasteFile" text="Paste" description="Paste"/>
     </group>
   </actions>
 
