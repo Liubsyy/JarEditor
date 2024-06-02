@@ -106,24 +106,11 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         });
     }
 
-    private void addCompiledUI(JPanel buttonPanel){
-        //select SDK
-        selectJDKComboBox = new ComboBox<>();
-        selectJDKComboBox.addItem("SDK Default");
-        JLabel sdkLabel = new JLabel("<html><span style=\"color: #5799EE;\">SDK</span></html>");
-        sdkLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        sdkLabel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                SDKSettingDialog dialog = new SDKSettingDialog();
-                if(dialog.showAndGet()){
-                    //持久化
-                    SDKSettingStorage.getInstance().setMySdks(dialog.getAllItems());
-                }
-            }
-        });
-        buttonPanel.add(sdkLabel);
+    private void initSDKComboBox(){
+        javaHomes.clear();
+        selectJDKComboBox.removeAllItems();
 
+        selectJDKComboBox.addItem("SDK Default");
         Set<String> allItems = new HashSet<>();
         javaHomes.add("");
         for(SDKSettingStorage.MyItem sdkItem : SDKSettingStorage.getInstance().getMySdks()){
@@ -139,6 +126,29 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         }catch (Throwable ee) {
             selectJDKComboBox.setSelectedItem("SDK Default");
         }
+    }
+
+    private void addCompiledUI(JPanel buttonPanel){
+        //select SDK
+        selectJDKComboBox = new ComboBox<>();
+
+        JLabel sdkLabel = new JLabel("<html><span style=\"color: #5799EE;\">SDK</span></html>");
+        sdkLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        sdkLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                SDKSettingDialog dialog = new SDKSettingDialog();
+                if(dialog.showAndGet()){
+                    //持久化
+                    SDKSettingStorage.getInstance().setMySdks(dialog.getAllItems());
+
+                    initSDKComboBox();
+                }
+            }
+        });
+        buttonPanel.add(sdkLabel);
+
+        initSDKComboBox();
 
         selectJDKComboBox.addActionListener((e)-> lastSelectItem = (String) selectJDKComboBox.getSelectedItem());
         buttonPanel.add(selectJDKComboBox);
