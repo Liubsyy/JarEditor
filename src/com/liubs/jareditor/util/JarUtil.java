@@ -2,14 +2,12 @@ package com.liubs.jareditor.util;
 
 import com.liubs.jareditor.sdk.NoticeInfo;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
+import java.nio.file.StandardCopyOption;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
@@ -98,6 +96,66 @@ public class JarUtil {
             return false;
         }
         return false;
+    }
+
+
+    public static List<File> copyJarEntries(String jarPath, String clipboardPath, Set<String> copyEntries) throws IOException {
+        List<File> copiedFiles = new ArrayList<>();
+
+        try (JarFile jarFile = new JarFile(jarPath)) {
+            Enumeration<JarEntry> entries = jarFile.entries();
+            while (entries.hasMoreElements()) {
+                JarEntry entry = entries.nextElement();
+                String entryName = entry.getName();
+                for (String copyEntry : copyEntries) {
+                    if (entryName.startsWith(copyEntry)) {
+                        if(entryName.equals(copyEntry)) {
+                            //拷贝的文件
+                            String entrySimpleName = getEntrySimpleName(entryName);
+                            Path path = Paths.get(clipboardPath, entrySimpleName);
+                            createFile(jarFile,entry,path);
+                            copiedFiles.add(path.toFile());
+                        }else {
+                            //子目录和子文件
+                            String simpleParentName = getEntrySimpleName(copyEntry);
+                            createFile(jarFile,entry,
+                                    Paths.get(clipboardPath,simpleParentName,entryName.replace(copyEntry,"") ));
+                        }
+                    }
+                }
+            }
+        }
+        return copiedFiles;
+    }
+
+    private static String getEntrySimpleName(String entryName){
+        if(entryName.endsWith("/")) {
+            String substring = entryName.substring(0, entryName.length() - 1);
+            int i = substring.lastIndexOf("/");
+            if(i>=0) {
+                return substring.substring(i+1);
+            }else {
+                return substring;
+            }
+        }else {
+            int i = entryName.lastIndexOf("/");
+            if(i>=0) {
+                return entryName.substring(i+1);
+            }else {
+                return entryName;
+            }
+        }
+    }
+
+    private static void createFile(JarFile jarFile,JarEntry entry, Path destinationPath) throws IOException {
+        if (entry.isDirectory()) {
+            Files.createDirectories(destinationPath);
+        } else {
+            try (InputStream inputStream = jarFile.getInputStream(entry)) {
+                Files.createDirectories(destinationPath.getParent());
+                Files.copy(inputStream, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+            }
+        }
     }
 
 }

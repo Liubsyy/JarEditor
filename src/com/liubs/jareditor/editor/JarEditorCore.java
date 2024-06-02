@@ -142,7 +142,7 @@ public class JarEditorCore {
                 myCompiler = new MyRuntimeCompiler(JavacToolProvider.getJavaCompilerFromProjectSdk());
             }else {
                 myCompiler = languageType.buildCompiler(
-                        PathManager.getHomePath()+"/"+languageType.getDefaultCommandHome());
+                        PathManager.getHomePath().replace("\\", "/")+"/"+languageType.getDefaultCommandHome());
             }
 
         } else {

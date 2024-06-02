@@ -55,7 +55,7 @@ public class JarEditorPasteFile extends AnAction {
         }
 
 
-        ProgressManager.getInstance().run(new Task.Backgroundable(null, "Copy files from clipboard...", false) {
+        ProgressManager.getInstance().run(new Task.Backgroundable(null, "Paste files from clipboard...", false) {
             @Override
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 ClipboardToFile clipboardToFile = null;
@@ -82,10 +82,10 @@ public class JarEditorPasteFile extends AnAction {
 
                     VirtualFileManager.getInstance().refreshWithoutFileWatcher(true);
 
-                    NoticeInfo.info("Copy successfully!");
+                    NoticeInfo.info("Paste successfully!");
 
                 }catch (Throwable e) {
-                    NoticeInfo.error("Copy files from clipboard err",e.getMessage());
+                    NoticeInfo.error("Paste files from clipboard err",e.getMessage());
                 }finally {
                     if(null != clipboardToFile) {
                         clipboardToFile.deleteTargetDir();

@@ -3,13 +3,21 @@ package com.liubs.jareditor.action;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.project.Project;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.liubs.jareditor.clipboard.CopyResult;
+import com.liubs.jareditor.clipboard.FileToClipBoard;
 import com.liubs.jareditor.sdk.NoticeInfo;
+import com.liubs.jareditor.util.JarUtil;
 import com.liubs.jareditor.util.MyPathUtil;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -32,7 +40,7 @@ public class JarEditorCopyFile extends AnAction {
             return;
         }
 
-        Set<String> deleteEntries = new HashSet<>();
+        Set<String> copyEntries = new HashSet<>();
         for (VirtualFile file : selectedFiles) {
             if(!file.getPath().contains(".jar!/")) {
                 NoticeInfo.warning("Ony files in JAR can be copy !!!");
@@ -41,18 +49,44 @@ public class JarEditorCopyFile extends AnAction {
             String entryPathFromJar = MyPathUtil.getEntryPathFromJar(file.getPath());
             if(null != entryPathFromJar) {
                 if(file.isDirectory()) {
-                    //删除文件夹 /dir 导致/dir为前缀的文件夹(非子文件夹) 也删除的问题
-                    deleteEntries.add(entryPathFromJar.replace("\\", "/")+"/");
+                    copyEntries.add(entryPathFromJar.replace("\\", "/")+"/");
                 }else {
-                    deleteEntries.add(entryPathFromJar.replace("\\", "/"));
+                    copyEntries.add(entryPathFromJar.replace("\\", "/"));
                 }
 
             }
         }
 
-        if(deleteEntries.isEmpty()) {
-            NoticeInfo.warning("Please select any file to delete!!");
+        if(copyEntries.isEmpty()) {
+            NoticeInfo.warning("Please select any file to copy!!");
             return;
         }
+
+        final String clipboardPath = MyPathUtil.getFILE_TO_CLIPBOARD(selectedFiles[0].getPath());
+        final String jarPath = MyPathUtil.getJarPathFromJar(selectedFiles[0].getPath());
+
+        ProgressManager.getInstance().run(new Task.Backgroundable(null, "Copy files to clipboard...", false) {
+            @Override
+            public void run(@NotNull ProgressIndicator progressIndicator) {
+                try {
+                    java.util.List<File> files = JarUtil.copyJarEntries(jarPath, clipboardPath, copyEntries);
+
+                    if(files.isEmpty()) {
+                        NoticeInfo.warning("Nothing copied !!!");
+                        return;
+                    }
+
+                    CopyResult copyResult = FileToClipBoard.copyFilesToClipboard(files);
+                    if(!copyResult.isSuccess()) {
+                        NoticeInfo.error(copyResult.getError());
+                        return;
+                    }
+                    NoticeInfo.info("Copy successfully, you can paste to another place from clipboard now !!!");
+                }catch (Throwable e) {
+                    NoticeInfo.error("Copy files to clipboard err",e.getMessage());
+                }
+            }
+        });
+
     }
 }
