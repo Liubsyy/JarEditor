@@ -81,9 +81,11 @@ public class JarEditorCopyFile extends AnAction {
                         NoticeInfo.error(copyResult.getError());
                         return;
                     }
-                    NoticeInfo.info("Copy successfully, you can paste to another place from clipboard now !!!");
+                    NoticeInfo.info("Export successfully, path="+clipboardPath);
+//                    NoticeInfo.info("Copy successfully, you can paste to another place from clipboard now !!!");
                 }catch (Throwable e) {
-                    NoticeInfo.error("Copy files to clipboard err",e.getMessage());
+                    NoticeInfo.error("Export err",e.getMessage());
+//                    NoticeInfo.error("Copy files to clipboard err",e.getMessage());
                 }
             }
         });
