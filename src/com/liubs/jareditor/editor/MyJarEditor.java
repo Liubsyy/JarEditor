@@ -12,7 +12,6 @@ import com.intellij.openapi.fileEditor.*;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.util.UserDataHolderBase;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -20,8 +19,8 @@ import com.intellij.psi.*;
 import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.util.PsiErrorElementUtil;
 import com.liubs.jareditor.decompile.MyDecompiler;
+import com.liubs.jareditor.persistent.SDKSettingStorage;
 import com.liubs.jareditor.sdk.JavacToolProvider;
-import com.liubs.jareditor.sdk.SDKManager;
 import com.liubs.jareditor.template.TemplateManager;
 import com.liubs.jareditor.util.ClassVersionUtil;
 import com.liubs.jareditor.util.StringUtils;
@@ -101,7 +100,6 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         resetButton.addActionListener(e -> cancelChanges());
     }
 
-
     private void compiledUIVisible(boolean visible){
         compiledUIComponents.forEach(c->{
             c.setVisible(visible);
@@ -117,17 +115,21 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         sdkLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                ProjectSettingsService.getInstance(project).openProjectSettings();
+                SDKSettingDialog dialog = new SDKSettingDialog();
+                if(dialog.showAndGet()){
+                    //持久化
+                    SDKSettingStorage.getInstance().setMySdks(dialog.getAllItems());
+                }
             }
         });
         buttonPanel.add(sdkLabel);
 
         Set<String> allItems = new HashSet<>();
         javaHomes.add("");
-        for(SDKManager.JDKItem jdkItem : SDKManager.getAllJDKs()){
-            allItems.add(jdkItem.name);
-            selectJDKComboBox.addItem(jdkItem.name);
-            javaHomes.add(jdkItem.javaHome);
+        for(SDKSettingStorage.MyItem sdkItem : SDKSettingStorage.getInstance().getMySdks()){
+            allItems.add(sdkItem.getName());
+            selectJDKComboBox.addItem(sdkItem.getName());
+            javaHomes.add(sdkItem.getPath());
         }
         selectJDKComboBox.setSelectedItem("SDK Default");
         try{
@@ -238,7 +240,7 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
         if (psiFile != null && !PsiErrorElementUtil.hasErrors(project, file)) {
             if(Objects.equals(file.getExtension(), "class")
-                    && "kotlin".equalsIgnoreCase(psiFile.getLanguage().getDisplayName())) {
+                    && !"java".equalsIgnoreCase(psiFile.getLanguage().getDisplayName())) {
                 return MyDecompiler.decompileText(file);
             }
             return psiFile.getText(); //default decompiled text;

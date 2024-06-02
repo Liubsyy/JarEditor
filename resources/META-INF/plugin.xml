@@ -48,6 +48,8 @@
     <notificationGroup id="JarEditorNotice"
                        isLogByDefault="true"
                        displayType="BALLOON"/>
+
+    <applicationService serviceImplementation="com.liubs.jareditor.persistent.SDKSettingStorage"/>
   </extensions>
 
   <actions>

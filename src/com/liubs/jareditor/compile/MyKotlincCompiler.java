@@ -20,6 +20,22 @@ public class MyKotlincCompiler extends ProcessCommandCompiler{
         return "kt";
     }
 
+
+    /**
+     * Kotlin supported versions: [1.6, 1.8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19...]
+     * @param targetVersion
+     */
+    @Override
+    public void setTargetVersion(String targetVersion) {
+        super.setTargetVersion(targetVersion);
+        if("6".equals(targetVersion)) {
+            this.targetVersion = "1.6";
+        }
+        if("8".equals(targetVersion)) {
+            this.targetVersion = "1.8";
+        }
+    }
+
     @Override
     protected List<String> buildCommand(CommandParam commandParam) {
         // kotlinc
@@ -29,12 +45,10 @@ public class MyKotlincCompiler extends ProcessCommandCompiler{
         commands.add(javacPath);
         commands.add("-d");
         commands.add(commandParam.getOutPutPath());
-        commands.add("-source");
-        commands.add(sourceVersion);
-        commands.add("-target");
+        commands.add("-jvm-target");
         commands.add(targetVersion);
-        commands.add( "-Xlint:none");
-        commands.add( "-g");
+//        commands.add( "-Xlint:none");
+//        commands.add( "-g");
         if(!classPath.isEmpty()) {
             commands.add( "-classpath");
             commands.add(String.join(File.pathSeparator, classPaths));
