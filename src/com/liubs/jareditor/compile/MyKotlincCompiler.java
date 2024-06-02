@@ -50,11 +50,9 @@ public class MyKotlincCompiler extends ProcessCommandCompiler{
         // kotlinc
         String kotlinc = commandHome + "/bin/kotlinc";  //kotlinc
 
-        File file = new File(kotlinc);
-        if(OSUtil.isWindows()) {
-            if(!file.exists() && new File(kotlinc+".bat").exists()) {
-                kotlinc = kotlinc+".bat";
-            }
+        File file = new File(kotlinc+".bat");
+        if(OSUtil.isWindows() && file.exists()) {
+            kotlinc = kotlinc+".bat";
         }
 
         String classPath = classPaths.toString();
