@@ -11,8 +11,8 @@ import com.liubs.jareditor.util.StringUtils;
  */
 public enum LanguageType {
 
-    JAVAC("class","javac",  MyJavacCompiler::new),
-    KOTLIN("kt","kotlinc",  MyKotlincCompiler::new),
+    JAVAC("class","javac",  MyJavacCompiler::new,null),
+    KOTLIN("kt","kotlinc",  MyKotlincCompiler::new, "/plugins/Kotlin/kotlinc"),
 
 
     //add more...
@@ -20,13 +20,20 @@ public enum LanguageType {
     ;
 
     private String fileExtension;
+
     private String commandName;
+
+    /** 构造编译器 */
     private ProcessCompilerFactory compilerFactory;
 
-    LanguageType(String fileExtension, String commandName, ProcessCompilerFactory compilerFactory) {
+    /**  没有选择任何JDK时，看看内置IDEA有没有自带的编译器 */
+    private String defaultCommandHome;
+
+    LanguageType(String fileExtension, String commandName, ProcessCompilerFactory compilerFactory, String defaultCommandHome) {
         this.fileExtension = fileExtension;
         this.commandName = commandName;
         this.compilerFactory = compilerFactory;
+        this.defaultCommandHome = defaultCommandHome;
     }
 
     public ProcessCommandCompiler buildCompiler(String commandHome){
@@ -36,8 +43,20 @@ public enum LanguageType {
         return compilerFactory.buildCompiler(commandHome);
     }
 
+    public static LanguageType existDefaultCommand(String fileExtension) {
+        for(LanguageType type : LanguageType.values()) {
+            if(fileExtension.equals(type.fileExtension) && StringUtils.isNotEmpty(type.defaultCommandHome)){
+                return type;
+            }
+        }
+        return null;
+    }
 
-    public static LanguageType anyType(String fileExtension,String commandHome){
+    public String getDefaultCommandHome() {
+        return defaultCommandHome;
+    }
+
+    public static LanguageType anyType(String fileExtension, String commandHome){
 
         //Firstly match command
         for(LanguageType type : LanguageType.values()) {

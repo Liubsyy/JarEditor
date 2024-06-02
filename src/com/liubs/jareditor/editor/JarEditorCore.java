@@ -1,6 +1,7 @@
 package com.liubs.jareditor.editor;
 
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
@@ -134,9 +135,15 @@ public class JarEditorCore {
         //编译器
         IMyCompiler myCompiler = null;
         if(StringUtils.isEmpty(sdkHome)) {
-            //默认使用运行时动态编译，基于IDEA运行时自带的JDK编译，比外部javac命令编译更快
-            //比如IDEA2020.3自带JDK11, IDEA2022.3自带JDK17
-            myCompiler = new MyRuntimeCompiler(JavacToolProvider.getJavaCompilerFromProjectSdk());
+            LanguageType languageType = LanguageType.existDefaultCommand(file.getExtension());
+            if(null == languageType) {
+                //默认使用运行时动态编译，基于IDEA运行时自带的JDK编译，比外部javac命令编译更快
+                //比如IDEA2020.3自带JDK11, IDEA2022.3自带JDK17
+                myCompiler = new MyRuntimeCompiler(JavacToolProvider.getJavaCompilerFromProjectSdk());
+            }else {
+                myCompiler = languageType.buildCompiler(
+                        PathManager.getHomePath()+"/"+languageType.getDefaultCommandHome());
+            }
 
         } else {
             LanguageType languageType = LanguageType.anyType(file.getExtension(),sdkHome);
@@ -152,6 +159,11 @@ public class JarEditorCore {
             if(null == myCompiler) {
                 myCompiler = new MyJavacCompiler(sdkHome);
             }
+        }
+
+        if(null == myCompiler) {
+            NoticeInfo.error("No compiler in SDK ! ");
+            return;
         }
 
         myCompiler.setTargetVersion(targetVersion);
