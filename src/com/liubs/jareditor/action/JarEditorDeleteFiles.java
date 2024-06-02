@@ -10,6 +10,7 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.liubs.jareditor.jarbuild.JarBuildResult;
 import com.liubs.jareditor.jarbuild.JarBuilder;
 import com.liubs.jareditor.sdk.NoticeInfo;
 import com.liubs.jareditor.util.MyPathUtil;
@@ -48,7 +49,7 @@ public class JarEditorDeleteFiles extends AnAction {
             String entryPathFromJar = MyPathUtil.getEntryPathFromJar(file.getPath());
             if(null != entryPathFromJar) {
                 if(file.isDirectory()) {
-                    //删除文件夹 /dir 导致/dir2 也删除的问题
+                    //删除文件夹 /dir 导致/dir为前缀的文件夹(非子文件夹) 也删除的问题
                     deleteEntries.add(entryPathFromJar.replace("\\", "/")+"/");
                 }else {
                     deleteEntries.add(entryPathFromJar.replace("\\", "/"));
@@ -95,7 +96,11 @@ public class JarEditorDeleteFiles extends AnAction {
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 try {
                     JarBuilder jarBuilder = new JarBuilder(jarPath);
-                    jarBuilder.deleteFiles(deleteEntries);
+                    JarBuildResult jarBuildResult = jarBuilder.deleteFiles(deleteEntries);
+                    if(!jarBuildResult.isSuccess()) {
+                        NoticeInfo.error("Build jar err: \n%s",jarBuildResult.getErr());
+                        return;
+                    }
 
                     VirtualFileManager.getInstance().refreshWithoutFileWatcher(true);
 

@@ -65,6 +65,7 @@
         <action id="jarEditorAddDictionary" class="com.liubs.jareditor.action.JarEditorAddDictionary" text="Dictionary" description="NewDictionary" icon="AllIcons.Nodes.Folder" />
       </group>
       <action id="jarEditorDeleteFiles" class="com.liubs.jareditor.action.JarEditorDeleteFiles" text="Delete" description="Delete"/>
+      <action id="jarEditorRenameFile" class="com.liubs.jareditor.action.JarEditorRenameFile" text="Rename" description="Rename"/>
     </group>
   </actions>
 
