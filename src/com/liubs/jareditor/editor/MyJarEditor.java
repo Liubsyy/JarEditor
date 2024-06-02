@@ -12,6 +12,7 @@ import com.intellij.openapi.fileEditor.*;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.util.UserDataHolderBase;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -30,9 +31,12 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 
@@ -108,7 +112,14 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         //select SDK
         selectJDKComboBox = new ComboBox<>();
         selectJDKComboBox.addItem("SDK Default");
-        JLabel sdkLabel = new JLabel("SDK");
+        JLabel sdkLabel = new JLabel("<html><span style=\"color: #5799EE;\">SDK</span></html>");
+        sdkLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        sdkLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                ProjectSettingsService.getInstance(project).openProjectSettings();
+            }
+        });
         buttonPanel.add(sdkLabel);
 
         Set<String> allItems = new HashSet<>();
@@ -226,10 +237,11 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
     private String getDecompiledText(Project project, VirtualFile file) {
         PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
         if (psiFile != null && !PsiErrorElementUtil.hasErrors(project, file)) {
-            if("kotlin".equalsIgnoreCase(psiFile.getLanguage().getDisplayName())) {
+            if(Objects.equals(file.getExtension(), "class")
+                    && "kotlin".equalsIgnoreCase(psiFile.getLanguage().getDisplayName())) {
                 return MyDecompiler.decompileText(file);
             }
-            return psiFile.getText(); //default text;
+            return psiFile.getText(); //default decompiled text;
         }
         return "";
     }
@@ -241,7 +253,7 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
             if(selectJDKComboBox.getSelectedIndex()>0) {
                 javaHome = javaHomes.get(selectJDKComboBox.getSelectedIndex());
             }
-            jarEditorCore.compileJavaCode(javaHome,(String) selectVersionComboBox.getSelectedItem());
+            jarEditorCore.compileCode(javaHome,(String) selectVersionComboBox.getSelectedItem());
         }else {
             jarEditorCore.saveResource();
         }

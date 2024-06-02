@@ -100,7 +100,7 @@ public class JarEditorCore {
 
     }
 
-    public void compileJavaCode(String javaHome,String targetVersion) {
+    public void compileCode(String sdkHome, String targetVersion) {
 
         // 存储类路径依赖的集合
         Set<String> classpaths = new HashSet<>();
@@ -132,31 +132,39 @@ public class JarEditorCore {
 
 
         //编译器
-        IMyCompiler myCompiler;
-        if(StringUtils.isEmpty(javaHome)) {
+        IMyCompiler myCompiler = null;
+        if(StringUtils.isEmpty(sdkHome)) {
             //默认使用运行时动态编译，基于IDEA运行时自带的JDK编译，比外部javac命令编译更快
             //比如IDEA2020.3自带JDK11, IDEA2022.3自带JDK17
             myCompiler = new MyRuntimeCompiler(JavacToolProvider.getJavaCompilerFromProjectSdk());
-        } else if(javaHome.contains("kotlinc")){
-            myCompiler = new MyKotlincCompiler(javaHome);
+
         } else {
+            LanguageType languageType = LanguageType.anyType(file.getExtension(),sdkHome);
+            if(null != languageType) {
+                myCompiler = languageType.buildCompiler(sdkHome);
+            }
+
             //javac外部命令编译，为什么还用javac编译而不是全部用上面的运行时动态编译呢？
             //首先有一个前提：插件运行在IDEA自带JDK上, 比如: IDEA2020.3自带JDK11, IDEA2022.3自带JDK17
             //假如IDEA2020.3去编译JDK17的话是有问题的，因为IDEA2020.3自带JDK11,而JDK11是无法加载JDK17的类库进行动态编译的
             //这张方案看似很low，但却是比较靠谱比较稳定的方案
             //有时简单粗暴的方案恰恰是最稳妥的方案
-            myCompiler = new MyJavacCompiler(javaHome);
+            if(null == myCompiler) {
+                myCompiler = new MyJavacCompiler(sdkHome);
+            }
         }
+
         myCompiler.setTargetVersion(targetVersion);
         myCompiler.addClassPaths(classpaths);
         myCompiler.setOutputDirectory(MyPathUtil.getJarEditOutput(file.getPath())+externalPrefix);
         //source code
         myCompiler.addSourceCode(MyPathUtil.getClassNameFromJar(file.getPath()) ,srcCode);
 
+        IMyCompiler finalMyCompiler = myCompiler;
         ProgressManager.getInstance().run(new Task.Backgroundable(null, "Compiling...", false) {
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 try {
-                    CompilationResult compilationResult = myCompiler.compile();
+                    CompilationResult compilationResult = finalMyCompiler.compile();
                     if(!compilationResult.isSuccess()) {
                         NoticeInfo.error("Compile err: \n%s",compilationResult.getErrors());
                         return;
