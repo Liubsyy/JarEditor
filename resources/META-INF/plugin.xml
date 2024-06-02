@@ -63,7 +63,7 @@
 
       <group id="jarEditorNew"  text="New" description="New" popup="true">
         <action id="jarEditorAddJavaFile" class="com.liubs.jareditor.action.JarEditorAddJavaFile" text="Class" description="NewClass" icon="AllIcons.Nodes.Class" />
-        <action id="jarEditorAddKotlinFile" class="com.liubs.jareditor.action.JarEditorAddKotlinFile" text="Kotlin" description="NewKotlin" icon="MyIcons.KOTLIN_FILE" />
+        <action id="jarEditorAddKotlinFile" class="com.liubs.jareditor.action.JarEditorAddKotlinFile" text="Kotlin" description="NewKotlin" icon="AllIcons.FileTypes.Any_type" />
         <action id="jarEditorAddResourceFile" class="com.liubs.jareditor.action.JarEditorAddResourceFile" text="File" description="NewFile" icon="AllIcons.FileTypes.Any_type" />
         <action id="jarEditorAddDictionary" class="com.liubs.jareditor.action.JarEditorAddDictionary" text="Dictionary" description="NewDictionary" icon="AllIcons.Nodes.Folder" />
       </group>
