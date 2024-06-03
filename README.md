@@ -38,7 +38,7 @@ After installation , you can see a tab page to switch to Jar Editor in the .clas
 
 <img src="./img/JarEditor_main.png" width="800" height="506" />
 
-After modification, click **Save/Compile** to compile and save the currently modified java content. 
+After modification, click **Save(Compile)** to compile and save the currently modified java content. 
 
 Finally click **Build Jar** to write the compiled and saved class file into the Jar package.
 
