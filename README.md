@@ -36,7 +36,7 @@ After installation , you can see a tab page to switch to Jar Editor in the .clas
 
 `External jars: File->Project Structure->Libraries->Add Library , then you can see the decompiled jar.`
 
-<img src="./img/JarEditor_main.png" width="800" height="545" />
+<img src="./img/JarEditor_main.png" width="800" height="488" />
 
 After modification, click **Save/Compile** to compile and save the currently modified java content. 
 
