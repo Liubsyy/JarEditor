@@ -11,6 +11,7 @@ public enum TemplateType {
    JAVA_TEMPLATE("java","template/java.template",new JavaTextParser()),
    CLASS_TEMPLATE("class","template/java.template",new JavaTextParser()),
    XML_TEMPLATE("xml","template/xml.template", DefaultParser.INSTANCE),
+   KOTLIN_TEMPLATE("kt","template/kotlin.template", new KotlinTextParser()),
 
 
 

@@ -57,18 +57,18 @@ public class JarEditorRenameFile extends AnAction {
             return;
         }
 
-
-        final String newName =  isDictionary ?
+        String newName =  isDictionary ?
                 (MyPathUtil.getEntryPathFromJar(selectedFile.getParent().getPath()+"/"+userInput)+"/")
                 :
                 (MyPathUtil.getEntryPathFromJar(selectedFile.getParent().getPath()+"/"+userInput));
 
+        final String newNameFinal = null != newName && newName.startsWith("/") ? newName.substring(1) : newName;
         ProgressManager.getInstance().run(new Task.Backgroundable(null, "Renaming files in JAR...", false) {
             @Override
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 try {
                     JarBuilder jarBuilder = new JarBuilder(jarPath);
-                    JarBuildResult jarBuildResult = jarBuilder.renameFile(oldEntry, newName, isDictionary);
+                    JarBuildResult jarBuildResult = jarBuilder.renameFile(oldEntry, newNameFinal, isDictionary);
                     if(!jarBuildResult.isSuccess()) {
                         NoticeInfo.error("Build jar err: \n%s",jarBuildResult.getErr());
                         return;

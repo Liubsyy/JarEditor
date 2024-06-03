@@ -2,13 +2,13 @@
   <id>com.liubs.jaredit</id>
   <name>JarEditor</name>
   <version>1.4</version>
-  <vendor email="Liubsyy@gmail.com" url="https://github.com/Liubsyy/JarEdit-idea-plugin">Liubsyy</vendor>
+  <vendor email="Liubsyy@gmail.com" url="https://github.com/Liubsyy/JarEditor">Liubsyy</vendor>
 
   <description><![CDATA[
 
     JarEditor is used to directly edit classes/resources in Jar without decompression.
     <br>
-    It also supports adding/deleting files/folders in Jar.
+    It also supports adding/deleting/copying/pasting files/folders in Jar.
 
     ]]></description>
 
@@ -64,7 +64,7 @@
 
       <group id="jarEditorNew"  text="New" description="New" popup="true">
         <action id="jarEditorAddJavaFile" class="com.liubs.jareditor.action.JarEditorAddJavaFile" text="Class" description="NewClass" icon="AllIcons.Nodes.Class" />
-        <action id="jarEditorAddKotlinFile" class="com.liubs.jareditor.action.JarEditorAddKotlinFile" text="Kotlin" description="NewKotlin" icon="AllIcons.Nodes.Class" />
+        <action id="jarEditorAddKotlinFile" class="com.liubs.jareditor.action.JarEditorAddKotlinFile" text="Kotlin" description="NewKotlin" icon="AllIcons.FileTypes.Java" />
         <action id="jarEditorAddResourceFile" class="com.liubs.jareditor.action.JarEditorAddResourceFile" text="File" description="NewFile" icon="AllIcons.FileTypes.Any_type" />
         <action id="jarEditorAddDictionary" class="com.liubs.jareditor.action.JarEditorAddDictionary" text="Dictionary" description="NewDictionary" icon="AllIcons.Nodes.Folder" />
       </group>

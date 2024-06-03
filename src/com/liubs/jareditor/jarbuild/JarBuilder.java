@@ -206,16 +206,17 @@ public class JarBuilder {
                     JarEntry newEntry ;
 
                     //如果是目录，子目录和子文件的路径都应该改变
+                    String entryPathTemp = (entry.getName().startsWith("/") && !entryPath.startsWith("/")) ? "/"+entryPath : entryPath;
                     if (isDictionary) {
                         //这里不会有问题，因为文件夹是以/结尾
-                        if(entry.getName().startsWith(entryPath)) {
+                        if(entry.getName().startsWith(entryPathTemp)) {
                             newEntry = copyNewEntry(originalJar,
-                                    entry, entry.getName().replace(entryPath,newEntryPath));
+                                    entry, entry.getName().replace(entryPathTemp,newEntryPath));
                         }else {
                             newEntry = copyNewEntry(originalJar,entry);
                         }
                     }else {
-                        if(entry.getName().equals(entryPath)) {
+                        if(entry.getName().equals(entryPathTemp)) {
                             newEntry = copyNewEntry(originalJar,entry,newEntryPath);
                         }else {
                             newEntry = copyNewEntry(originalJar,entry);
@@ -327,6 +328,9 @@ public class JarBuilder {
             if(resoleDir) {
                 boolean needCopy = true;
                 for(String excludeEntry : excludeEntries) {
+                    if(entry.getName().startsWith("/") && !excludeEntry.startsWith("/")) {
+                        excludeEntry = "/" + excludeEntry;
+                    }
                     if(entry.getName().startsWith(excludeEntry)) {
                         needCopy = false;
                         break;
