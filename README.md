@@ -45,9 +45,9 @@ Finally click **Build Jar** to write the compiled and saved class file into the 
 Modifying the resource files in the jar package is also supported.
 
 ### 3. Other operations of JarEditor
-In the project view of the jar package, right-click to see **JarEditor->New/Delete** and other operations, where you can add and delete files.
+In the project view of the jar package, right-click to see **JarEditor->New/Delete** and other operations, where you can add/delete/rename/copy/paste files.
 
-<img src="./img/JarEditor_new_delete.png" width="480" height="476" />
+<img src="./img/JarEditor_new_delete.png" width="550" height="454" />
 
 
 ## Some mechanisms
