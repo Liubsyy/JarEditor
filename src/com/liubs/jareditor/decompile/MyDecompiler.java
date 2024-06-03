@@ -20,7 +20,10 @@ public class MyDecompiler {
     private static ClassLoader getPluginClassLoader(){
         try{
             IdeaPluginDescriptor plugin = PluginManagerCore.getPlugin(PluginId.getId("org.jetbrains.java.decompiler"));
-            return ((IdeaPluginDescriptorImpl)plugin).getPluginClassLoader();
+            if(null == plugin) {
+                return null;
+            }
+            return plugin.getPluginClassLoader();
         }catch (Throwable ex) {
             ex.printStackTrace();
         }

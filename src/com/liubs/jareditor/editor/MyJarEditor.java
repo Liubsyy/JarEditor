@@ -257,7 +257,8 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         if (psiFile != null && !PsiErrorElementUtil.hasErrors(project, file)) {
             if(Objects.equals(file.getExtension(), "class")
                     && !"java".equalsIgnoreCase(psiFile.getLanguage().getDisplayName())) {
-                return MyDecompiler.decompileText(file);
+                String decompileText = MyDecompiler.decompileText(file);
+                return StringUtils.isEmpty(decompileText) ? psiFile.getText() : decompileText;
             }
             return psiFile.getText(); //default decompiled text;
         }
