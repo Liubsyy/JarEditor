@@ -53,5 +53,5 @@ In the project view of the jar package, right-click to see **JarEditor->New/Dele
 ## Some mechanisms
 - The JDK that the compilation depends on is the JDK of your SDK list. You can choose SDK and target version of the compiled class.
 - The classpath you depend on when compiling java is the dependency of the project. If the dependency package cannot be found, you can add the dependency.
-- Save/Compile will save the modified files to the subdirectory **jar_edit_out** of the directory where the jar package is located. Build Jar will incrementally write the files in the jar_edit directory to the jar, and finally delete this directory.
+- Save/Compile will save the modified files to the subdirectory **jar_edit_out** of the directory where the jar package is located. Build Jar will incrementally write the modified files to jar, and finally delete this directory.
 
