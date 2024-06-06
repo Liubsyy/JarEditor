@@ -198,10 +198,18 @@ public class JarEditorCore {
         if(null == jarEditClassPath){
             return;
         }
-        if(!Files.exists(Paths.get(jarEditClassPath))) {
+        File file = new File(jarEditClassPath);
+        if(!file.exists()) {
             NoticeInfo.warning("Nothing is modified in the jar!");
             return;
         }
+
+        String[] files = file.list();
+        if (files == null || files.length == 0) {
+            NoticeInfo.warning("Nothing is modified in the jar!");
+            return;
+        }
+
         buildJar0();
     }
 
