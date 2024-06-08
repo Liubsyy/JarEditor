@@ -3,13 +3,16 @@
   <img align="center" src="./img/logo.png" width="100" height="100" />
 </div>
 
-<h2 align="center"/>JarEditor <sup><em>liubsyy</em></sup></h2>
+<h2 align="center">JarEditor <sup><em>liubsyy</em></sup></h2>
 
 <!--<h4 align="center"><strong>English</strong> | <a href="./README_CN.md">简体中文</a></h4>-->
 
-[![License](https://img.shields.io/github/license/Liubsyy/JarEditor?color=blue)](./LICENSE)
-[![](https://img.shields.io/jetbrains/plugin/d/24397)](https://plugins.jetbrains.com/plugin/24397-jareditor)
-[![release](https://img.shields.io/github/release/Liubsyy/JarEditor?color=red)](https://github.com/Liubsyy/JarEditor/releases)
+<div align="center">
+    <a href="./LICENSE"> <img src="https://img.shields.io/github/license/Liubsyy/JarEditor?color=blue"/> </a>
+    <img src="https://img.shields.io/jetbrains/plugin/d/24397"/>
+    <img src="https://img.shields.io/jetbrains/plugin/v/24397?label=release&color=red"/>
+    <img src="https://img.shields.io/badge/plugin%20sdk-IDEA%202020.3-blue.svg"/>
+</div>
 
 IDEA plugin for modifying files in jar directly without decompression, including class and resource files.
 
