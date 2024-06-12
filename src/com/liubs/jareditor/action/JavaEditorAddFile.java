@@ -36,7 +36,9 @@ public abstract class JavaEditorAddFile  extends AnAction {
             NoticeInfo.warning("No file selected");
             return;
         }
-        if(!selectedFile.isDirectory()) {
+
+        //当在一个文件a上右键新增文件b时，取a所在的文件夹进行新增b
+        if(!"jar".equals(selectedFile.getExtension()) && !selectedFile.isDirectory()) {
             selectedFile = selectedFile.getParent();
             if(null == selectedFile) {
                 NoticeInfo.warning("You need choose a folder in jar !");
