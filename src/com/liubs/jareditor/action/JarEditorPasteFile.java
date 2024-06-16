@@ -32,10 +32,17 @@ public class JarEditorPasteFile extends AnAction {
             NoticeInfo.warning("Please open a project");
             return;
         }
+
+        pasteFile(selectedFile);
+    }
+
+    public static void pasteFile(VirtualFile selectedFile){
+
         if(null == selectedFile) {
             NoticeInfo.warning("No file selected");
             return;
         }
+
         if(!selectedFile.isDirectory()) {
             selectedFile = selectedFile.getParent();
             if(null == selectedFile) {
@@ -93,7 +100,6 @@ public class JarEditorPasteFile extends AnAction {
                 }
             }
         });
-
-
     }
+
 }
