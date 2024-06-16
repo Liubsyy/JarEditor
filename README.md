@@ -9,8 +9,8 @@
 
 [![License](https://img.shields.io/github/license/Liubsyy/JarEditor?color=blue)](./LICENSE)
 [![downloads](https://img.shields.io/jetbrains/plugin/d/24397)](https://plugins.jetbrains.com/plugin/24397-jareditor)
-[![release](https://img.shields.io/github/release/Liubsyy/JarEditor?color=red)](https://plugins.jetbrains.com/plugin/24397-jareditor)
-![sdk](https://img.shields.io/badge/plugin%20sdk-IDEA%202020.3-orange.svg)
+[![release](https://img.shields.io/jetbrains/plugin/v/24397?label=version)](https://plugins.jetbrains.com/plugin/24397-jareditor)
+![sdk](https://img.shields.io/badge/plugin%20sdk-IDEA%202020.3-red.svg)
 
 IDEA plugin for modifying files in jar directly without decompression, including class and resource files.
 
