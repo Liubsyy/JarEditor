@@ -9,10 +9,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
@@ -134,12 +131,29 @@ public class JarBuilder {
 
             try (JarFile originalJar = new JarFile(jarFile);
                 JarOutputStream tempJarOutputStream = new JarOutputStream(new FileOutputStream(tempJarFile))) {
-                copyExistingEntries(originalJar, tempJarOutputStream, new HashSet<>(),true);
+                copyExistingEntries(originalJar, tempJarOutputStream, new HashSet<>(),false);
+
+
+                //写入 形如 a/b/c.txt 这样的层级目录文件，需要写入 a/, a/b/ 和 a/b/c.txt
+                String jarEntryName = filePath.replace("\\", "/");
+                List<String> allNewEntries = new ArrayList<>();
+                for(int i=0; i<jarEntryName.length() ; i++) {
+                    if(jarEntryName.charAt(i) == '/' || i==jarEntryName.length()-1) {
+                        allNewEntries.add(jarEntryName.substring(0,i+1));
+                    }
+                }
+                Enumeration<JarEntry> entries = originalJar.entries();
+                while (entries.hasMoreElements()) {
+                    JarEntry e = entries.nextElement();
+                    allNewEntries.remove(e.getName());
+                }
 
                 //write a empty file
-                String jarEntryName = filePath.replace("\\", "/");
-                tempJarOutputStream.putNextEntry(new JarEntry(jarEntryName));
-                tempJarOutputStream.closeEntry();
+               for(String eachEntry : allNewEntries) {
+                   tempJarOutputStream.putNextEntry(new JarEntry(eachEntry));
+                   tempJarOutputStream.closeEntry();
+               }
+
             }
 
             // 将临时 JAR 文件内容写回目标 JAR 文件
