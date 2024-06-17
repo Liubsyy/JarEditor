@@ -26,7 +26,7 @@ IDEA plugin for modifying files in jar directly without decompression, including
 
 ## Quick start
 
-### 1. Insatall plugin from marketplace
+### 1. Install plugin from marketplace
 First install the plugin JarEditor from marketplace, IDEA at least version **2020.3**
 
 <img src="./img/JarEditor_install.png" width="800" height="606" />
