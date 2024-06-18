@@ -89,7 +89,7 @@ public abstract class ProcessCommandCompiler implements IMyCompiler{
             List<String> commands = buildCommand(commandParam);
             ProcessBuilder processBuilder = new ProcessBuilder(commands);
 
-            //windows下控制台javac中文乱码问题，改编码都不好使，干脆直接输出英文算了
+            //环境变量
             Map<String, String> environment = new HashMap<>();
             putExtra(environment);
             processBuilder.environment().putAll(environment);
