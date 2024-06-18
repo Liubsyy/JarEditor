@@ -30,6 +30,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -82,17 +84,21 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         JButton rebuildJar = new JButton("Build Jar");
         JButton resetButton = new JButton("Reset");
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        addCompiledUI(buttonPanel);
-        buttonPanel.add(needCompiled);
-        buttonPanel.add(saveButton);
-        buttonPanel.add(rebuildJar);
-        buttonPanel.add(resetButton);
+        JPanel optPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        addCompiledUI(optPanel);
+        optPanel.add(needCompiled);
+        optPanel.add(saveButton);
+        optPanel.add(rebuildJar);
+        optPanel.add(resetButton);
 
         needCompiled.setSelected("class".equals(file.getExtension()) || "kt".equals(file.getExtension()));
         compiledUIVisible(needCompiled.isSelected());
 
-        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+        Border etchedBorder = BorderFactory.createEtchedBorder(EtchedBorder.RAISED);
+        optPanel.setBorder(BorderFactory.createTitledBorder(etchedBorder,"JarEditor Tools"));
+
+
+        mainPanel.add(optPanel, BorderLayout.SOUTH);
 
         //add action listener
         needCompiled.addActionListener(e -> compiledUIVisible(needCompiled.isSelected()));
