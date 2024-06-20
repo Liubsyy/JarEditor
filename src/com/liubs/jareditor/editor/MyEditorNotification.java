@@ -27,7 +27,7 @@ import java.util.WeakHashMap;
 public class MyEditorNotification extends EditorNotifications.Provider<EditorNotificationPanel> {
 
     //防重复创建
-    private Set<FileEditor> createdNotifications = Collections.newSetFromMap(new WeakHashMap<>());
+//    private Set<FileEditor> createdNotifications = Collections.newSetFromMap(new WeakHashMap<>());
 
     @NotNull
     @Override
@@ -39,10 +39,10 @@ public class MyEditorNotification extends EditorNotifications.Provider<EditorNot
     @Override
     public EditorNotificationPanel createNotificationPanel(@NotNull VirtualFile file, @NotNull FileEditor fileEditor, @NotNull Project project) {
         if (MyPathUtil.isSourceJar(file.getPath()) && !(fileEditor instanceof MyJarEditor) ) {
-            if(createdNotifications.contains(fileEditor)) {
-                return null;
-            }
-            createdNotifications.add(fileEditor);
+//            if(createdNotifications.contains(fileEditor)) {
+//                return null;
+//            }
+//            createdNotifications.add(fileEditor);
             return createNoticePanel0(project,file);
         }
         return null;
