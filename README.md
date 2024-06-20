@@ -5,7 +5,7 @@
 
 <h2 align="center">JarEditor <sup><em>liubsyy</em></sup></h2>
 
-<!--<h4 align="center"><strong>English</strong> | <a href="./README_CN.md">简体中文</a></h4>-->
+<h4 align="center"><strong>English</strong> | <a href="./README_CN.md">简体中文</a></h4>
 
 [![License](https://img.shields.io/github/license/Liubsyy/JarEditor?color=blue)](./LICENSE)
 [![downloads](https://img.shields.io/jetbrains/plugin/d/24397)](https://plugins.jetbrains.com/plugin/24397-jareditor)
