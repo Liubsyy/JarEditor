@@ -12,15 +12,15 @@
 [![release](https://img.shields.io/jetbrains/plugin/v/24397?label=version)](https://plugins.jetbrains.com/plugin/24397-jareditor)
 ![sdk](https://img.shields.io/badge/plugin%20sdk-IDEA%202020.3-red.svg)
 
-无需解压直接编辑修改jar包内文件(class和resource)的IDEA插件
+可直接修改jar包内文件的IDEA插件，无需解压
 
 **Plugin marketplace** : [https://plugins.jetbrains.com/plugin/24397-jareditor](https://plugins.jetbrains.com/plugin/24397-jareditor)
 
-## 特征
+## 功能
 - 直接编辑jar包内class/resource文件，无需解压
 - 添加/删除/重命名jar包内文件/文件夹
-- 从剪贴板粘贴文件/文件夹
-- 将文件/文件夹复制到剪贴板
+- 从剪贴板粘贴文件/文件夹到jar包内
+- 将jar包内文件/文件夹复制到剪贴板，然后在其他文件夹可粘贴复制的文件
 - 支持springboot fatjar
 - 支持kotlin
 
@@ -39,7 +39,7 @@
 
 <img src="./img/JarEditor_main.png" width="800" height="506" />
 
-修改完成后，点击**保存（编译）**，编译并保存当前修改的java内容。
+修改完成后，点击**Save（Compile）**，编译并保存当前修改的java内容。
 
 最后点击**Build Jar**，将编译保存的类文件写入Jar包中。
 
