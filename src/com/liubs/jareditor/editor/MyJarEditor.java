@@ -17,6 +17,7 @@ import com.intellij.openapi.util.UserDataHolderBase;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.testFramework.LightVirtualFile;
+import com.intellij.ui.EditorNotificationPanel;
 import com.intellij.util.PsiErrorElementUtil;
 import com.liubs.jareditor.decompile.MyDecompiler;
 import com.liubs.jareditor.persistent.SDKSettingStorage;
@@ -24,6 +25,7 @@ import com.liubs.jareditor.sdk.JavacToolProvider;
 import com.liubs.jareditor.sdk.NoticeInfo;
 import com.liubs.jareditor.template.TemplateManager;
 import com.liubs.jareditor.util.ClassVersionUtil;
+import com.liubs.jareditor.util.MyPathUtil;
 import com.liubs.jareditor.util.StringUtils;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -64,6 +66,8 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
 
     private static String lastSelectItem = null;
 
+    private boolean isSourceJar;
+
     @Nullable
     @Override
     public VirtualFile getFile() {
@@ -75,6 +79,7 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         this.file = file;
         this.editor = createEditor();
         this.jarEditorCore = new JarEditorCore(project, file, editor);
+        this.isSourceJar = MyPathUtil.isSourceJar(file.getPath());
 
         mainPanel.add(editor.getComponent(), BorderLayout.CENTER);
 
@@ -97,8 +102,14 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         Border etchedBorder = BorderFactory.createEtchedBorder(EtchedBorder.RAISED);
         optPanel.setBorder(BorderFactory.createTitledBorder(etchedBorder,"JarEditor Tools"));
 
+        JPanel optPanelWrapper = new JPanel(new BorderLayout());
+        optPanelWrapper.add(optPanel,BorderLayout.CENTER);
 
-        mainPanel.add(optPanel, BorderLayout.SOUTH);
+        if(isSourceJar) {
+            EditorNotificationPanel noticePanel = MyEditorNotification.createNoticePanel0(project, file);
+            optPanelWrapper.add(noticePanel,BorderLayout.NORTH);
+        }
+        mainPanel.add(optPanelWrapper, BorderLayout.SOUTH);
 
         //add action listener
         needCompiled.addActionListener(e -> compiledUIVisible(needCompiled.isSelected()));

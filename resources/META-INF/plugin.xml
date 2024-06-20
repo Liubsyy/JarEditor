@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.liubs.jaredit</id>
   <name>JarEditor</name>
-  <version>1.4.2</version>
+  <version>1.5</version>
   <vendor email="Liubsyy@gmail.com" url="https://github.com/Liubsyy/JarEditor">Liubsyy</vendor>
 
   <description><![CDATA[
@@ -13,6 +13,11 @@
     ]]></description>
 
   <change-notes><![CDATA[
+
+     <h3>1.5</h3>
+      <ul>
+        <li>Add link to class jar from source jar</li>
+      </ul>
 
      <h3>1.4</h3>
       <ul>
@@ -55,6 +60,8 @@
                        displayType="BALLOON"/>
 
     <applicationService serviceImplementation="com.liubs.jareditor.persistent.SDKSettingStorage"/>
+
+    <editorNotificationProvider implementation="com.liubs.jareditor.editor.MyEditorNotification"/>
   </extensions>
 
   <actions>

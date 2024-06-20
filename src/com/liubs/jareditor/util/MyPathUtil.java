@@ -20,8 +20,14 @@ public class MyPathUtil {
         if(split.length!=2) {
             return null;
         }
-        String replace = split[1].replace("/", ".");
-        return replace.endsWith(".class") ? replace.substring(0,replace.lastIndexOf(".class")) : replace;
+        String classFullName = split[1];
+        int lastIndex = classFullName.lastIndexOf('.');
+        if(lastIndex > 0) {
+            classFullName = classFullName.substring(0,lastIndex);
+        }
+        return classFullName.replace("/", ".");
+//        String replace = split[1].replace("/", ".");
+//        return replace.endsWith(".class") ? replace.substring(0,replace.lastIndexOf(".class")) : replace;
     }
 
     public static String getJarPathFromJar(String classNameInJar) {
@@ -118,6 +124,11 @@ public class MyPathUtil {
         }
 
         return split[0]+"_temp";
+    }
+
+
+    public static boolean isSourceJar(String classNameInJar) {
+        return null != classNameInJar && classNameInJar.contains("-sources.jar!");
     }
 
 
