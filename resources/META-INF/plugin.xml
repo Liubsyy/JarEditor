@@ -61,7 +61,10 @@
 
     <applicationService serviceImplementation="com.liubs.jareditor.persistent.SDKSettingStorage"/>
 
+    <!-- EditorNotifications.Provider 2022.1 废弃API
     <editorNotificationProvider implementation="com.liubs.jareditor.editor.MyEditorNotification"/>
+    -->
+
   </extensions>
 
   <actions>

@@ -15,6 +15,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.util.UserDataHolderBase;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.*;
 import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.ui.EditorNotificationPanel;
@@ -34,6 +35,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
+import javax.swing.event.HyperlinkEvent;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -106,8 +108,25 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         optPanelWrapper.add(optPanel,BorderLayout.CENTER);
 
         if(isSourceJar) {
-            EditorNotificationPanel noticePanel = MyEditorNotification.createNoticePanel0(project, file);
-            optPanelWrapper.add(noticePanel,BorderLayout.NORTH);
+            EditorNotificationPanel sourceJarNotice = new EditorNotificationPanel();
+            sourceJarNotice.setText("You are opening a source jar, not class jar");
+            sourceJarNotice.createActionLabel("Click here to open class jar", new EditorNotificationPanel.ActionHandler() {
+                @Override
+                public void handlePanelActionClick(@NotNull EditorNotificationPanel editorNotificationPanel, @NotNull HyperlinkEvent hyperlinkEvent) {
+
+                    String replaceUrl = file.getUrl().replace("-sources.jar!", ".jar!")
+                            .replace(".java", ".class");
+                    VirtualFile openFile = VirtualFileManager.getInstance().findFileByUrl(replaceUrl);
+                    if (openFile != null) {
+                        FileEditorManager.getInstance(project).openFile(openFile, true);
+                    }
+                }
+
+                @Override
+                public void handleQuickFixClick(@NotNull Editor editor, @NotNull PsiFile psiFile) {
+                }
+            },false);
+            optPanelWrapper.add(sourceJarNotice,BorderLayout.NORTH);
         }
         mainPanel.add(optPanelWrapper, BorderLayout.SOUTH);
 
