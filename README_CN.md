@@ -53,5 +53,5 @@
 
 ## 一些机制
 - 编译依赖的JDK是你的SDK列表中的JDK。您可以选择SDK和编译类的目标版本。
-- 编译java时所依赖的classpath就是项目的依赖。如果找不到依赖包，可以添加依赖。
-- Save/Compile会将修改后的文件保存到jar包所在目录的子目录**jar_edit_out**中。 Build Jar会将修改的文件增量写入jar中，最后删除这个目录。
+- 编译java时所依赖的classpath就是项目的Libraries依赖。如果找不到依赖包，可以添加依赖。
+- Save(Compile)会将修改后的文件保存到jar包所在目录的子目录**jar_edit_out**中，Build Jar会将修改的文件增量写入jar中，最后删除这个临时目录。
