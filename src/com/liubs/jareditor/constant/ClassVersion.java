@@ -1,10 +1,9 @@
-package com.liubs.jareditor.util;
+package com.liubs.jareditor.constant;
 
 import com.intellij.openapi.vfs.VirtualFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -13,7 +12,7 @@ import java.util.TreeMap;
  * @author Liubsyy
  * @date 2024/5/9
  */
-public class ClassVersionUtil {
+public class ClassVersion {
 
     //上古时期的版本
     public static final Map<Integer, String> ELDEN_VERSIONS = new TreeMap<>();

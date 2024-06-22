@@ -1,5 +1,7 @@
 package com.liubs.jareditor.dependency;
 
+import com.liubs.jareditor.constant.PathConstant;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,7 +10,6 @@ import java.util.List;
  * @date 2024/5/19
  */
 public class ExtraDependencyManager {
-    private static final  String DEPENDENCY_DIR = "dependency_temp";
 
     private List<IDependencyHandler> dependencyHandlerList = new ArrayList<>();
 
@@ -17,7 +18,7 @@ public class ExtraDependencyManager {
     }
 
     public List<String> handleAndGetDependencyPaths(String jarPath, String tempPath){
-        tempPath = tempPath+"/"+DEPENDENCY_DIR;
+        tempPath = tempPath+"/"+ PathConstant.DEPENDENCY_DIR;
         List<String> result = new ArrayList<>();
         for(IDependencyHandler c: dependencyHandlerList) {
             result.addAll(c.dependentClassPaths(jarPath,tempPath));

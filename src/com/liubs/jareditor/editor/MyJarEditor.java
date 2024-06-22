@@ -15,18 +15,15 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.util.UserDataHolderBase;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.*;
 import com.intellij.testFramework.LightVirtualFile;
-import com.intellij.ui.EditorNotificationPanel;
 import com.intellij.util.PsiErrorElementUtil;
 import com.liubs.jareditor.decompile.MyDecompiler;
 import com.liubs.jareditor.persistent.SDKSettingStorage;
 import com.liubs.jareditor.sdk.JavacToolProvider;
 import com.liubs.jareditor.sdk.NoticeInfo;
 import com.liubs.jareditor.template.TemplateManager;
-import com.liubs.jareditor.util.ClassVersionUtil;
-import com.liubs.jareditor.util.MyPathUtil;
+import com.liubs.jareditor.constant.ClassVersion;
 import com.liubs.jareditor.util.StringUtils;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -35,7 +32,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
-import javax.swing.event.HyperlinkEvent;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -187,7 +183,7 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
 
         //select version
         selectVersionComboBox = new ComboBox<>();
-        String classVersion = ClassVersionUtil.detectClassVersion(file);
+        String classVersion = ClassVersion.detectClassVersion(file);
         int maxJdkVersion = -1;
         try{
             maxJdkVersion = JavacToolProvider.getMaxJdkVersion();
@@ -197,8 +193,8 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
             maxJdkVersion = 21;
         }
         for(int i=1;i<=maxJdkVersion;i++) {
-            if(ClassVersionUtil.ELDEN_VERSIONS.containsKey(i)) {
-                selectVersionComboBox.addItem(ClassVersionUtil.ELDEN_VERSIONS.get(i));
+            if(ClassVersion.ELDEN_VERSIONS.containsKey(i)) {
+                selectVersionComboBox.addItem(ClassVersion.ELDEN_VERSIONS.get(i));
             }else {
                 selectVersionComboBox.addItem(String.valueOf(i));
             }
