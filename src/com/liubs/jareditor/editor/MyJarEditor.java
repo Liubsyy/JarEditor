@@ -62,13 +62,16 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
 
     private ComboBox<String> selectVersionComboBox;
 
-    private JarEditorCore jarEditorCore;
-
     private ArrayList<JComponent> compiledUIComponents = new ArrayList<>();
 
+    //上次选中的sdk，保持状态
     private static String lastSelectItem = null;
 
-    private boolean isSourceJar;
+    //编译打包相关逻辑
+    private JarEditorCore jarEditorCore;
+
+    //source jar相关的逻辑
+    private SourceJarResolver sourceJarResolver;
 
     @Nullable
     @Override
@@ -81,7 +84,7 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         this.file = file;
         this.editor = createEditor();
         this.jarEditorCore = new JarEditorCore(project, file, editor);
-        this.isSourceJar = MyPathUtil.isSourceJar(file.getPath());
+        this.sourceJarResolver = new SourceJarResolver(project,file,editor);
 
         mainPanel.add(editor.getComponent(), BorderLayout.CENTER);
 
@@ -107,27 +110,14 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         JPanel optPanelWrapper = new JPanel(new BorderLayout());
         optPanelWrapper.add(optPanel,BorderLayout.CENTER);
 
-        if(isSourceJar) {
-            EditorNotificationPanel sourceJarNotice = new EditorNotificationPanel();
-            sourceJarNotice.setText("You are opening a source jar, not class jar");
-            sourceJarNotice.createActionLabel("Click here to open class jar", new EditorNotificationPanel.ActionHandler() {
-                @Override
-                public void handlePanelActionClick(@NotNull EditorNotificationPanel editorNotificationPanel, @NotNull HyperlinkEvent hyperlinkEvent) {
-
-                    String replaceUrl = file.getUrl().replace("-sources.jar!", ".jar!")
-                            .replace(".java", ".class");
-                    VirtualFile openFile = VirtualFileManager.getInstance().findFileByUrl(replaceUrl);
-                    if (openFile != null) {
-                        FileEditorManager.getInstance(project).openFile(openFile, true);
-                    }
-                }
-
-                @Override
-                public void handleQuickFixClick(@NotNull Editor editor, @NotNull PsiFile psiFile) {
-                }
-            },false);
-            optPanelWrapper.add(sourceJarNotice,BorderLayout.NORTH);
+        if(sourceJarResolver.isSourceJar()) {
+            //source jar增加跳转到到class jar的链接
+            optPanelWrapper.add(sourceJarResolver.createSourceJarNotification(),BorderLayout.NORTH);
+        }else if(sourceJarResolver.isClassJarAndHasSourceFile()) {
+            //class jar中如果有-source.jar，可以选中从-source.jar中导入代码
+            optPanelWrapper.add(sourceJarResolver.getDecompiledOrSourceTextPanel(),BorderLayout.NORTH);
         }
+
         mainPanel.add(optPanelWrapper, BorderLayout.SOUTH);
 
         //add action listener
@@ -288,7 +278,7 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         return editor;
     }
 
-    private String getDecompiledText(Project project, VirtualFile file) {
+    public static String getDecompiledText(Project project, VirtualFile file) {
         PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
         if (psiFile != null && !PsiErrorElementUtil.hasErrors(project, file)) {
             if(Objects.equals(file.getExtension(), "class")
