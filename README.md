@@ -56,3 +56,13 @@ In the project view of the jar package, right-click to see **JarEditor->New/Dele
 - The classpath you depend on when compiling java is the dependency of the project. If the dependency package cannot be found, you can add the dependency.
 - Save(Compile) will save the modified files to the subdirectory **jar_edit_out** of the directory where the jar package is located. Build Jar will incrementally write the modified files to jar, and finally delete this directory.
 
+
+### SDK Default Versions
+
+When compiling and selecting **SDK Default**, the corresponding JDK version is as follows
+
+IDEA|JDK
+---|---
+IDEA 2020.3|JDK 11
+IDEA 2022.2|JDK 17
+IDEA 2024.2|JDK 21

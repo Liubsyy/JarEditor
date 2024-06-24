@@ -55,3 +55,13 @@
 - 编译依赖的JDK是你的SDK列表中的JDK。您可以选择SDK和编译类的目标版本。
 - 编译java时所依赖的classpath就是项目的Libraries依赖。如果找不到依赖包，可以添加依赖。
 - Save(Compile)会将修改后的文件保存到jar包所在目录的子目录**jar_edit_out**中，Build Jar会将修改的文件增量写入jar中，最后删除这个临时目录。
+
+### SDK Default对应JDK版本
+
+编译选择 **SDK Default** 时，对应的JDK版本如下: 
+
+IDEA|JDK
+---|---
+IDEA 2020.3|JDK 11
+IDEA 2022.2|JDK 17
+IDEA 2024.2|JDK 21
