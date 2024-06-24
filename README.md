@@ -23,6 +23,7 @@ IDEA plugin for modifying files in jar directly without decompression, including
 - Copy file/dictionary to clipboard
 - Support springboot fatjar
 - Support kotlin
+- Supports class jar importing code from source jar, and class/source jar jumping between each other
 
 ## Quick start
 

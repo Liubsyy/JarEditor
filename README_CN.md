@@ -23,6 +23,7 @@
 - 将jar包内文件/文件夹复制到剪贴板，然后在其他文件夹可粘贴复制的文件
 - 支持springboot fatjar
 - 支持kotlin
+- 支持class jar从source jar导入代码，以及class/source jar相互跳转
 
 ## 快速开始
 
@@ -58,7 +59,7 @@
 
 ### SDK Default对应JDK版本
 
-编译选择 **SDK Default** 时，对应的JDK版本如下: 
+编译选择 **SDK Default** 时，对应的JDK版本如下
 
 IDEA|JDK
 ---|---
