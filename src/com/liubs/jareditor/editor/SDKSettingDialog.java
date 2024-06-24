@@ -14,12 +14,16 @@ import com.liubs.jareditor.util.StringUtils;
 
 
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -31,6 +35,7 @@ public class SDKSettingDialog extends DialogWrapper {
     private java.util.List<SDKSettingStorage.MyItem> allItems = new ArrayList<>();
     private java.util.List<JComponent> enables = new ArrayList<>();
 
+    private Map<String,JCheckBox> genDebugInfosMap = new HashMap<>();
 
     public SDKSettingDialog() {
         super(true); // use current window as parent
@@ -50,8 +55,42 @@ public class SDKSettingDialog extends DialogWrapper {
     protected JComponent createCenterPanel() {
 
         //basic config panel
-        JPanel mainPanel = new JPanel(new GridLayoutManager(2, 2));
-        mainPanel.setPreferredSize(new Dimension(500, 250));
+        JPanel mainPanel = new JPanel(new GridLayoutManager(3, 2));
+        mainPanel.setPreferredSize(new Dimension(500, 300));
+
+        JPanel genDebugInfoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JLabel genDebugInfoLabel= new JLabel("Generate debug info(-g) : ");
+        genDebugInfoPanel.add(genDebugInfoLabel);
+
+        JCheckBox lines = new JCheckBox("lines");
+        JCheckBox vars = new JCheckBox("vars");
+        JCheckBox source = new JCheckBox("source                           ");
+        genDebugInfosMap.put("lines",lines);
+        genDebugInfosMap.put("vars",vars);
+        genDebugInfosMap.put("source",source);
+        genDebugInfoPanel.add(lines);
+        genDebugInfoPanel.add(vars);
+        genDebugInfoPanel.add(source);
+        if(StringUtils.isEmpty(SDKSettingStorage.getInstance().getGenDebugInfos()) || SDKSettingStorage.getInstance().getGenDebugInfos().contains("lines")) {
+            lines.setSelected(true);
+        }
+        if(StringUtils.isEmpty(SDKSettingStorage.getInstance().getGenDebugInfos()) || SDKSettingStorage.getInstance().getGenDebugInfos().contains("vars")) {
+            vars.setSelected(true);
+        }
+        if(StringUtils.isEmpty(SDKSettingStorage.getInstance().getGenDebugInfos()) || SDKSettingStorage.getInstance().getGenDebugInfos().contains("source")) {
+            source.setSelected(true);
+        }
+
+
+
+        Border etchedBorder = BorderFactory.createEtchedBorder(EtchedBorder.RAISED);
+        genDebugInfoPanel.setBorder(BorderFactory.createTitledBorder(etchedBorder,"Preferences"));
+
+
+        mainPanel.add(genDebugInfoPanel, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_WEST,
+                GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED,
+                GridConstraints.SIZEPOLICY_FIXED, null, null, null));
+
 
 
         Dimension buttonSize = new Dimension(20, 20);
@@ -93,7 +132,7 @@ public class SDKSettingDialog extends DialogWrapper {
 
 
         // Add the new panel to the main panel
-        mainPanel.add(mappingLabelPanel, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_WEST,
+        mainPanel.add(mappingLabelPanel, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_WEST,
                 GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED,
                 GridConstraints.SIZEPOLICY_FIXED, null, null, null));
 
@@ -197,7 +236,7 @@ public class SDKSettingDialog extends DialogWrapper {
         rightPanel.setMinimumSize(minimumSize);
 
         // Add split pane to the main panel
-        mainPanel.add(splitPane, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_WEST,
+        mainPanel.add(splitPane, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_WEST,
                 GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW,
                 GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null));
 
@@ -301,6 +340,13 @@ public class SDKSettingDialog extends DialogWrapper {
                 .filter(f->StringUtils.isNotEmpty(f.getName()) && StringUtils.isNotEmpty(f.getPath()))
                 .collect(Collectors.toList());
     }
+
+
+    public String getGenDebugInfo(){
+        String genDebugInfo = genDebugInfosMap.entrySet().stream().filter(entry->entry.getValue().isSelected()).map(Map.Entry::getKey).collect(Collectors.joining(","));
+        return StringUtils.isEmpty(genDebugInfo) ? "none" : genDebugInfo;
+    }
+
 
     @Override
     protected void doOKAction() {

@@ -158,7 +158,7 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
 
     private void addCompiledUI(JPanel buttonPanel){
         //select SDK
-        selectJDKComboBox = new ComboBox<>();
+        selectJDKComboBox = new ComboBox<>(120);
 
         JLabel sdkLabel = new JLabel("<html><span style=\"color: #5799EE;\">SDK</span></html>");
         sdkLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -169,6 +169,7 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
                 if(dialog.showAndGet()){
                     //持久化
                     SDKSettingStorage.getInstance().setMySdks(dialog.getAllItems());
+                    SDKSettingStorage.getInstance().setGenDebugInfos(dialog.getGenDebugInfo());
 
                     initSDKComboBox();
                 }
@@ -202,7 +203,7 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         if(StringUtils.isNotEmpty(classVersion)) {
             selectVersionComboBox.setSelectedItem(classVersion);
         }
-        JLabel compiled_version = new JLabel("Compiled Version");
+        JLabel compiled_version = new JLabel("Target");
         buttonPanel.add(compiled_version);
         buttonPanel.add(selectVersionComboBox);
 

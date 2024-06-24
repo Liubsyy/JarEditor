@@ -28,6 +28,8 @@ public class SDKSettingStorage implements PersistentStateComponent<SDKSettingSto
     @XCollection(elementName = "items")
     private List<MyItem> mySdks = new ArrayList<>();
 
+    private String genDebugInfos;
+
     @Nullable
     @Override
     public SDKSettingStorage getState() {
@@ -43,6 +45,14 @@ public class SDKSettingStorage implements PersistentStateComponent<SDKSettingSto
         return ApplicationManager.getApplication().getService(SDKSettingStorage.class);
     }
 
+
+    public String getGenDebugInfos() {
+        return genDebugInfos;
+    }
+
+    public void setGenDebugInfos(String genDebugInfos) {
+        this.genDebugInfos = genDebugInfos;
+    }
 
     public List<MyItem> getMySdks() {
         return mySdks;

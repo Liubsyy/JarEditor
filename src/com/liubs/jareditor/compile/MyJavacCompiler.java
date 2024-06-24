@@ -1,5 +1,8 @@
 package com.liubs.jareditor.compile;
 
+import com.liubs.jareditor.persistent.SDKSettingStorage;
+import com.liubs.jareditor.util.StringUtils;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +49,14 @@ public class MyJavacCompiler extends ProcessCommandCompiler{
         commands.add("-target");
         commands.add(targetVersion);
         commands.add( "-Xlint:none");
-        commands.add( "-g");
+
+        String genDebugInfos = SDKSettingStorage.getInstance().getGenDebugInfos();
+        if(StringUtils.isEmpty(genDebugInfos)) {
+            commands.add("-g");
+        }else {
+            commands.add("-g:"+genDebugInfos);
+        }
+
         if(!classPath.isEmpty()) {
             commands.add( "-classpath");
             commands.add(String.join(File.pathSeparator, classPaths));

@@ -2,6 +2,9 @@ package com.liubs.jareditor.compile;
 
 
 
+import com.liubs.jareditor.persistent.SDKSettingStorage;
+import com.liubs.jareditor.util.StringUtils;
+
 import javax.tools.*;
 import java.io.File;
 import java.util.*;
@@ -71,7 +74,14 @@ public class MyRuntimeCompiler implements IMyCompiler {
         options.add(targetVersion);
 
         options.add("-Xlint:none");
-        options.add("-g");
+
+        String genDebugInfos = SDKSettingStorage.getInstance().getGenDebugInfos();
+        if(StringUtils.isEmpty(genDebugInfos)) {
+            options.add("-g");
+        }else {
+            options.add("-g:"+genDebugInfos);
+        }
+
 
         DiagnosticCollector<JavaFileObject> diagnostics  = new DiagnosticCollector<>();
         StandardJavaFileManager standardFileManager = compiler.getStandardFileManager(diagnostics, null, null);
