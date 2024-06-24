@@ -64,6 +64,6 @@ When compiling and selecting **SDK Default**, the corresponding JDK version is a
 
 IDEA|JDK
 ---|---
-IDEA 2020.3|JDK 11
-IDEA 2022.2|JDK 17
-IDEA 2024.2|JDK 21
+IDEA 2020.3 - IDEA 2022.1 |JDK 11
+IDEA 2022.2 - IDEA 2024.1 |JDK 17
+IDEA 2024.2 and later |JDK 21
