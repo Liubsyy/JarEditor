@@ -85,7 +85,14 @@
       <action id="jarEditorRenameFile" class="com.liubs.jareditor.action.JarEditorRenameFile" text="Rename" description="Rename"/>
       <action id="jarEditorCopyFile" class="com.liubs.jareditor.action.JarEditorCopyFile" text="Copy" description="Copy"/>
       <action id="jarEditorPasteFile" class="com.liubs.jareditor.action.JarEditorPasteFile" text="Paste" description="Paste"/>
+
     </group>
+
+
+    <action id="jarEditorSearch" class="com.liubs.jareditor.action.JarEditorSearch" text="Search" description="Search" icon="AllIcons.Actions.Search"/>
+
   </actions>
+
+
 
 </idea-plugin>

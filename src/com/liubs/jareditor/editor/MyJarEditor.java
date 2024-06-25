@@ -1,7 +1,9 @@
 package com.liubs.jareditor.editor;
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
+import com.intellij.icons.AllIcons;
 import com.intellij.ide.highlighter.JavaFileType;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -20,6 +22,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.util.PsiErrorElementUtil;
+import com.intellij.util.ui.JBUI;
 import com.liubs.jareditor.decompile.MyDecompiler;
 import com.liubs.jareditor.persistent.SDKSettingStorage;
 import com.liubs.jareditor.sdk.JavacToolProvider;
@@ -99,7 +102,9 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         JButton resetButton = new JButton("Reset");
 
         JPanel optPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        addCompiledUI(optPanel);
+
+        this.createActionToolBar(optPanel);
+        this.addCompiledUI(optPanel);
         optPanel.add(needCompiled);
         optPanel.add(saveButton);
         optPanel.add(rebuildJar);
@@ -129,6 +134,22 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         saveButton.addActionListener(e -> saveChanges());
         rebuildJar.addActionListener(e -> buildJar());
         resetButton.addActionListener(e -> cancelChanges());
+    }
+
+    private void createActionToolBar(JPanel optPanel){
+        AnAction jarEditorSearch = ActionManager.getInstance().getAction("jarEditorSearch");
+
+        ArrayList<AnAction> actions = new ArrayList<>();
+        if(null != jarEditorSearch) {
+            actions.add(jarEditorSearch);
+        }
+
+        ActionToolbar myToolBar = ActionManager.getInstance().createActionToolbar(ActionPlaces.TOOLBAR,
+                new DefaultActionGroup(actions), false);
+        myToolBar.setOrientation(SwingConstants.HORIZONTAL); //设置工具栏为水平方向
+
+
+        optPanel.add(myToolBar.getComponent());
     }
 
     private void compiledUIVisible(boolean visible){

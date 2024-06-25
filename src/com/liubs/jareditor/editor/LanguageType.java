@@ -53,14 +53,6 @@ public enum LanguageType {
         return compilerFactory.buildCompiler(commandHome);
     }
 
-    public static LanguageType existDefaultCommand(String fileExtension) {
-        for(LanguageType type : LanguageType.values()) {
-            if(fileExtension.equals(type.fileExtension) && StringUtils.isNotEmpty(type.subCommandHome)){
-                return type;
-            }
-        }
-        return null;
-    }
 
     public String getSubCommandHome() {
         return subCommandHome;
