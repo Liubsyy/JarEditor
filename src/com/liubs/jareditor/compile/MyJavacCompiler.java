@@ -39,7 +39,10 @@ public class MyJavacCompiler extends ProcessCommandCompiler{
     protected List<String> buildCommand(CommandParam commandParam){
         // 使用ProcessBuilder启动JDK的javac编译器
         String javacPath = commandHome + "/bin/javac";  //javac路径 安装路径
-        String classPath = classPaths.toString();
+        return buildCommand(javacPath,commandParam);
+    }
+
+    protected List<String> buildCommand(String javacPath,CommandParam commandParam){
         List<String> commands = new ArrayList<>();
         commands.add(javacPath);
         commands.add("-d");
@@ -57,7 +60,7 @@ public class MyJavacCompiler extends ProcessCommandCompiler{
             commands.add("-g:"+genDebugInfos);
         }
 
-        if(!classPath.isEmpty()) {
+        if(!classPaths.isEmpty()) {
             commands.add( "-classpath");
             commands.add(String.join(File.pathSeparator, classPaths));
         }

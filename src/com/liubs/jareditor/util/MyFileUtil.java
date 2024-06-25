@@ -5,6 +5,8 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -40,15 +42,19 @@ public class MyFileUtil {
 
 
     public static List<String> findAllJars(String path) {
-        List<String> jars = new ArrayList<>();
+        return searchFile(path,p -> p.toString().endsWith(".jar")); // 过滤出所有.jar文件
+    }
+
+    public static List<String> searchFile(String path, Predicate<Path> filter) {
+        List<String> targets = new ArrayList<>();
         if(null ==path) {
-            return jars;
+            return targets;
         }
 
         // 使用try-with-resources确保流会被正确关闭
         try (Stream<Path> files = Files.walk(Paths.get(path))) {
-            jars = files
-                    .filter(p -> p.toString().endsWith(".jar"))  // 过滤出所有.jar文件
+            targets = files
+                    .filter(filter)
                     .map(p -> p.toAbsolutePath().toString())  // 转换为绝对路径的字符串
                     .collect(Collectors.toList());  // 将结果收集到列表中
 
@@ -56,7 +62,7 @@ public class MyFileUtil {
             e.printStackTrace();  // 打印异常信息
         }
 
-        return jars;
+        return targets;
     }
 
 }

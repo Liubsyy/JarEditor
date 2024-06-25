@@ -135,18 +135,20 @@ public class JarEditorCore {
         //编译器
         IMyCompiler myCompiler = null;
         if(StringUtils.isEmpty(sdkHome)) {
-            LanguageType languageType = LanguageType.existDefaultCommand(file.getExtension());
-            if(null == languageType) {
-                //默认使用运行时动态编译，基于IDEA运行时自带的JDK编译，比外部javac命令编译更快
-                //比如IDEA2020.3自带JDK11, IDEA2022.3自带JDK17
-                myCompiler = new MyRuntimeCompiler(JavacToolProvider.getJavaCompilerFromProjectSdk());
-            }else {
-                myCompiler = languageType.buildCompiler(
-                        PathManager.getHomePath().replace("\\", "/")+"/"+languageType.getDefaultCommandHome());
+            if(!"class".equals(file.getExtension())) {
+                LanguageType languageType = LanguageType.matchType(file.getExtension(),PathManager.getHomePath().replace("\\", "/"));
+                if(null != languageType) {
+                    myCompiler = languageType.buildCompiler(PathManager.getHomePath().replace("\\", "/"));
+                }
             }
 
+            if(null == myCompiler) {
+                //默认使用运行时动态编译，基于IDEA运行时自带的JDK编译，比外部javac命令编译更快
+                //比如IDEA2020.3自带JDK11, IDEA2022.2自带JDK17
+                myCompiler = new MyRuntimeCompiler(JavacToolProvider.getJavaCompilerFromProjectSdk());
+            }
         } else {
-            LanguageType languageType = LanguageType.anyType(file.getExtension(),sdkHome);
+            LanguageType languageType = LanguageType.matchType(file.getExtension(),sdkHome);
             if(null != languageType) {
                 myCompiler = languageType.buildCompiler(sdkHome);
             }

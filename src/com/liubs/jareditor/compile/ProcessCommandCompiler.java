@@ -15,7 +15,7 @@ import java.util.*;
  */
 public abstract class ProcessCommandCompiler implements IMyCompiler{
     protected String commandHome;
-    protected StringBuilder classPaths = new StringBuilder();
+    protected List<String> classPaths = new ArrayList<>();
     protected Map<String,String> sourceCodes = new HashMap<>();
     protected String outputDirectory = "jar_edit_out";
 
@@ -28,7 +28,8 @@ public abstract class ProcessCommandCompiler implements IMyCompiler{
 
     @Override
     public void addClassPaths(Collection<String> classPaths) {
-        this.classPaths.append(String.join(File.pathSeparator, classPaths));
+//        this.classPaths.append(String.join(File.pathSeparator, classPaths));
+        this.classPaths.addAll(classPaths);
     }
 
     @Override

@@ -55,7 +55,6 @@ public class MyKotlincCompiler extends ProcessCommandCompiler{
             kotlinc = kotlinc+".bat";
         }
 
-        String classPath = classPaths.toString();
         List<String> commands = new ArrayList<>();
         commands.add(kotlinc);
         commands.add("-d");
@@ -64,7 +63,7 @@ public class MyKotlincCompiler extends ProcessCommandCompiler{
         commands.add(targetVersion);
 //        commands.add( "-Xlint:none");
 //        commands.add( "-g");
-        if(!classPath.isEmpty()) {
+        if(!classPaths.isEmpty()) {
             commands.add( "-classpath");
             commands.add(String.join(File.pathSeparator, classPaths));
         }
