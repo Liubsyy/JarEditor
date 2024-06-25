@@ -17,6 +17,7 @@ import com.liubs.jareditor.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
+ * 重命名
  * @author Liubsyy
  * @date 2024/6/2
  */
@@ -40,8 +41,8 @@ public class JarEditorRenameFile extends AnAction {
             return;
         }
 
-        final boolean isDictionary = selectedFile.isDirectory();
-        final String oldEntry =  isDictionary ?
+        final boolean isDirectory = selectedFile.isDirectory();
+        final String oldEntry =  isDirectory ?
                 (MyPathUtil.getEntryPathFromJar(selectedFile.getPath()) + "/") :
                 MyPathUtil.getEntryPathFromJar(selectedFile.getPath());
 
@@ -57,7 +58,7 @@ public class JarEditorRenameFile extends AnAction {
             return;
         }
 
-        String newName =  isDictionary ?
+        String newName =  isDirectory ?
                 (MyPathUtil.getEntryPathFromJar(selectedFile.getParent().getPath()+"/"+userInput)+"/")
                 :
                 (MyPathUtil.getEntryPathFromJar(selectedFile.getParent().getPath()+"/"+userInput));
@@ -68,7 +69,7 @@ public class JarEditorRenameFile extends AnAction {
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 try {
                     JarBuilder jarBuilder = new JarBuilder(jarPath);
-                    JarBuildResult jarBuildResult = jarBuilder.renameFile(oldEntry, newNameFinal, isDictionary);
+                    JarBuildResult jarBuildResult = jarBuilder.renameFile(oldEntry, newNameFinal, isDirectory);
                     if(!jarBuildResult.isSuccess()) {
                         NoticeInfo.error("Build jar err: \n%s",jarBuildResult.getErr());
                         return;

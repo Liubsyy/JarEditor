@@ -18,9 +18,9 @@ IDEA plugin for modifying files in jar directly without decompression, including
 
 ## Features
 - Edit class/resource files in jar directly without decompression
-- Add/Delete/Rename file/dictionary in jar
-- Paste file/dictionary from clipboard
-- Copy file/dictionary to clipboard
+- Add/Delete/Rename file/directory in jar
+- Paste file/directory from clipboard
+- Copy file/directory to clipboard
 - Support springboot fatjar
 - Support kotlin
 - Supports class jar importing code from source jar, and class/source jar jumping between each other

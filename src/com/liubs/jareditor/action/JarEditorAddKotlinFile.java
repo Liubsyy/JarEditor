@@ -5,6 +5,7 @@ import com.intellij.openapi.ui.Messages;
 import com.liubs.jareditor.util.StringUtils;
 
 /**
+ * 新增kotlin文件
  * @author Liubsyy
  * @date 2024/6/2
  */

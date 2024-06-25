@@ -19,8 +19,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 public class ClipboardToFile {
     private String targetPath;
 
-    public ClipboardToFile(String targetDictionary) {
-        this.targetPath = targetDictionary;
+    public ClipboardToFile(String targetDirectory) {
+        this.targetPath = targetDirectory;
     }
 
     public CopyResult copyFilesFromClipboard() {
@@ -32,7 +32,7 @@ public class ClipboardToFile {
                     Files.createDirectories(targetDirectory);
                 } catch (IOException ex) {
                     ex.printStackTrace();
-                    return new CopyResult(false, "Can not create dictionary: " + ex.getMessage());
+                    return new CopyResult(false, "Can not create directory: " + ex.getMessage());
                 }
             }
 

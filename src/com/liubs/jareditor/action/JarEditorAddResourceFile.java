@@ -5,6 +5,7 @@ import com.intellij.openapi.ui.Messages;
 import com.liubs.jareditor.util.StringUtils;
 
 /**
+ * 新增普通文件
  * @author Liubsyy
  * @date 2024/5/12
  */

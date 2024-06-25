@@ -22,11 +22,11 @@ import java.util.zip.CRC32;
  */
 public class JarBuilder {
 
-    private String classDictionary;
+    private String classDirectory;
     private String jarFile;
 
-    public JarBuilder(String classDictionary, String jarFile) {
-        this.classDictionary = classDictionary;
+    public JarBuilder(String classDirectory, String jarFile) {
+        this.classDirectory = classDirectory;
         this.jarFile = jarFile;
     }
 
@@ -40,7 +40,7 @@ public class JarBuilder {
         File tempJarFile = null;
         try {
             Path jarPath = Paths.get(jarFile);
-            Path classDirPath = Paths.get(classDictionary);
+            Path classDirPath = Paths.get(classDirectory);
 
             if (!Files.exists(jarPath)) {
                 return new JarBuildResult(false, "File does not exist: " + jarFile);
@@ -53,7 +53,7 @@ public class JarBuilder {
             }
 
             if (!Files.exists(classDirPath)) {
-                return new JarBuildResult(false, "Dictionary does not exist: " + classDictionary);
+                return new JarBuildResult(false, "Directory does not exist: " + classDirectory);
             }
 
             // 临时文件替代内存流
@@ -199,7 +199,7 @@ public class JarBuilder {
         }
         return jarBuildResult;
     }
-    public JarBuildResult renameFile(String entryPath,String newEntryPath ,boolean isDictionary){
+    public JarBuildResult renameFile(String entryPath,String newEntryPath ,boolean isDirectory){
         JarBuildResult jarBuildResult;
         File tempJarFile = null;
         try {
@@ -221,7 +221,7 @@ public class JarBuilder {
 
                     //如果是目录，子目录和子文件的路径都应该改变
                     String entryPathTemp = (entry.getName().startsWith("/") && !entryPath.startsWith("/")) ? "/"+entryPath : entryPath;
-                    if (isDictionary) {
+                    if (isDirectory) {
                         //这里不会有问题，因为文件夹是以/结尾
                         if(entry.getName().startsWith(entryPathTemp)) {
                             newEntry = copyNewEntry(originalJar,

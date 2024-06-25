@@ -5,16 +5,17 @@ import com.intellij.openapi.ui.Messages;
 import com.liubs.jareditor.util.StringUtils;
 
 /**
+ * 新增文件夹
  * @author Liubsyy
  * @date 2024/5/14
  */
-public class JarEditorAddDictionary  extends JavaEditorAddFile {
+public class JarEditorAddDirectory extends JavaEditorAddFile {
     @Override
     protected String preInput(Project project, String entryPathFromJar) {
         String userInput = Messages.showInputDialog(
                 project,
-                "Enter name for new dictionary:",
-                "Create New Dictionary",
+                "Enter name for new directory:",
+                "Create New Directory",
                 Messages.getQuestionIcon()
         );
         if(StringUtils.isEmpty(userInput)) {

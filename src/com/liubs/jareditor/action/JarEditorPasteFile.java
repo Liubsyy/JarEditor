@@ -19,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 
 
 /**
+ * 从剪切板粘贴文件到jar包内
  * @author Liubsyy
  * @date 2024/6/2
  */
