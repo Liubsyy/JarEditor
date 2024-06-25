@@ -49,7 +49,7 @@
 ### 3. 其他操作
 在jar包的项目视图中，右键可以看到**JarEditor->New/Delete**等操作，可以在jar内添加/删除/重命名/复制/粘贴文件。
 
-<img src="./img/JarEditor_new_delete.png" width="550" height="515" />
+<img src="./img/JarEditor_new_delete.png" width="600" height="560" />
 
 
 ## 一些机制

@@ -49,7 +49,7 @@ Modifying the resource files in the jar package is also supported.
 ### 3. Other operations of JarEditor
 In the project view of the jar package, right-click to see **JarEditor->New/Delete** and other operations, where you can add/delete/rename/copy/paste files.
 
-<img src="./img/JarEditor_new_delete.png" width="550" height="515" />
+<img src="./img/JarEditor_new_delete.png" width="600" height="560" />
 
 
 ## Some mechanisms
