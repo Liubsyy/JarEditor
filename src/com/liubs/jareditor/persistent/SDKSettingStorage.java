@@ -30,6 +30,9 @@ public class SDKSettingStorage implements PersistentStateComponent<SDKSettingSto
 
     private String genDebugInfos;
 
+    //最大的jdk版本，1，2，3，4...21，对应1.1, 1.2, 1.3 ... 21
+    private int maxJavaVersion;
+
     @Nullable
     @Override
     public SDKSettingStorage getState() {
@@ -79,7 +82,13 @@ public class SDKSettingStorage implements PersistentStateComponent<SDKSettingSto
         return mySdks.stream().filter(Objects::nonNull).collect(Collectors.toList());
     }
 
+    public int getMaxJavaVersion() {
+        return maxJavaVersion;
+    }
 
+    public void setMaxJavaVersion(int maxJavaVersion) {
+        this.maxJavaVersion = maxJavaVersion;
+    }
 
     @Tag("item")
     public static class MyItem {

@@ -5,6 +5,7 @@ import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ProjectRootManager;
+import com.liubs.jareditor.persistent.SDKSettingStorage;
 
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
@@ -18,6 +19,8 @@ import java.util.regex.Pattern;
  */
 public class JavacToolProvider {
 
+    // 定义正则表达式模式以提取版本号
+    private static final Pattern JAVA_VERSION_PATTERN = Pattern.compile("(\\d+)(\\.\\d+)*");
 
     public static JavaCompiler getJavaCompilerFromProjectSdk() {
 
@@ -47,6 +50,14 @@ public class JavacToolProvider {
         return -1;
     }
     public static int getMaxJdkVersion() {
+
+        //偏好设置有最大值的话取最大值
+        int maxJavaVersion = SDKSettingStorage.getInstance().getMaxJavaVersion();
+        if(maxJavaVersion > 0) {
+            return maxJavaVersion;
+        }
+
+        //从sdk列表中取最大值
         int maxVersion = -1;
         Sdk[] allJdks = ProjectJdkTable.getInstance().getAllJdks();
         for(Sdk sdk : allJdks) {
@@ -57,12 +68,8 @@ public class JavacToolProvider {
         return maxVersion;
     }
 
-    private static int parseJavaVersion(String versionString) {
-        // 定义正则表达式模式以提取版本号
-        String versionPattern = "(\\d+)(\\.\\d+)*";
-        Pattern pattern = Pattern.compile(versionPattern);
-        Matcher matcher = pattern.matcher(versionString);
-
+    public static int parseJavaVersion(String versionString) {
+        Matcher matcher = JAVA_VERSION_PATTERN.matcher(versionString);
         if (matcher.find()) {
             String[] versionParts = matcher.group().split("\\.");
             if (versionParts[0].equals("1")) {

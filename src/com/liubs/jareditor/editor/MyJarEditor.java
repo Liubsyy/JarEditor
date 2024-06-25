@@ -13,6 +13,7 @@ import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.UserDataHolderBase;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
@@ -24,6 +25,7 @@ import com.liubs.jareditor.sdk.JavacToolProvider;
 import com.liubs.jareditor.sdk.NoticeInfo;
 import com.liubs.jareditor.template.TemplateManager;
 import com.liubs.jareditor.constant.ClassVersion;
+import com.liubs.jareditor.util.CommandTools;
 import com.liubs.jareditor.util.StringUtils;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -129,6 +131,20 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
             needCompiled.setSelected(true);
             return;
         }
+        if(sourceJarResolver.isSourceJar() && visible) {
+            int response = Messages.showYesNoDialog(
+                    project,
+                    "You are editing a source jar, not class jar, are you sure you want to compile it ?",
+                    "Compilation Confirmation",
+                    Messages.getQuestionIcon()
+            );
+
+            if (response != Messages.YES) {
+                needCompiled.setSelected(false);
+                return;
+            }
+        }
+
         compiledUIComponents.forEach(c->{
             c.setVisible(visible);
         });
@@ -137,6 +153,7 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
     private void initSDKComboBox(){
         javaHomes.clear();
         selectJDKComboBox.removeAllItems();
+        selectVersionComboBox.removeAllItems();
 
         selectJDKComboBox.addItem("SDK Default");
         Set<String> allItems = new HashSet<>();
@@ -154,36 +171,8 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         }catch (Throwable ee) {
             selectJDKComboBox.setSelectedItem("SDK Default");
         }
-    }
 
-    private void addCompiledUI(JPanel buttonPanel){
-        //select SDK
-        selectJDKComboBox = new ComboBox<>(120);
-
-        JLabel sdkLabel = new JLabel("<html><span style=\"color: #5799EE;\">SDK</span></html>");
-        sdkLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        sdkLabel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                SDKSettingDialog dialog = new SDKSettingDialog();
-                if(dialog.showAndGet()){
-                    //持久化
-                    SDKSettingStorage.getInstance().setMySdks(dialog.getAllItems());
-                    SDKSettingStorage.getInstance().setGenDebugInfos(dialog.getGenDebugInfo());
-
-                    initSDKComboBox();
-                }
-            }
-        });
-        buttonPanel.add(sdkLabel);
-
-        initSDKComboBox();
-
-        selectJDKComboBox.addActionListener((e)-> lastSelectItem = (String) selectJDKComboBox.getSelectedItem());
-        buttonPanel.add(selectJDKComboBox);
-
-        //select version
-        selectVersionComboBox = new ComboBox<>();
+        //选择编译版本
         String classVersion = ClassVersion.detectClassVersion(file);
         int maxJdkVersion = -1;
         try{
@@ -203,10 +192,54 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         if(StringUtils.isNotEmpty(classVersion)) {
             selectVersionComboBox.setSelectedItem(classVersion);
         }
+    }
+
+    private void addCompiledUI(JPanel buttonPanel){
+        //select SDK
+        selectJDKComboBox = new ComboBox<>(120);
+        //select version
+        selectVersionComboBox = new ComboBox<>();
+
+        JLabel sdkLabel = new JLabel("<html><span style=\"color: #5799EE;\">SDK</span></html>");
+        sdkLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        sdkLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                SDKSettingDialog dialog = new SDKSettingDialog();
+                if(dialog.showAndGet()){
+                    //持久化
+                    SDKSettingStorage.getInstance().setMySdks(dialog.getAllItems());
+                    SDKSettingStorage.getInstance().setGenDebugInfos(dialog.getGenDebugInfo());
+
+                    //刷新最高jdk版本
+                    int[] maxJavaVersion = new int[]{8};
+                    SDKSettingStorage.getInstance().getMySdks().parallelStream().forEach(sdk->{
+                        try{
+                            String javacVersion = CommandTools.exec(sdk.getPath() + "/bin/javac -version");
+                            if(null != javacVersion) {
+                                int version = JavacToolProvider.parseJavaVersion(javacVersion);
+                                maxJavaVersion[0] = Math.max(maxJavaVersion[0],version);
+                            }
+                        }catch (Throwable ex){}
+                    });
+                    maxJavaVersion[0] = Math.max(maxJavaVersion[0],JavacToolProvider.parseJavaVersion(System.getProperty("java.version"))); //当前IDEA运行的java版本
+
+                    SDKSettingStorage.getInstance().setMaxJavaVersion(maxJavaVersion[0]);
+
+                    initSDKComboBox();
+                }
+            }
+        });
+
+        buttonPanel.add(sdkLabel);
+        buttonPanel.add(selectJDKComboBox);
+
         JLabel compiled_version = new JLabel("Target");
         buttonPanel.add(compiled_version);
         buttonPanel.add(selectVersionComboBox);
 
+        initSDKComboBox();
+        selectJDKComboBox.addActionListener((e)-> lastSelectItem = (String) selectJDKComboBox.getSelectedItem());
 
         compiledUIComponents.add(sdkLabel);
         compiledUIComponents.add(selectJDKComboBox);
