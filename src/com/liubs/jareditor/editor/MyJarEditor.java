@@ -15,6 +15,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.UserDataHolderBase;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.testFramework.LightVirtualFile;
@@ -26,6 +27,7 @@ import com.liubs.jareditor.sdk.NoticeInfo;
 import com.liubs.jareditor.template.TemplateManager;
 import com.liubs.jareditor.constant.ClassVersion;
 import com.liubs.jareditor.util.CommandTools;
+import com.liubs.jareditor.util.MyPathUtil;
 import com.liubs.jareditor.util.StringUtils;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -38,6 +40,10 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeListener;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Objects;
@@ -398,6 +404,64 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         }catch (Throwable e) {}
 
     }
+
+
+    private boolean onceNotified = false;
+
+
+    /**
+     * 切换到编辑页时触发
+     * 1.如果有Save的临时文件，弹出确认框可导入修改的内容
+     */
+    @Override
+    public void selectNotify() {
+        FileEditor.super.selectNotify();
+
+        if(!onceNotified) {
+            onceNotified = true;
+
+            try{
+                String jarEditOutput = MyPathUtil.getJarEditOutput(file.getPath());
+                String entryPathFromJar = MyPathUtil.getEntryPathFromJar(file.getPath());
+
+                String savePath = jarEditOutput+"/"+entryPathFromJar;
+
+                //如果有保存的文件，弹出确认框可导入修改文本
+                Path path = Paths.get(savePath);
+                if(Files.exists(path)) {
+                    if(Messages.YES == Messages.showYesNoDialog(project,
+                            "This file was modified last time, do you need to import the changes ?",
+                            "Import Confirmation",
+                            Messages.getQuestionIcon())){
+
+                        final String newText;
+                        if("class".equals(file.getExtension())){
+                            VirtualFile virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByPath(savePath.replace("\\","/"));
+                            newText = getDecompiledText(project, virtualFile);
+                        }else {
+                            newText = Files.readString(path);
+                        }
+
+                        if(StringUtils.isNotEmpty(newText)) {
+                            Document document = editor.getDocument();
+
+                            WriteCommandAction.runWriteCommandAction(project, () -> {
+                                document.setText(newText);
+                            });
+
+                            PsiDocumentManager.getInstance(project).commitDocument(document);
+                        }
+                    }
+                }
+            }catch (Throwable e) {
+                e.printStackTrace();
+            }
+
+        }
+
+
+    }
+
 
 
 }
