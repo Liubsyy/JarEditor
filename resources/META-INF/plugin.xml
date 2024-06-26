@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.liubs.jaredit</id>
   <name>JarEditor</name>
-  <version>1.5.1</version>
+  <version>1.5.2</version>
   <vendor email="Liubsyy@gmail.com" url="https://github.com/Liubsyy/JarEditor">Liubsyy</vendor>
 
   <description><![CDATA[
@@ -19,6 +19,9 @@
         <li>Add link from source jar to class jar</li>
         <li>Class jar can import code from source jar if exists</li>
         <li>Preferences for -g:lines,vars,source</li>
+        <li>The last saved content can be read when the file is reopened</li>
+        <li>Can clean up temporarily saved directories</li>
+        <li>Search the contents of the jar package</li>
       </ul>
 
      <h3>1.4</h3>
