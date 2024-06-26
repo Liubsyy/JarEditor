@@ -55,7 +55,7 @@ In the project view of the jar package, right-click to see **JarEditor->New/Dele
 
 Click the **Search** icon to search the contents of the jar package. If it is a class jar, it will be searched based on the decompiled content.
 
-<img src="./img/JarEditor_search.png" width="600" height="455" />
+<img src="./img/JarEditor_search.png" width="700" height="530" />
 
 ## Some mechanisms
 - The JDK that the compilation depends on is the JDK of your SDK list. You can choose SDK and target version of the compiled class.
