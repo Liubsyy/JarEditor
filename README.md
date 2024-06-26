@@ -23,7 +23,7 @@ IDEA plugin for modifying files in jar directly without decompression, including
 - Copy file/directory to clipboard
 - Support SpringBoot jar
 - Support kotlin
-- Supports source jar
+- Support source jar
 - Search the contents of the jar package
 
 ## Quick start
