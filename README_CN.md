@@ -24,6 +24,7 @@
 - 支持springboot fatjar
 - 支持kotlin
 - 支持class jar从source jar导入代码，以及class/source jar相互跳转
+- 搜索jar包的内容（class jar根据反编译搜索）
 
 ## 快速开始
 
@@ -50,6 +51,11 @@
 在jar包的项目视图中，右键可以看到**JarEditor->New/Delete**等操作，可以在jar内添加/删除/重命名/复制/粘贴文件。
 
 <img src="./img/JarEditor_new_delete.png" width="600" height="560" />
+
+点击 **Search** 图标，可以搜索jar包的内容，如果是class jar将根据反编译的内容进行搜索
+
+<img src="./img/JarEditor_search.png" width="600" height="455" />
+
 
 
 ## 一些机制

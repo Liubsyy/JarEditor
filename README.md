@@ -24,6 +24,7 @@ IDEA plugin for modifying files in jar directly without decompression, including
 - Support springboot fatjar
 - Support kotlin
 - Supports class jar importing code from source jar, and class/source jar jumping between each other
+- Search the contents of the jar package(class jar is searched based on decompilation)
 
 ## Quick start
 
@@ -51,6 +52,10 @@ In the project view of the jar package, right-click to see **JarEditor->New/Dele
 
 <img src="./img/JarEditor_new_delete.png" width="600" height="560" />
 
+
+Click the **Search** icon to search the contents of the jar package. If it is a class jar, it will be searched based on the decompiled content.
+
+<img src="./img/JarEditor_search.png" width="600" height="455" />
 
 ## Some mechanisms
 - The JDK that the compilation depends on is the JDK of your SDK list. You can choose SDK and target version of the compiled class.
