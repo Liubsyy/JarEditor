@@ -20,11 +20,11 @@
 - 直接编辑jar包内class/resource文件，无需解压
 - 添加/删除/重命名jar包内文件/文件夹
 - 从剪贴板粘贴文件/文件夹到jar包内
-- 将jar包内文件/文件夹复制到剪贴板，然后在其他文件夹可粘贴复制的文件
-- 支持springboot fatjar
+- 将jar包内文件/文件夹复制到剪贴板
+- 支持SpringBoot jar
 - 支持kotlin
-- 支持class jar从source jar导入代码，以及class/source jar相互跳转
-- 搜索jar包的内容（class jar根据反编译搜索）
+- 支持source jar
+- 搜索jar包的内容
 
 ## 快速开始
 
