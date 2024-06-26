@@ -3,23 +3,24 @@ package com.liubs.jareditor.action;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
-import com.liubs.jareditor.editor.JarFileSearchDialog;
 import com.liubs.jareditor.sdk.NoticeInfo;
+import com.liubs.jareditor.util.MyFileUtil;
 import com.liubs.jareditor.util.MyPathUtil;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * jar包内搜索文件和字符串
+ * 删除Save的临时文件夹
  * @author Liubsyy
- * @date 2024/6/25
+ * @date 2024/6/26
  */
-public class JarEditorSearch extends AnAction {
+public class JarEditorClear extends AnAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-
         Project project = e.getProject();
         if(project == null) {
             NoticeInfo.warning("Please open a project");
@@ -37,12 +38,21 @@ public class JarEditorSearch extends AnAction {
             NoticeInfo.warning("This operation only in JAR !!!");
             return;
         }
-        VirtualFile jarRoot = VirtualFileManager.getInstance().findFileByUrl("jar://" + jarPath + "!/");
-        if(null == jarRoot) {
-            NoticeInfo.error("Can not find jar : "+jarPath);
-            return;
-        }
-        JarFileSearchDialog jarFileSearchDialog = new JarFileSearchDialog(e.getProject(),jarRoot);
-        jarFileSearchDialog.show();
+
+        ProgressManager.getInstance().run(new Task.Backgroundable(null, "Clear temp directory ...", false) {
+            @Override
+            public void run(@NotNull ProgressIndicator progressIndicator) {
+                try {
+
+                    //删除临时保存的目录
+                    MyFileUtil.deleteDir(MyPathUtil.getJarEditTemp(selectedFile.getPath()));
+
+                    NoticeInfo.info("Clear success !");
+                }catch (Throwable e) {
+                    NoticeInfo.error("Clear files err",e);
+                }
+            }
+        });
+
     }
 }

@@ -137,9 +137,13 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
     }
 
     private void createActionToolBar(JPanel optPanel){
+        AnAction jarEditorClear = ActionManager.getInstance().getAction("jarEditorClear");
         AnAction jarEditorSearch = ActionManager.getInstance().getAction("jarEditorSearch");
 
         ArrayList<AnAction> actions = new ArrayList<>();
+        if(null != jarEditorClear) {
+            actions.add(jarEditorClear);
+        }
         if(null != jarEditorSearch) {
             actions.add(jarEditorSearch);
         }
@@ -378,6 +382,9 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         PsiDocumentManager.getInstance(project).commitDocument(document);
     }
 
+    public Editor getEditor(){
+        return editor;
+    }
 
     @Override
     public @NotNull JComponent getComponent() {

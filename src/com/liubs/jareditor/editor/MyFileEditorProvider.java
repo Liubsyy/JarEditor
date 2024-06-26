@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
  * @date 2024/5/8
  */
 public class MyFileEditorProvider implements FileEditorProvider {
-    private static final String EDITOR_TYPE_ID = "liubsyy-jar-editor";
+    public static final String EDITOR_TYPE_ID = "liubsyy-jar-editor";
 
     @Override
     public boolean accept(@NotNull Project project, @NotNull VirtualFile file) {

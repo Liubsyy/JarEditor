@@ -175,7 +175,7 @@ public class JarEditorCore {
         myCompiler.addSourceCode(MyPathUtil.getClassNameFromJar(file.getPath()) ,srcCode);
 
         IMyCompiler finalMyCompiler = myCompiler;
-        ProgressManager.getInstance().run(new Task.Backgroundable(null, "Compiling...", false) {
+        ProgressManager.getInstance().run(new Task.Backgroundable(null, "Compiling...", true) {
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 try {
                     CompilationResult compilationResult = finalMyCompiler.compile();
@@ -216,7 +216,7 @@ public class JarEditorCore {
     }
 
     private void buildJar0(){
-        ProgressManager.getInstance().run(new Task.Backgroundable(null, "Jar building...", false) {
+        ProgressManager.getInstance().run(new Task.Backgroundable(null, "Jar building...", true) {
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 try {
                     final String jarPath = MyPathUtil.getJarPathFromJar(file.getPath());

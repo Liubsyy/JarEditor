@@ -119,6 +119,9 @@ public class MyPathUtil {
     public static String getJarEditTemp(String classNameInJar){
         String[] split = classNameInJar.split(".jar!/");
         if(split.length!=2) {
+            if(classNameInJar.endsWith(".jar!/")) {
+                return classNameInJar.replace(".jar!/","_temp");
+            }
             return null;
         }
 

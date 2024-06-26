@@ -72,6 +72,7 @@
   <actions>
 
 
+
     <group id="JarEditorProjectGroup"  text="JarEditor" description="JarEditor" popup="true">
       <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
 
@@ -86,10 +87,13 @@
       <action id="jarEditorCopyFile" class="com.liubs.jareditor.action.JarEditorCopyFile" text="Copy" description="Copy"/>
       <action id="jarEditorPasteFile" class="com.liubs.jareditor.action.JarEditorPasteFile" text="Paste" description="Paste"/>
 
+      <action id="jarEditorSearch" class="com.liubs.jareditor.action.JarEditorSearch" text="Search" description="Search" icon="AllIcons.Actions.Search"/>
+
     </group>
 
 
-    <action id="jarEditorSearch" class="com.liubs.jareditor.action.JarEditorSearch" text="Search" description="Search" icon="AllIcons.Actions.Search"/>
+    <action id="jarEditorClear" class="com.liubs.jareditor.action.JarEditorClear" text="Clear saved files" description="Clear saved files" icon="MyIcons.CLEAN"/>
+
 
   </actions>
 

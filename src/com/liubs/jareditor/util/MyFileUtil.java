@@ -16,12 +16,16 @@ import java.util.stream.Stream;
  */
 public class MyFileUtil {
 
-    public static void deleteDir(String path) {
-        if(null ==path) {
+    public static void deleteDir(String dir) {
+        if(null ==dir) {
             return;
         }
         try {
-            Files.walkFileTree(Paths.get(path), new SimpleFileVisitor<>() {
+            Path path = Paths.get(dir);
+            if(!Files.exists(path )) {
+                return;
+            }
+            Files.walkFileTree(path, new SimpleFileVisitor<>() {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     Files.delete(file);
