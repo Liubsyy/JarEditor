@@ -1,8 +1,10 @@
 package com.liubs.jareditor.action;
 
+import com.intellij.openapi.actionSystem.ActionPlaces;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
@@ -25,7 +27,17 @@ public class JarEditorSearch extends AnAction {
             NoticeInfo.warning("Please open a project");
             return;
         }
-        VirtualFile selectedFile = e.getData(CommonDataKeys.VIRTUAL_FILE);
+        VirtualFile selectedFile = null;
+        if( ActionPlaces.TOOLBAR.equals(e.getPlace())) {
+            FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
+            VirtualFile[] editorSelectFiles = fileEditorManager.getSelectedFiles();
+            if(editorSelectFiles.length > 0) {
+                selectedFile = editorSelectFiles[0];
+            }
+        }else {
+            selectedFile = e.getData(CommonDataKeys.VIRTUAL_FILE);
+        }
+
         if(null == selectedFile) {
             NoticeInfo.warning("No file selected");
             return;

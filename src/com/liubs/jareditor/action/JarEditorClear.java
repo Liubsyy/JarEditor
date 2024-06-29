@@ -2,7 +2,7 @@ package com.liubs.jareditor.action;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
@@ -26,7 +26,17 @@ public class JarEditorClear extends AnAction {
             NoticeInfo.warning("Please open a project");
             return;
         }
-        VirtualFile selectedFile = e.getData(CommonDataKeys.VIRTUAL_FILE);
+        VirtualFile selectedFile = null;
+        FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
+        if(null != fileEditorManager) {
+            VirtualFile[] editorSelectFiles = fileEditorManager.getSelectedFiles();
+            if(editorSelectFiles.length > 0) {
+                selectedFile = editorSelectFiles[0];
+            }
+        }
+
+
+        //VirtualFile selectedFile = e.getData(CommonDataKeys.VIRTUAL_FILE);
         if(null == selectedFile) {
             NoticeInfo.warning("No file selected");
             return;
@@ -39,13 +49,14 @@ public class JarEditorClear extends AnAction {
             return;
         }
 
+        VirtualFile finalSelectedFile = selectedFile;
         ProgressManager.getInstance().run(new Task.Backgroundable(null, "Clear temp directory ...", false) {
             @Override
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 try {
 
                     //删除临时保存的目录
-                    MyFileUtil.deleteDir(MyPathUtil.getJarEditTemp(selectedFile.getPath()));
+                    MyFileUtil.deleteDir(MyPathUtil.getJarEditTemp(finalSelectedFile.getPath()));
 
                     NoticeInfo.info("Clear success !");
                 }catch (Throwable e) {
