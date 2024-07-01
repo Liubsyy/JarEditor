@@ -100,14 +100,17 @@ public abstract class ProcessCommandCompiler implements IMyCompiler{
             //参考IDEA的Shorten command line的classpath file机制，也是解决windows长命令问题
             try{
                 if(OSUtil.isWindows() && commands.size() >= 2) {
-                    //int length = String.join(" ",commands).length() + environment.values().stream().mapToInt(c->c.length()+1).sum();
-                    String commandHead = commands.get(0);
-                    List<String> commandParams = commands.subList(1, commands.size());
+                    int length = String.join(" ",commands).length()
+                            + environment.values().stream().mapToInt(c->c.length()+1).sum();
+                    if(length > 8191) { //实际上使用ProcessBuilder长度上限比普通命令行上限要大，应该不止8191
+                        String commandHead = commands.get(0);
+                        List<String> commandParams = commands.subList(1, commands.size());
 
-                    String paramsTxt = sourceDirString+PathConstant.JAR_EDITOR_COMPILE_PARAMS_TXT;
-                    Files.write(Paths.get(paramsTxt), String.join(" ",commandParams).getBytes(StandardCharsets.UTF_8));
+                        String paramsTxt = sourceDirString+PathConstant.JAR_EDITOR_COMPILE_PARAMS_TXT;
+                        Files.write(Paths.get(paramsTxt), String.join(" ",commandParams).getBytes(StandardCharsets.UTF_8));
 
-                    commands = Arrays.asList(commandHead,"@"+paramsTxt);
+                        commands = Arrays.asList(commandHead,"@"+paramsTxt);
+                    }
                 }
             }catch (Throwable t) {
                 t.printStackTrace();
