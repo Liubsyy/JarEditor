@@ -1,6 +1,8 @@
 package com.liubs.jareditor.compile;
 
+import com.liubs.jareditor.constant.PathConstant;
 import com.liubs.jareditor.util.MyFileUtil;
+import com.liubs.jareditor.util.OSUtil;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -88,13 +90,33 @@ public abstract class ProcessCommandCompiler implements IMyCompiler{
             commandParam.setSourcePaths(javaFilesPaths);
             commandParam.setOutPutPath(outDir.getAbsolutePath());
             List<String> commands = buildCommand(commandParam);
-            ProcessBuilder processBuilder = new ProcessBuilder(commands);
 
             //环境变量
             Map<String, String> environment = new HashMap<>();
             putExtra(environment);
-            processBuilder.environment().putAll(environment);
 
+
+            //windows下命令行有最大长度限制(CreateProcess error=206)，这里将参数写入JAR_EDITOR_COMPILE_PARAMS.txt
+            //参考IDEA的Shorten command line的classpath file机制，也是解决windows长命令问题
+            try{
+                if(OSUtil.isWindows() && commands.size() >= 2) {
+                    //int length = String.join(" ",commands).length() + environment.values().stream().mapToInt(c->c.length()+1).sum();
+                    String commandHead = commands.get(0);
+                    List<String> commandParams = commands.subList(1, commands.size());
+
+                    String paramsTxt = sourceDirString+PathConstant.JAR_EDITOR_COMPILE_PARAMS_TXT;
+                    Files.write(Paths.get(paramsTxt), String.join(" ",commandParams).getBytes(StandardCharsets.UTF_8));
+
+                    commands = Arrays.asList(commandHead,"@"+paramsTxt);
+                }
+            }catch (Throwable t) {
+                t.printStackTrace();
+            }
+
+
+            //执行命令
+            ProcessBuilder processBuilder = new ProcessBuilder(commands);
+            processBuilder.environment().putAll(environment);
             Process process = processBuilder.start();
             StringBuilder resultBuilder = new StringBuilder();
 
