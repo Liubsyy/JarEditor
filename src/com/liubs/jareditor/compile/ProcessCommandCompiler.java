@@ -2,6 +2,7 @@ package com.liubs.jareditor.compile;
 
 import com.liubs.jareditor.constant.PathConstant;
 import com.liubs.jareditor.util.MyFileUtil;
+import com.liubs.jareditor.util.MyPathUtil;
 import com.liubs.jareditor.util.OSUtil;
 
 import java.io.*;
@@ -96,31 +97,25 @@ public abstract class ProcessCommandCompiler implements IMyCompiler{
             putExtra(environment);
 
 
-            //windows下命令行有最大长度限制(CreateProcess error=206)，这里将参数写入JAR_EDITOR_COMPILE_PARAMS.txt
+            //windows下命令行有最大长度限制(CreateProcess error=206)，这里将classpath写入临时文件
             //参考IDEA的Shorten command line的classpath file机制，也是解决windows长命令问题
             try{
                 if(OSUtil.isWindows() && commands.size() >= 2) {
                     int length = String.join(" ",commands).length()
                             + environment.values().stream().mapToInt(c->c.length()+1).sum();
                     if(length > 8191) { //实际上使用ProcessBuilder长度上限比普通命令行上限要大，应该不止8191
-                        String commandHead = commands.get(0);
-                        List<String> commandParams = commands.subList(1, commands.size());
+                        for(int i = 0; i<commands.size() ;i++) {
+                            if("-classpath".equals(commands.get(i)) && i<commands.size()-1){
+                                String classPathStr = commands.get(i + 1);
 
-                        StringBuilder commandParamsBuilder = new StringBuilder();
-                        for(int i=0;i<commandParams.size();i++) {
-                            commandParamsBuilder.append("\"");
-                            commandParamsBuilder.append(commandParams.get(i));
-                            commandParamsBuilder.append("\"");
-                            if(i != commandParams.size()-1) {
-                                commandParamsBuilder.append(" ");
+                                String classPathFileStr = sourceDirString+PathConstant.JAR_EDITOR_CLASSPATH_FILE;
+                                Files.writeString(Paths.get(classPathFileStr), MyPathUtil.wrapString(classPathStr));
+
+                                commands.set(i+1,"@"+classPathFileStr);
+
+                                break;
                             }
                         }
-
-                        String paramsTxt = sourceDirString+PathConstant.JAR_EDITOR_COMPILE_PARAMS_TXT;
-                        Files.write(Paths.get(paramsTxt),
-                                commandParamsBuilder.toString().getBytes(StandardCharsets.UTF_8));
-
-                        commands = Arrays.asList(commandHead,"@"+paramsTxt);
                     }
                 }
             }catch (Throwable t) {

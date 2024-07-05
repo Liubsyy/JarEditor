@@ -19,7 +19,7 @@ public interface PathConstant {
     //复杂jar依赖临时目录
     String DEPENDENCY_DIR = "dependency_temp";
 
-    //windows命令参数临时文件(命令行最大上限问题)
-    String JAR_EDITOR_COMPILE_PARAMS_TXT = "/JAR_EDITOR_COMPILE_PARAMS.txt";
+    //windows命令参数classpath临时文件(命令行最大上限问题)
+    String JAR_EDITOR_CLASSPATH_FILE = "/JAR_EDITOR_CLASSPATH.txt";
 
 }
