@@ -133,5 +133,9 @@ public class MyPathUtil {
         return null != classNameInJar && classNameInJar.contains("-sources.jar!");
     }
 
+    public static String wrapString(String str) {
+        return "\"" + str + "\"";
+    }
+
 
 }

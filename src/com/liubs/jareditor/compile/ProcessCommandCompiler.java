@@ -106,8 +106,19 @@ public abstract class ProcessCommandCompiler implements IMyCompiler{
                         String commandHead = commands.get(0);
                         List<String> commandParams = commands.subList(1, commands.size());
 
+                        StringBuilder commandParamsBuilder = new StringBuilder();
+                        for(int i=0;i<commandParams.size();i++) {
+                            commandParamsBuilder.append("\"");
+                            commandParamsBuilder.append(commandParams.get(i));
+                            commandParamsBuilder.append("\"");
+                            if(i != commandParams.size()-1) {
+                                commandParamsBuilder.append(" ");
+                            }
+                        }
+
                         String paramsTxt = sourceDirString+PathConstant.JAR_EDITOR_COMPILE_PARAMS_TXT;
-                        Files.write(Paths.get(paramsTxt), String.join(" ",commandParams).getBytes(StandardCharsets.UTF_8));
+                        Files.write(Paths.get(paramsTxt),
+                                commandParamsBuilder.toString().getBytes(StandardCharsets.UTF_8));
 
                         commands = Arrays.asList(commandHead,"@"+paramsTxt);
                     }
