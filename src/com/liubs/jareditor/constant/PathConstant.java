@@ -20,6 +20,6 @@ public interface PathConstant {
     String DEPENDENCY_DIR = "dependency_temp";
 
     //windows命令参数classpath临时文件(命令行最大上限问题)
-    String JAR_EDITOR_CLASSPATH_FILE = "/JAR_EDITOR_CLASSPATH.txt";
+//    String JAR_EDITOR_CLASSPATH_FILE = "/JAR_EDITOR_CLASSPATH.txt";
 
 }

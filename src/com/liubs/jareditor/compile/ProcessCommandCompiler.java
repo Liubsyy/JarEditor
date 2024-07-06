@@ -1,8 +1,6 @@
 package com.liubs.jareditor.compile;
 
-import com.liubs.jareditor.constant.PathConstant;
 import com.liubs.jareditor.util.MyFileUtil;
-import com.liubs.jareditor.util.MyPathUtil;
 import com.liubs.jareditor.util.OSUtil;
 
 import java.io.*;
@@ -76,10 +74,10 @@ public abstract class ProcessCommandCompiler implements IMyCompiler{
                 String fileName = className.replace('.', File.separatorChar) + "."+this.fileType();
                 File file = new File(sourceDir.getAbsoluteFile(), fileName);
                 file.getParentFile().mkdirs(); // 确保父目录存在
-                // 使用 OutputStreamWriter 并指定 UTF-8 编码
+
                 try (OutputStreamWriter writer = new OutputStreamWriter(
                         new FileOutputStream(file), StandardCharsets.UTF_8)) {
-                    writer.write(sourceCode); // 写入代码到文件
+                    writer.write(sourceCode);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -97,25 +95,17 @@ public abstract class ProcessCommandCompiler implements IMyCompiler{
             putExtra(environment);
 
 
-            //windows下命令行有最大长度限制(CreateProcess error=206)，这里将classpath写入临时文件
-            //参考IDEA的Shorten command line的classpath file机制，也是解决windows长命令问题
+            //解决windows下命令行有最大长度限制(CreateProcess error=206)
+            //将-classpath放入到环境变量CLASSPATH中
             try{
                 if(OSUtil.isWindows() && commands.size() >= 2) {
-                    int length = String.join(" ",commands).length()
-                            + environment.values().stream().mapToInt(c->c.length()+1).sum();
-                    if(length > 8191) { //实际上使用ProcessBuilder长度上限比普通命令行上限要大，应该不止8191
-                        for(int i = 0; i<commands.size() ;i++) {
-                            if("-classpath".equals(commands.get(i)) && i<commands.size()-1){
-                                String classPathStr = commands.get(i + 1);
+                    int indexOfClassPath = commands.indexOf("-classpath");
+                    if(indexOfClassPath > -1 && indexOfClassPath < commands.size()-1) {
+                        String classPathStr = commands.get(indexOfClassPath+1);
 
-                                String classPathFileStr = sourceDirString+PathConstant.JAR_EDITOR_CLASSPATH_FILE;
-                                Files.writeString(Paths.get(classPathFileStr), MyPathUtil.wrapString(classPathStr));
-
-                                commands.set(i+1,"@"+classPathFileStr);
-
-                                break;
-                            }
-                        }
+                        environment.put("CLASSPATH",classPathStr);
+                        commands.remove(indexOfClassPath+1);
+                        commands.remove(indexOfClassPath);
                     }
                 }
             }catch (Throwable t) {
