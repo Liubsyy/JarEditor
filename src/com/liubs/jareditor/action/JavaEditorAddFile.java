@@ -9,6 +9,7 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.liubs.jareditor.jarbuild.JarBuildResult;
 import com.liubs.jareditor.jarbuild.JarBuilder;
 import com.liubs.jareditor.sdk.NoticeInfo;
 import com.liubs.jareditor.util.JarUtil;
@@ -78,7 +79,11 @@ public abstract class JavaEditorAddFile  extends AnAction {
                      }
 
                     JarBuilder jarBuilder = new JarBuilder(jarPath);
-                    jarBuilder.addFile(entryPath);
+                    JarBuildResult jarBuildResult = jarBuilder.addFile(entryPath);
+                    if(!jarBuildResult.isSuccess()) {
+                        NoticeInfo.error("Add file err: \n%s",jarBuildResult.getErr());
+                        return;
+                    }
 
                     VirtualFileManager.getInstance().refreshWithoutFileWatcher(true);
 

@@ -84,7 +84,7 @@ public class JarEditorPasteFile extends AnAction {
                     JarBuilder jarBuilder = new JarBuilder(clipboard_to_fileDir,jarPath);
                     JarBuildResult jarBuildResult = jarBuilder.writeJar(false);
                     if(!jarBuildResult.isSuccess()) {
-                        NoticeInfo.error("Build jar err: \n%s",jarBuildResult.getErr());
+                        NoticeInfo.error("Paste err: \n%s",jarBuildResult.getErr());
                         return;
                     }
 

@@ -71,7 +71,7 @@ public class JarEditorRenameFile extends AnAction {
                     JarBuilder jarBuilder = new JarBuilder(jarPath);
                     JarBuildResult jarBuildResult = jarBuilder.renameFile(oldEntry, newNameFinal, isDirectory);
                     if(!jarBuildResult.isSuccess()) {
-                        NoticeInfo.error("Build jar err: \n%s",jarBuildResult.getErr());
+                        NoticeInfo.error("Rename err: \n%s",jarBuildResult.getErr());
                         return;
                     }
 

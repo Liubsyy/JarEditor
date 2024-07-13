@@ -98,7 +98,7 @@ public class JarEditorDeleteFiles extends AnAction {
                     JarBuilder jarBuilder = new JarBuilder(jarPath);
                     JarBuildResult jarBuildResult = jarBuilder.deleteFiles(deleteEntries);
                     if(!jarBuildResult.isSuccess()) {
-                        NoticeInfo.error("Build jar err: \n%s",jarBuildResult.getErr());
+                        NoticeInfo.error("Delete file err: \n%s",jarBuildResult.getErr());
                         return;
                     }
 
