@@ -98,7 +98,7 @@ public class JarFileSearchDialog extends DialogWrapper {
                                 // 设置搜索模型
                                 FindModel findModel = new FindModel();
                                 findModel.setStringToFind(searchField.getText());
-                                findModel.setCaseSensitive(false);
+                                findModel.setCaseSensitive(true);   //区分大小写
                                 findModel.setWholeWordsOnly(false);
                                 findModel.setRegularExpressions(false);
 
