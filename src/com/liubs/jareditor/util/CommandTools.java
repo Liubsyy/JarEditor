@@ -1,41 +1,45 @@
 package com.liubs.jareditor.util;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
-
 /**
  * @author Liubsyy
  * @date 2024/6/25
  */
 public class CommandTools {
-    public static String exec(String command) {
 
+    private static String LINE_SEPARATOR = System.getProperty("line.separator");
+    static {
+        if(null == LINE_SEPARATOR) {
+            LINE_SEPARATOR = "\n";
+        }
+    }
+
+    public static String exec(String... commands){
+        ProcessBuilder processBuilder = new ProcessBuilder(commands);
         try {
-            // 执行外部命令
-            Process process = Runtime.getRuntime().exec(command);
-
-            // 获取标准输出
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            StringBuilder output = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String lineSeparator = System.getProperty("line.separator");
-                if(null == lineSeparator) {
-                    lineSeparator = "\n";
+            Process process = processBuilder.start();
+            StringBuilder resultBuilder = new StringBuilder();
+            try (BufferedReader stdOutReader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                String line;
+                while ((line = stdOutReader.readLine()) != null) {
+                    resultBuilder.append(line).append(LINE_SEPARATOR);
                 }
-                output.append(line).append(lineSeparator);
+            } catch (IOException ex) {
+                ex.printStackTrace();
             }
-
-            // 获取命令执行的退出状态
             int exitCode = process.waitFor();
-
             if(exitCode == 0) {
-                return output.toString();
+                return resultBuilder.toString();
             }
         } catch (Throwable e) {
             e.printStackTrace();
         }
-
         return null;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(exec("/Library/Java/JavaVirtualMachines/jdk-11.jdk/Contents/Home/bin/javac","-version"));
     }
 }

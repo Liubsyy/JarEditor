@@ -1,5 +1,6 @@
 package com.liubs.jareditor.compile;
 
+import com.liubs.jareditor.constant.PathConstant;
 import com.liubs.jareditor.util.MyFileUtil;
 import com.liubs.jareditor.util.OSUtil;
 
@@ -63,7 +64,7 @@ public abstract class ProcessCommandCompiler implements IMyCompiler{
             File outDir = new File(outputDirectory);
 
             //.java文件创建临时目录
-            File sourceDir = new File(outDir.getParent(), "jar_edit_java_source");
+            File sourceDir = new File(outDir.getParent(), PathConstant.JAVA_SOURCE_DIR);
             if(!sourceDir.exists()) {
                 sourceDir.mkdirs();
             }

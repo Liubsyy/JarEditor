@@ -58,6 +58,7 @@ import java.util.Set;
  * @date 2024/5/8
  */
 public class MyJarEditor extends UserDataHolderBase implements FileEditor {
+    private static final String SDK_DEFAULT = "SDK Default";
     private final Project project;
     private final JPanel mainPanel = new JPanel(new BorderLayout());
     private final VirtualFile file;
@@ -186,7 +187,7 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         selectJDKComboBox.removeAllItems();
         selectVersionComboBox.removeAllItems();
 
-        selectJDKComboBox.addItem("SDK Default");
+        selectJDKComboBox.addItem(SDK_DEFAULT);
         Set<String> allItems = new HashSet<>();
         javaHomes.add("");
         for(SDKSettingStorage.MyItem sdkItem : SDKSettingStorage.getMySdksDefaultProjectSdks()){
@@ -194,13 +195,13 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
             selectJDKComboBox.addItem(sdkItem.getName());
             javaHomes.add(sdkItem.getPath());
         }
-        selectJDKComboBox.setSelectedItem("SDK Default");
+        selectJDKComboBox.setSelectedItem(SDK_DEFAULT);
         try{
             if(null != lastSelectItem && allItems.contains(lastSelectItem)) {
                 selectJDKComboBox.setSelectedItem(lastSelectItem);
             }
         }catch (Throwable ee) {
-            selectJDKComboBox.setSelectedItem("SDK Default");
+            selectJDKComboBox.setSelectedItem(SDK_DEFAULT);
         }
 
         //选择编译版本
@@ -243,19 +244,18 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
                     SDKSettingStorage.getInstance().setGenDebugInfos(dialog.getGenDebugInfo());
 
                     //刷新最高jdk版本
-                    int[] maxJavaVersion = new int[]{8};
-                    SDKSettingStorage.getInstance().getMySdks().parallelStream().forEach(sdk->{
+                    int maxJavaVersion = SDKSettingStorage.getInstance().getMySdks().parallelStream().map(sdk->{
                         try{
-                            String javacVersion = CommandTools.exec(sdk.getPath() + "/bin/javac -version");
+                            String javacVersion = CommandTools.exec(sdk.getPath()+"/bin/javac","-version");
                             if(null != javacVersion) {
-                                int version = JavacToolProvider.parseJavaVersion(javacVersion);
-                                maxJavaVersion[0] = Math.max(maxJavaVersion[0],version);
+                                return JavacToolProvider.parseJavaVersion(javacVersion);
                             }
                         }catch (Throwable ex){}
-                    });
-                    maxJavaVersion[0] = Math.max(maxJavaVersion[0],JavacToolProvider.parseJavaVersion(System.getProperty("java.version"))); //当前IDEA运行的java版本
+                        return 8;
+                    }).max(Integer::compareTo).orElse(8);
+                    maxJavaVersion = Math.max(maxJavaVersion,JavacToolProvider.parseJavaVersion(System.getProperty("java.version"))); //当前IDEA运行的java版本
 
-                    SDKSettingStorage.getInstance().setMaxJavaVersion(maxJavaVersion[0]);
+                    SDKSettingStorage.getInstance().setMaxJavaVersion(maxJavaVersion);
 
                     initSDKComboBox();
                 }

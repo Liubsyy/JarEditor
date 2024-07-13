@@ -22,4 +22,7 @@ public interface PathConstant {
     //windows命令参数classpath临时文件(命令行最大上限问题)
 //    String JAR_EDITOR_CLASSPATH_FILE = "/JAR_EDITOR_CLASSPATH.txt";
 
+    //命令行编译java时临时目录
+    String JAVA_SOURCE_DIR = "jar_edit_java_source";
+
 }
