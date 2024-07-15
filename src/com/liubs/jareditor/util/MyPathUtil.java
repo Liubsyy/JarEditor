@@ -89,30 +89,35 @@ public class MyPathUtil {
             return null;
         }
 
-        return split[0]+"_temp/"+ PathConstant.JAR_EDIT_CLASS_PATH;
+        return split[0]+PathConstant.TEMP_SUFFIX+"/"+ PathConstant.JAR_EDIT_CLASS_PATH;
     }
 
     public static String getCLIPBOARD_TO_FILE(String classNameInJar){
-        if(classNameInJar.endsWith(".jar!/")) {
-            return classNameInJar.replace(".jar!/","")+"_temp/"+PathConstant.CLIPBOARD_TO_FILE;
-        }
-        String[] split = classNameInJar.split(".jar!/");
-        if(split.length!=2) {
-            return null;
-        }
-
-        return split[0]+"_temp/"+PathConstant.CLIPBOARD_TO_FILE;
+        String jarEditTemp = getJarEditTemp(classNameInJar);
+        return null == jarEditTemp ? null : jarEditTemp+"/"+PathConstant.CLIPBOARD_TO_FILE;
+//        if(classNameInJar.endsWith(".jar!/")) {
+//            return classNameInJar.replace(".jar!/","")+"_temp/"+PathConstant.CLIPBOARD_TO_FILE;
+//        }
+//        String[] split = classNameInJar.split(".jar!/");
+//        if(split.length!=2) {
+//            return null;
+//        }
+//
+//        return split[0]+"_temp/"+PathConstant.CLIPBOARD_TO_FILE;
     }
     public static String getFILE_TO_CLIPBOARD(String classNameInJar){
-        if(classNameInJar.endsWith(".jar!/")) {
-            return classNameInJar.replace(".jar!/","")+"_temp/"+PathConstant.FILE_TO_CLIPBOARD;
-        }
-        String[] split = classNameInJar.split(".jar!/");
-        if(split.length!=2) {
-            return null;
-        }
+        String jarEditTemp = getJarEditTemp(classNameInJar);
+        return null == jarEditTemp ? null : jarEditTemp+"/"+PathConstant.FILE_TO_CLIPBOARD;
 
-        return split[0]+"_temp/"+PathConstant.FILE_TO_CLIPBOARD;
+//        if(classNameInJar.endsWith(".jar!/")) {
+//            return classNameInJar.replace(".jar!/","")+"_temp/"+PathConstant.FILE_TO_CLIPBOARD;
+//        }
+//        String[] split = classNameInJar.split(".jar!/");
+//        if(split.length!=2) {
+//            return null;
+//        }
+//
+//        return split[0]+"_temp/"+PathConstant.FILE_TO_CLIPBOARD;
     }
 
 
@@ -120,12 +125,12 @@ public class MyPathUtil {
         String[] split = classNameInJar.split(".jar!/");
         if(split.length!=2) {
             if(classNameInJar.endsWith(".jar!/")) {
-                return classNameInJar.replace(".jar!/","_temp");
+                return classNameInJar.replace(".jar!/",PathConstant.TEMP_SUFFIX);
             }
             return null;
         }
 
-        return split[0]+"_temp";
+        return split[0]+PathConstant.TEMP_SUFFIX;
     }
 
 

@@ -7,6 +7,9 @@ package com.liubs.jareditor.constant;
  */
 public interface PathConstant {
 
+    //temp目录后缀
+    String TEMP_SUFFIX = "_temp";
+
     //编译保存存放的根目录
     String JAR_EDIT_CLASS_PATH = "jar_edit_out";
 
