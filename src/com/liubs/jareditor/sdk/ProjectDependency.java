@@ -50,4 +50,32 @@ public class ProjectDependency {
         return virtualFiles;
     }
 
+    public static List<VirtualFile> getDependentJar(Project project) {
+
+        List<VirtualFile> virtualFiles = new ArrayList<>();
+        Module[] modules = ModuleManager.getInstance(project).getModules();
+
+        for (Module module : modules) {
+            // 获取模块的根模型
+            ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
+
+            // 获取模块的条目（类路径、库依赖等）
+            for (OrderEntry orderEntry : moduleRootManager.getOrderEntries()) {
+                if (orderEntry instanceof LibraryOrderEntry) {
+                    LibraryOrderEntry libraryOrderEntry = (LibraryOrderEntry) orderEntry;
+                    Library library = libraryOrderEntry.getLibrary();
+                    if (library != null) {
+                        VirtualFile[] files = library.getFiles(OrderRootType.CLASSES);
+                        for(VirtualFile file : files) {
+                            if("jar".equals(file.getExtension())){
+                                virtualFiles.add(file);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return virtualFiles;
+    }
+
 }

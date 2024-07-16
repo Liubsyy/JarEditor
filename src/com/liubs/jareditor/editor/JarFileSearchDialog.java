@@ -310,8 +310,7 @@ public class JarFileSearchDialog extends DialogWrapper {
                     searchResult.clear();
 
 
-                    ProjectDependency.getDependentLib(project).parallelStream()
-                            .filter(file->PathUtil.getLocalPath(file.getPath()).endsWith(".jar"))
+                    ProjectDependency.getDependentJar(project).parallelStream()
                             .forEach(eachJar-> VfsUtilCore.visitChildrenRecursively(eachJar, new VirtualFileVisitor<Void>() {
                             @Override
                             public boolean visitFile(@NotNull VirtualFile file) {
