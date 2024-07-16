@@ -16,6 +16,9 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.VirtualFileVisitor;
 import com.intellij.ui.components.JBList;
+import com.intellij.ui.components.JBTabbedPane;
+import com.intellij.util.PathUtil;
+import com.liubs.jareditor.sdk.ProjectDependency;
 import com.liubs.jareditor.util.MyPathUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -36,10 +39,8 @@ public class JarFileSearchDialog extends DialogWrapper {
     private final Project project;
     private final VirtualFile jarFile;
 
-    private JTextField searchField;
-    private DefaultListModel<String> searchResult;
-    private volatile ProgressIndicator currentIndicator = null;
-
+    private SearchInJarPanel searchInJarPanel;
+    private SearchAllJarPanel searchAllJarPanel;
 
     public JarFileSearchDialog(@NotNull Project project,VirtualFile jarFile) {
         super(true); // use current window as parent
@@ -47,64 +48,99 @@ public class JarFileSearchDialog extends DialogWrapper {
         this.jarFile =  jarFile;
 
         init();
-        setTitle("Search in "+jarFile.getName());
+        setTitle("Search in jar");
         pack(); //调整窗口大小以适应其子组件
         setModal(false);
     }
 
     @Override
     protected @Nullable JComponent createCenterPanel() {
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setPreferredSize(new Dimension(500, 400));
 
-        searchField = new JTextField(20);
-        searchResult = new DefaultListModel<>();
-        searchField.getDocument().addDocumentListener(new DocumentListener() {
-            public void changedUpdate(DocumentEvent e) {
-                runSearch();
-            }
-            public void removeUpdate(DocumentEvent e) {
-                runSearch();
-            }
-            public void insertUpdate(DocumentEvent e) {
-                runSearch();
-            }
-        });
+        Dimension dimension = new Dimension(800, 500);
 
-        mainPanel.add(searchField, BorderLayout.NORTH);
-        JBList<String> resultList = new JBList<>(searchResult);
-        mainPanel.add(new JScrollPane(resultList), BorderLayout.CENTER);
+        searchInJarPanel = new SearchInJarPanel();
+        searchInJarPanel.setPreferredSize(dimension);
 
-        resultList.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                if (/*e.getClickCount() == 2 && */ e.getButton() == MouseEvent.BUTTON1) {
-                    int index = resultList.locationToIndex(e.getPoint());
-                    if (index >= 0) {
-                        String selectedPath = resultList.getModel().getElementAt(index);
+        searchAllJarPanel = new SearchAllJarPanel();
+        searchAllJarPanel.setPreferredSize(dimension);
 
-                        VirtualFile openFile = VirtualFileManager.getInstance().findFileByUrl(jarFile.getUrl()+selectedPath);
-                        if (openFile != null) {
-                            FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
-                            FileEditor[] fileEditors = fileEditorManager.openFile(openFile, true);
-                            for (FileEditor fileEditor : fileEditors) {
-                                if( !(fileEditor instanceof MyJarEditor)) {
-                                    continue;
-                                }
-                                //切换到JarEditor tab页
-                                fileEditorManager.setSelectedEditor(openFile, MyFileEditorProvider.EDITOR_TYPE_ID);
+        JBTabbedPane tabbedPane = new JBTabbedPane();
+        tabbedPane.addTab(jarFile.getName(), searchInJarPanel);
+        tabbedPane.addTab("All Jar", searchAllJarPanel);
+        return tabbedPane;
+    }
 
-                                final Editor editor = ((MyJarEditor) fileEditor).getEditor();
 
-                                // 设置搜索模型
-                                FindModel findModel = new FindModel();
-                                findModel.setStringToFind(searchField.getText());
-                                findModel.setCaseSensitive(true);   //区分大小写
-                                findModel.setWholeWordsOnly(false);
-                                findModel.setRegularExpressions(false);
+    @Override
+    protected Action [] createActions() {
+        // Return an empty array to hide OK and Cancel buttons
+        return new Action[0];
+    }
 
-                                //打开搜索栏
-                                EditorSearchSession searchSession = EditorSearchSession.start(editor, findModel, project);
-                                searchSession.searchForward(); // 向前搜索
+    @Override
+    public void doCancelAction() {
+        searchInJarPanel.exit();
+        searchAllJarPanel.exit();
+        super.doCancelAction();
+    }
+
+
+
+
+    class SearchInJarPanel extends JPanel{
+        private JTextField searchField;
+        private DefaultListModel<String> searchResult;
+        private volatile ProgressIndicator currentIndicator = null;
+
+        public SearchInJarPanel() {
+            this.setLayout(new BorderLayout());
+            searchField = new JTextField(20);
+            searchResult = new DefaultListModel<>();
+            searchField.getDocument().addDocumentListener(new DocumentListener() {
+                public void changedUpdate(DocumentEvent e) {
+                    runSearch();
+                }
+                public void removeUpdate(DocumentEvent e) {
+                    runSearch();
+                }
+                public void insertUpdate(DocumentEvent e) {
+                    runSearch();
+                }
+            });
+
+            this.add(searchField, BorderLayout.NORTH);
+            JBList<String> resultList = new JBList<>(searchResult);
+            this.add(new JScrollPane(resultList), BorderLayout.CENTER);
+
+            resultList.addMouseListener(new MouseAdapter() {
+                public void mouseClicked(MouseEvent e) {
+                    if (/*e.getClickCount() == 2 && */ e.getButton() == MouseEvent.BUTTON1) {
+                        int index = resultList.locationToIndex(e.getPoint());
+                        if (index >= 0) {
+                            String selectedPath = resultList.getModel().getElementAt(index);
+
+                            VirtualFile openFile = VirtualFileManager.getInstance().findFileByUrl(jarFile.getUrl()+selectedPath);
+                            if (openFile != null) {
+                                FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
+                                FileEditor[] fileEditors = fileEditorManager.openFile(openFile, true);
+                                for (FileEditor fileEditor : fileEditors) {
+                                    if( !(fileEditor instanceof MyJarEditor)) {
+                                        continue;
+                                    }
+                                    //切换到JarEditor tab页
+                                    fileEditorManager.setSelectedEditor(openFile, MyFileEditorProvider.EDITOR_TYPE_ID);
+
+                                    final Editor editor = ((MyJarEditor) fileEditor).getEditor();
+
+                                    // 这里仅仅是定位到搜索的字符串，并非真正的搜索
+                                    FindModel findModel = new FindModel();
+                                    findModel.setStringToFind(searchField.getText());
+                                    findModel.setCaseSensitive(true);   //区分大小写
+                                    findModel.setWholeWordsOnly(false);
+                                    findModel.setRegularExpressions(false);
+
+                                    EditorSearchSession searchSession = EditorSearchSession.start(editor, findModel, project);
+                                    searchSession.searchForward(); // 向前搜索
 
 
                                 /*
@@ -128,66 +164,225 @@ public class JarFileSearchDialog extends DialogWrapper {
                                         });
                                     }
                                 });*/
+                                }
                             }
                         }
                     }
                 }
+            });
+
+        }
+
+        private void runSearch() {
+            if (currentIndicator != null) {
+                currentIndicator.cancel();
+                currentIndicator = null;
             }
-        });
-
-        return mainPanel;
-    }
-
-    private void runSearch() {
-        if (currentIndicator != null) {
-            currentIndicator.cancel();
-            currentIndicator = null;
-        }
-        String query = searchField.getText();
-        if (query.isEmpty()) {
-            searchResult.clear();
-        } else {
-            performSearch(query);
-        }
-    }
-
-
-    private void performSearch(String query) {
-        ProgressManager.getInstance().run(new Task.Backgroundable(project, "Searching Jar File", true) {
-            public void run(@NotNull ProgressIndicator indicator) {
-                currentIndicator = indicator;
+            String query = searchField.getText();
+            if (query.isEmpty()) {
                 searchResult.clear();
-
-                VfsUtilCore.visitChildrenRecursively(jarFile, new VirtualFileVisitor<Void>() {
-                    @Override
-                    public boolean visitFile(@NotNull VirtualFile file) {
-                        if(indicator.isCanceled()) {
-                            return false;
-                        }
-
-                        if (file.isValid() && !file.isDirectory()) {
-                            ApplicationManager.getApplication().runReadAction(() -> {
-                                if(indicator.isCanceled()) {
-                                    return;
-                                }
-                                String allText = MyJarEditor.getDecompiledText(project, file);
-                                if (allText.contains(query)) {
-                                    ApplicationManager.getApplication().invokeLater(() -> {
-                                                if(indicator.isCanceled()) {
-                                                    return;
-                                                }
-                                                searchResult.addElement(MyPathUtil.getEntryPathFromJar(file.getPath()));
-                                            }
-                                    );
-                                }
-                            });
-                        }
-
-                        return true;
-                    }
-                });
+            } else {
+                performSearch(query);
             }
-        });
+        }
+        private void performSearch(String query) {
+            ProgressManager.getInstance().run(new Task.Backgroundable(project, "Searching Jar File", true) {
+                public void run(@NotNull ProgressIndicator indicator) {
+                    currentIndicator = indicator;
+                    searchResult.clear();
+
+                    VfsUtilCore.visitChildrenRecursively(jarFile, new VirtualFileVisitor<Void>() {
+                        @Override
+                        public boolean visitFile(@NotNull VirtualFile file) {
+                            if(indicator.isCanceled()) {
+                                return false;
+                            }
+
+                            if (file.isValid() && !file.isDirectory()) {
+                                ApplicationManager.getApplication().runReadAction(() -> {
+                                    if(indicator.isCanceled()) {
+                                        return;
+                                    }
+                                    String allText = MyJarEditor.getDecompiledText(project, file);
+                                    if (allText.contains(query)) {
+                                        ApplicationManager.getApplication().invokeLater(() -> {
+                                                    if(indicator.isCanceled()) {
+                                                        return;
+                                                    }
+                                                    searchResult.addElement(MyPathUtil.getEntryPathFromJar(file.getPath()));
+                                                }
+                                        );
+                                    }
+                                });
+                            }
+
+                            return true;
+                        }
+                    });
+                }
+            });
+        }
+
+        public void exit(){
+            if (currentIndicator != null) {
+                currentIndicator.cancel();
+                currentIndicator = null;
+            }
+        }
+    }
+
+
+    class SearchAllJarPanel extends JPanel {
+        private JTextField searchField;
+        private JButton searchButton;
+        private DefaultListModel<SearchResultItem> searchResult;
+        private volatile ProgressIndicator currentIndicator = null;
+
+        public SearchAllJarPanel() {
+            this.setLayout(new BorderLayout());
+            searchField = new JTextField(20);
+            searchButton = new JButton("Search");
+            searchResult = new DefaultListModel<>();
+            searchButton.addActionListener(e -> runSearch());
+
+            JPanel searchPanel = new JPanel(new BorderLayout());
+            searchPanel.add(searchField, BorderLayout.CENTER);
+            searchPanel.add(searchButton, BorderLayout.EAST);
+
+            this.add(searchPanel, BorderLayout.NORTH);
+
+            JBList<SearchResultItem> resultList = new JBList<>(searchResult);
+            this.add(new JScrollPane(resultList), BorderLayout.CENTER);
+
+            resultList.addMouseListener(new MouseAdapter() {
+                public void mouseClicked(MouseEvent e) {
+                    if (e.getButton() == MouseEvent.BUTTON1) {
+                        int index = resultList.locationToIndex(e.getPoint());
+                        if (index >= 0) {
+                            SearchResultItem selectedPath = resultList.getModel().getElementAt(index);
+                            VirtualFile openFile = selectedPath.getJarFile();
+                            if (openFile != null) {
+                                FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
+                                FileEditor[] fileEditors = fileEditorManager.openFile(openFile, true);
+                                for (FileEditor fileEditor : fileEditors) {
+                                    if( !(fileEditor instanceof MyJarEditor)) {
+                                        continue;
+                                    }
+                                    //切换到JarEditor tab页
+                                    fileEditorManager.setSelectedEditor(openFile, MyFileEditorProvider.EDITOR_TYPE_ID);
+
+                                    final Editor editor = ((MyJarEditor) fileEditor).getEditor();
+
+                                    // 这里仅仅是定位到搜索的字符串，并非真正的搜索
+                                    FindModel findModel = new FindModel();
+                                    findModel.setStringToFind(searchField.getText());
+                                    findModel.setCaseSensitive(true);   //区分大小写
+                                    findModel.setWholeWordsOnly(false);
+                                    findModel.setRegularExpressions(false);
+
+                                    EditorSearchSession searchSession = EditorSearchSession.start(editor, findModel, project);
+                                    searchSession.searchForward(); // 向前搜索
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+        }
+
+        private void runSearch() {
+            if (currentIndicator != null) {
+                currentIndicator.cancel();
+                currentIndicator = null;
+            }
+            String query = searchField.getText();
+            if (query.isEmpty()) {
+                searchResult.clear();
+            } else {
+                performSearch(query);
+            }
+        }
+        private void performSearch(String query) {
+            ProgressManager.getInstance().run(new Task.Backgroundable(project, "Searching Jar File", true) {
+                public void run(@NotNull ProgressIndicator indicator) {
+                    currentIndicator = indicator;
+                    searchResult.clear();
+
+
+                    ProjectDependency.getDependentLib(project).parallelStream()
+                            .filter(file->PathUtil.getLocalPath(file.getPath()).endsWith(".jar"))
+                            .forEach(eachJar-> VfsUtilCore.visitChildrenRecursively(eachJar, new VirtualFileVisitor<Void>() {
+                            @Override
+                            public boolean visitFile(@NotNull VirtualFile file) {
+                                if(indicator.isCanceled()) {
+                                    return false;
+                                }
+
+                                if (file.isValid() && !file.isDirectory()) {
+                                    ApplicationManager.getApplication().runReadAction(() -> {
+                                        if(indicator.isCanceled()) {
+                                            return;
+                                        }
+                                        String allText = MyJarEditor.getDecompiledText(project, file);
+                                        if (allText.contains(query)) {
+                                            ApplicationManager.getApplication().invokeLater(() -> {
+                                                        if(indicator.isCanceled()) {
+                                                            return;
+                                                        }
+                                                        searchResult.addElement(new SearchResultItem(file,
+                                                                MyPathUtil.getEntryPathFromJar(file.getPath())));
+                                                    }
+                                            );
+                                        }
+                                    });
+                                }
+
+                                return true;
+                            }
+                        }));
+
+                }
+            });
+        }
+
+        public void exit(){
+            if (currentIndicator != null) {
+                currentIndicator.cancel();
+                currentIndicator = null;
+            }
+        }
+    }
+
+    static class SearchResultItem {
+        private VirtualFile jarFile;
+        private String entryPath;
+
+        public SearchResultItem(VirtualFile jarFile, String entryPath) {
+            this.jarFile = jarFile;
+            this.entryPath = entryPath;
+        }
+
+        public VirtualFile getJarFile() {
+            return jarFile;
+        }
+
+        public void setJarFile(VirtualFile jarFile) {
+            this.jarFile = jarFile;
+        }
+
+        public String getEntryPath() {
+            return entryPath;
+        }
+
+        public void setEntryPath(String entryPath) {
+            this.entryPath = entryPath;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("[%s] %s",MyPathUtil.getJarSingleName(jarFile.getPath()),entryPath);
+        }
     }
 
 
