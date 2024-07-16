@@ -90,7 +90,7 @@
         <action id="jarEditorPasteFile" class="com.liubs.jareditor.action.JarEditorPasteFile" text="Paste" description="Paste"/>
 
         <group id="jarEditorExport"  text="Export" description="Export" popup="true">
-            <action id="jarEditorExportSourceJar" class="com.liubs.jareditor.action.JarEditorExportSourceJar" text="Decompiled jar" description="Decompiled jar"/>
+            <action id="jarEditorExportSourceJar" class="com.liubs.jareditor.action.JarEditorExportSourceJar" text="Source jar" description="Source jar"/>
         </group>
 
         <action id="jarEditorSearch" class="com.liubs.jareditor.action.JarEditorSearch" text="Search" description="Search" icon="AllIcons.Actions.Search"/>

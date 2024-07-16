@@ -60,7 +60,7 @@ public class JarEditorExportSourceJar  extends AnAction {
 
         String userInput = Messages.showInputDialog(
                 e.getProject(),
-                String.format("You are exporting %d jar, enter the suffix of target source jar.\n Demo: if you input \"-source-export.jar\" of demo.jar ,\n you will get \"demo-source-export.jar\"",fullJarFiles.size()),
+                String.format("You are exporting %d jar, enter the suffix of target source jar.\n Demo: if you input \"-sources-export.jar\" of demo.jar ,\n you will get \"demo-sources-export.jar\"",fullJarFiles.size()),
                 "Export source jar",
                 Messages.getQuestionIcon(),
                 PathConstant.EXPORT_SOURCE_NAME_SUFFIX,

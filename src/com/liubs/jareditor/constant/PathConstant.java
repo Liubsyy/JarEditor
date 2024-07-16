@@ -29,6 +29,6 @@ public interface PathConstant {
     String JAVA_SOURCE_DIR = "jar_edit_java_source";
 
     //导出source jar默认后缀
-    String EXPORT_SOURCE_NAME_SUFFIX = "-source-export.jar";
+    String EXPORT_SOURCE_NAME_SUFFIX = "-sources-export.jar";
 
 }
