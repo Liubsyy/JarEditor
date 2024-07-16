@@ -83,7 +83,7 @@ public class JarEditorExportSourceJar  extends AnAction {
                     }
 
 
-                    fullJarFiles.parallelStream().forEach(jarPath->{
+                    fullJarFiles.forEach(jarPath->{
 
                         JarBuilder jarBuilder = new JarBuilder(jarPath);
                         ApplicationManager.getApplication().runReadAction(() -> {
