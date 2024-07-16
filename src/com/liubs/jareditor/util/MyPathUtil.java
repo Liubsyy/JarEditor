@@ -142,5 +142,31 @@ public class MyPathUtil {
         return "\"" + str + "\"";
     }
 
+    public static String getJarFullPath(String classNameInJar) {
+        if(classNameInJar.endsWith(".jar!/")) {
+            return classNameInJar.substring(0,classNameInJar.length()-2);
+        }
+        String[] split = classNameInJar.split(".jar!/");
+        if(split.length!=2) {
+            return null;
+        }
+        return split[0]+".jar";
+    }
+    public static String getJarSingleName(String classNameInJar) {
+        String jarFullPath = getJarFullPath(classNameInJar);
+        return getSingleFileName(jarFullPath);
+    }
+
+    public static String getSingleFileName(String path) {
+        if(null == path) {
+            return null;
+        }
+        int lastIndex = path.lastIndexOf("/");
+        if(lastIndex>=0 && lastIndex<path.length()-1) {
+            return path.substring(lastIndex+1);
+        }
+        return path;
+    }
+
 
 }

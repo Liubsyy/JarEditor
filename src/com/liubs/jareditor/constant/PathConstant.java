@@ -28,4 +28,7 @@ public interface PathConstant {
     //命令行编译java时临时目录
     String JAVA_SOURCE_DIR = "jar_edit_java_source";
 
+    //导出source jar默认后缀
+    String EXPORT_SOURCE_NAME_SUFFIX = "-source-export.jar";
+
 }

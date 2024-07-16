@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.function.Function;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
@@ -389,4 +390,60 @@ public class JarBuilder {
                     }
                 });
     }
+
+
+    public JarBuildResult decompileContent(String newJarPath, Function<String,byte[]> newContentCallback) {
+
+        JarBuildResult jarBuildResult;
+        try {
+            Path jarPath = Paths.get(jarFile);
+
+            if (!Files.exists(jarPath)) {
+                return new JarBuildResult(false, "File does not exist: " + jarFile);
+            }
+
+            File newJarFile = new File(newJarPath);
+            try (JarFile originalJar = new JarFile(jarFile);
+                 JarOutputStream tempJarOutputStream = new JarOutputStream(new FileOutputStream(newJarFile))) {
+
+                Enumeration<JarEntry> entries = originalJar.entries();
+                while (entries.hasMoreElements()) {
+                    JarEntry entry = entries.nextElement();
+
+
+
+                    if(entry.getName().endsWith(".class")) {
+
+                        JarEntry newEntry = new JarEntry(entry.getName().replace(".class",".java"));
+                        tempJarOutputStream.putNextEntry(newEntry);
+
+                        byte[] bytes = newContentCallback.apply(entry.getName());
+                        if(null != bytes) {
+                            tempJarOutputStream.write(bytes);
+                        }
+
+                    }else {
+
+                        JarEntry newEntry = new JarEntry(entry.getName());
+                        tempJarOutputStream.putNextEntry(newEntry);
+                        try (InputStream entryInputStream = originalJar.getInputStream(entry)) {
+                            byte[] buffer = new byte[1024];
+                            int bytesRead;
+                            while ((bytesRead = entryInputStream.read(buffer)) != -1) {
+                                tempJarOutputStream.write(buffer, 0, bytesRead);
+                            }
+                        }
+                    }
+                    tempJarOutputStream.closeEntry();
+                }
+
+            }
+
+            jarBuildResult = new JarBuildResult(true, null);
+        } catch (IOException e) {
+            jarBuildResult = new JarBuildResult(false, "Write jar failed: " + ExceptionUtil.getExceptionTracing(e));
+        }
+        return jarBuildResult;
+    }
+
 }
