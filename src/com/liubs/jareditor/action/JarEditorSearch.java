@@ -8,7 +8,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import com.liubs.jareditor.editor.JarFileSearchDialog;
+import com.liubs.jareditor.search.JarFileSearchDialog;
 import com.liubs.jareditor.sdk.NoticeInfo;
 import com.liubs.jareditor.util.MyPathUtil;
 import org.jetbrains.annotations.NotNull;
@@ -38,22 +38,16 @@ public class JarEditorSearch extends AnAction {
             selectedFile = e.getData(CommonDataKeys.VIRTUAL_FILE);
         }
 
-        if(null == selectedFile) {
-            NoticeInfo.warning("No file selected");
-            return;
+        VirtualFile jarRoot = null;
+        if(null != selectedFile) {
+            final String jarPath = "jar".equals(selectedFile.getExtension()) ?
+                    selectedFile.getPath().replace(".jar!/",".jar") : MyPathUtil.getJarPathFromJar(selectedFile.getPath());
+            if(null != jarPath) {
+                jarRoot = VirtualFileManager.getInstance().findFileByUrl("jar://" + jarPath + "!/");
+            }
         }
 
-        final String jarPath = "jar".equals(selectedFile.getExtension()) ?
-                selectedFile.getPath().replace(".jar!/",".jar") : MyPathUtil.getJarPathFromJar(selectedFile.getPath());
-        if(null == jarPath) {
-            NoticeInfo.warning("This operation only in JAR !!!");
-            return;
-        }
-        VirtualFile jarRoot = VirtualFileManager.getInstance().findFileByUrl("jar://" + jarPath + "!/");
-        if(null == jarRoot) {
-            NoticeInfo.error("Can not find jar : "+jarPath);
-            return;
-        }
+
         JarFileSearchDialog jarFileSearchDialog = new JarFileSearchDialog(e.getProject(),jarRoot);
         jarFileSearchDialog.show();
     }
