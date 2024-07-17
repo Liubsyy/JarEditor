@@ -235,6 +235,7 @@ public class JarFileSearchDialog extends DialogWrapper {
     class SearchAllJarPanel extends JPanel {
         private JTextField searchField;
         private JButton searchButton;
+        private boolean isRunning;
         private DefaultListModel<SearchResultItem> searchResult;
         private volatile ProgressIndicator currentIndicator = null;
 
@@ -296,6 +297,16 @@ public class JarFileSearchDialog extends DialogWrapper {
                 currentIndicator.cancel();
                 currentIndicator = null;
             }
+
+            isRunning = !isRunning;
+
+            if(isRunning) {
+                searchButton.setText("Stop");
+            }else {
+                searchButton.setText("Search");
+                return;
+            }
+
             String query = searchField.getText();
             if (query.isEmpty()) {
                 searchResult.clear();
@@ -309,37 +320,50 @@ public class JarFileSearchDialog extends DialogWrapper {
                     currentIndicator = indicator;
                     searchResult.clear();
 
+                    try{
+                        isRunning = true;
 
-                    ProjectDependency.getDependentJar(project).parallelStream()
-                            .forEach(eachJar-> VfsUtilCore.visitChildrenRecursively(eachJar, new VirtualFileVisitor<Void>() {
-                            @Override
-                            public boolean visitFile(@NotNull VirtualFile file) {
-                                if(indicator.isCanceled()) {
-                                    return false;
-                                }
+                        ProjectDependency.getDependentJar(project)
+                                .parallelStream()
+                                .forEach(eachJar-> {
+                                    VirtualFile sourceJar = SourceJarResolver.findSourceJar(eachJar);
+                                    if(null != sourceJar) {
+                                        eachJar = sourceJar;
+                                    }
+                                    VfsUtilCore.visitChildrenRecursively(eachJar, new VirtualFileVisitor<Void>() {
+                                        @Override
+                                        public boolean visitFile(@NotNull VirtualFile file) {
+                                            if(indicator.isCanceled()) {
+                                                return false;
+                                            }
 
-                                if (file.isValid() && !file.isDirectory()) {
-                                    ApplicationManager.getApplication().runReadAction(() -> {
-                                        if(indicator.isCanceled()) {
-                                            return;
-                                        }
-                                        String allText = MyJarEditor.getDecompiledText(project, file);
-                                        if (allText.contains(query)) {
-                                            ApplicationManager.getApplication().invokeLater(() -> {
-                                                        if(indicator.isCanceled()) {
-                                                            return;
-                                                        }
-                                                        searchResult.addElement(new SearchResultItem(file,
-                                                                MyPathUtil.getEntryPathFromJar(file.getPath())));
+                                            if (file.isValid() && !file.isDirectory()) {
+                                                ApplicationManager.getApplication().runReadAction(() -> {
+                                                    if(indicator.isCanceled()) {
+                                                        return;
                                                     }
-                                            );
+                                                    String allText = MyJarEditor.getDecompiledText(project, file);
+                                                    if (allText.contains(query)) {
+                                                        ApplicationManager.getApplication().invokeLater(() -> {
+                                                                    if(indicator.isCanceled()) {
+                                                                        return;
+                                                                    }
+                                                                    searchResult.addElement(new SearchResultItem(file,
+                                                                            MyPathUtil.getEntryPathFromJar(file.getPath())));
+                                                                }
+                                                        );
+                                                    }
+                                                });
+                                            }
+
+                                            return true;
                                         }
                                     });
-                                }
+                                });
 
-                                return true;
-                            }
-                        }));
+                    }finally {
+                        isRunning = false;
+                    }
 
                 }
             });

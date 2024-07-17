@@ -164,4 +164,10 @@ public class SourceJarResolver {
         return false;
     }
 
+    public static VirtualFile findSourceJar(VirtualFile classJar) {
+        String replaceUrl = classJar.getUrl().replace(".jar!", "-sources.jar!");
+        VirtualFile sourceFile = VirtualFileManager.getInstance().findFileByUrl(replaceUrl);
+        return sourceFile;
+    }
+
 }
