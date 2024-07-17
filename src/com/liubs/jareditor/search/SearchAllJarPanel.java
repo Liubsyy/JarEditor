@@ -166,6 +166,7 @@ public class SearchAllJarPanel extends JPanel {
 
                 }finally {
                     isRunning = false;
+                    searchButton.setText("Search");
                 }
 
             }
