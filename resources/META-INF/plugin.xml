@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.liubs.jaredit</id>
   <name>JarEditor</name>
-  <version>1.5.4</version>
+  <version>1.5.5</version>
   <vendor email="Liubsyy@gmail.com" url="https://github.com/Liubsyy/JarEditor">Liubsyy</vendor>
 
   <description><![CDATA[
@@ -22,6 +22,7 @@
         <li>The last saved content can be read when the file is reopened</li>
         <li>Can clean up temporarily saved directories</li>
         <li>Search the contents of the jar package</li>
+        <li>Export source jar</li>
       </ul>
 
      <h3>1.4</h3>
