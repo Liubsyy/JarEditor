@@ -100,6 +100,14 @@ public class JarEditorExportSourceJar  extends AnAction {
 
                     });
 
+
+                    ApplicationManager.getApplication().invokeLater(() -> {
+                        for (VirtualFile refreshFile : selectedFiles) {
+                            refreshFile.refresh(false,true);
+                        }
+                        VirtualFileManager.getInstance().refreshWithoutFileWatcher(true);
+                    });
+
                     NoticeInfo.info("Export source jar success !");
                 }catch (Throwable e) {
                     NoticeInfo.error("Export source jar err",e);
