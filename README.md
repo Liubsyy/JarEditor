@@ -25,6 +25,7 @@ IDEA plugin for modifying files in jar directly without decompression, including
 - Support kotlin
 - Support source jar
 - Search the contents of the jar package
+- Export source jar
 
 ## Quick start
 

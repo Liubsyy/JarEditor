@@ -25,6 +25,7 @@
 - 支持kotlin
 - 支持source jar
 - 搜索jar包的内容
+- 可导出source jar
 
 ## 快速开始
 
