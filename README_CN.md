@@ -38,7 +38,7 @@
 ### 2. 编辑并构建 Jar
 安装完成后，在.class反编译文件中可以看到切换到Jar Editor的tab页。
 
-`外部jar：File->Project Structure->Libraries->Add Library，然后就可以看到反编译的jar了。`
+>外部jar：File->Project Structure->Libraries->Add Library，然后就可以看到反编译的jar了。
 
 <img src="./img/JarEditor_main.png" width="800" height="506" />
 
