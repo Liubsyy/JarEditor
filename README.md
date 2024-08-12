@@ -11,6 +11,7 @@
 [![downloads](https://img.shields.io/jetbrains/plugin/d/24397)](https://plugins.jetbrains.com/plugin/24397-jareditor)
 [![release](https://img.shields.io/jetbrains/plugin/v/24397?label=version)](https://plugins.jetbrains.com/plugin/24397-jareditor)
 ![sdk](https://img.shields.io/badge/plugin%20sdk-IDEA%202020.3-red.svg)
+<a href="https://hellogithub.com/repository/03b39a2d1a55407797db59737724ce7c" target="_blank"><img src="https://abroad.hellogithub.com/v1/widgets/recommend.svg?rid=03b39a2d1a55407797db59737724ce7c&claim_uid=iEnYZr4sASMjWJb&theme=small" alt="Featured｜HelloGitHub" /></a>
 
 IDEA plugin for modifying files in jar directly without decompression, including class and resource files.
 
