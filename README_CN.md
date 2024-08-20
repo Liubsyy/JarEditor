@@ -11,6 +11,7 @@
 [![downloads](https://img.shields.io/jetbrains/plugin/d/24397)](https://plugins.jetbrains.com/plugin/24397-jareditor)
 [![release](https://img.shields.io/jetbrains/plugin/v/24397?label=version)](https://plugins.jetbrains.com/plugin/24397-jareditor)
 ![sdk](https://img.shields.io/badge/plugin%20sdk-IDEA%202020.3-red.svg)
+<a href="https://hellogithub.com/repository/03b39a2d1a55407797db59737724ce7c" target="_blank"><img src="https://abroad.hellogithub.com/v1/widgets/recommend.svg?rid=03b39a2d1a55407797db59737724ce7c&claim_uid=iEnYZr4sASMjWJb&theme=small" alt="Featured｜HelloGitHub" /></a>
 
 可直接修改jar包内文件的IDEA插件，无需解压
 
@@ -38,7 +39,7 @@
 ### 2. 编辑并构建 Jar
 安装完成后，在.class反编译文件中可以看到切换到Jar Editor的tab页。
 
-`外部jar：File->Project Structure->Libraries->Add Library，然后就可以看到反编译的jar了。`
+>外部jar：File->Project Structure->Libraries->Add Library，然后就可以看到反编译的jar了。
 
 <img src="./img/JarEditor_main.png" width="800" height="506" />
 
