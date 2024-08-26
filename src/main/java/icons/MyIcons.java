@@ -10,4 +10,5 @@ import javax.swing.*;
  */
 public interface MyIcons {
     Icon CLEAN = IconLoader.getIcon("/icons/clean.svg", MyIcons.class);
+    Icon T = IconLoader.getIcon("/icons/T.png", MyIcons.class);
 }

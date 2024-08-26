@@ -100,6 +100,10 @@
 
     <action id="jarEditorClear" class="com.liubs.jareditor.action.JarEditorClear" text="Clear saved files" description="Clear saved files" icon="MyIcons.CLEAN"/>
 
+    <group id="classBytesTool" text="Class Bytes Tool" description="Class bytes tool" icon="MyIcons.T"  popup="true">
+        <action id="javassistAction" class="com.liubs.jareditor.action.JavassistAction" text="Javassist" description="Javassist"/>
+    </group>
+
 
   </actions>
 

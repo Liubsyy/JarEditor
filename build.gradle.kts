@@ -28,7 +28,10 @@ repositories {
     jcenter()
 }
 dependencies {
-//    implementation("org.jetbrains:intellij-fernflower:1.2.1.16")
+    // https://mvnrepository.com/artifact/org.javassist/javassist
+    implementation("org.javassist:javassist:3.30.2-GA")
+
+
 }
 
 
@@ -54,6 +57,10 @@ tasks {
     patchPluginXml {
         sinceBuild(pluginSinceBuild)
         untilBuild(pluginUntilBuild)
+    }
+
+    buildSearchableOptions{
+        enabled = false
     }
 
     publishPlugin {

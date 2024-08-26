@@ -140,6 +140,7 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
     private void createActionToolBar(JPanel optPanel){
         AnAction jarEditorClear = ActionManager.getInstance().getAction("jarEditorClear");
         AnAction jarEditorSearch = ActionManager.getInstance().getAction("jarEditorSearch");
+        AnAction classBytesTool = ActionManager.getInstance().getAction("classBytesTool");
 
         ArrayList<AnAction> actions = new ArrayList<>();
         if(null != jarEditorClear) {
@@ -147,6 +148,9 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         }
         if(null != jarEditorSearch) {
             actions.add(jarEditorSearch);
+        }
+        if(null != classBytesTool) {
+            actions.add(classBytesTool);
         }
 
         ActionToolbar myToolBar = ActionManager.getInstance().createActionToolbar(ActionPlaces.TOOLBAR,
@@ -230,7 +234,7 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         //select SDK
         selectJDKComboBox = new ComboBox<>(120);
         //select version
-        selectVersionComboBox = new ComboBox<>();
+        selectVersionComboBox = new ComboBox<>(70);
 
         JLabel sdkLabel = new JLabel("<html><span style=\"color: #5799EE;\">SDK</span></html>");
         sdkLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
