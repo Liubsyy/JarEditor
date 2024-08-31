@@ -155,33 +155,8 @@ public class JavassistDialog extends DialogWrapper {
 
         //加载字段/函数
         targets = new ArrayList<>();
-        for(CtConstructor constructor : javassistTool.getConstructors()){
-            try {
-                targets.add(new TargetUnit(ISignature.Type.CONSTRUCTOR, new ConstructorSignature(constructor)));
-            } catch (NotFoundException e) {
-                e.printStackTrace();
-            }
-        }
 
-        for(CtField ctField : javassistTool.getFields()){
-            try {
-                targets.add(new TargetUnit(ISignature.Type.FIELD, new FieldSignature(ctField)));
-            } catch (NotFoundException e) {
-                e.printStackTrace();
-            }
-        }
-
-        for(CtMethod ctMethod : javassistTool.getMethods()){
-            try {
-                targets.add(new TargetUnit(ISignature.Type.METHOD, new MethodSignature(ctMethod)));
-            } catch (NotFoundException e) {
-                e.printStackTrace();
-            }
-        }
-        for(TargetUnit targetUnit : targets) {
-            targetComboBox.addItem(targetUnit);
-        }
-
+        this.initTarget();
 
 
         mainPanel.add(targetLabel, new GridConstraints(line, 0, 1, 1, GridConstraints.ANCHOR_WEST,
@@ -390,6 +365,46 @@ public class JavassistDialog extends DialogWrapper {
         }
     }
 
+    private void initTarget(){
+        targets.clear();
+        for(CtConstructor constructor : javassistTool.getConstructors()){
+            try {
+                targets.add(new TargetUnit(ISignature.Type.CONSTRUCTOR, new ConstructorSignature(constructor)));
+            } catch (NotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+        for(CtField ctField : javassistTool.getFields()){
+            try {
+                targets.add(new TargetUnit(ISignature.Type.FIELD, new FieldSignature(ctField)));
+            } catch (NotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+        for(CtMethod ctMethod : javassistTool.getMethods()){
+            try {
+                targets.add(new TargetUnit(ISignature.Type.METHOD, new MethodSignature(ctMethod)));
+            } catch (NotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        TargetUnit selectedItem = (TargetUnit)targetComboBox.getSelectedItem();
+
+        targetComboBox.removeAllItems();
+        for(TargetUnit targetUnit : targets) {
+            targetComboBox.addItem(targetUnit);
+        }
+
+        if(null != selectedItem) {
+            for(TargetUnit targetUnit : targets) {
+                if(targetUnit.equals(selectedItem)) {
+                    targetComboBox.setSelectedItem(targetUnit);
+                }
+            }
+        }
+    }
 
     public void targetComboBoxSelect(ActionEvent e){
         setOperationVisible();
@@ -501,6 +516,9 @@ public class JavassistDialog extends DialogWrapper {
 
                     //刷新MyJarEditor中的源码加载
                     myJarEditor.loadEditorContentFromSavedFile(destinationPath);
+
+                    //刷新target
+                    this.initTarget();
 
                 } catch (Exception ex) {
                     NoticeInfo.error ( "Error write file: " + ex.getMessage());

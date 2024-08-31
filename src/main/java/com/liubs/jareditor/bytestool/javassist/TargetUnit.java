@@ -4,6 +4,8 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiMember;
 
+import java.util.Objects;
+
 /**
  * @author Liubsyy
  * @date 2024/8/28
@@ -45,5 +47,30 @@ public class TargetUnit {
         return targetSignature.convertToJavassistCode(psiFile,psiMember);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TargetUnit that = (TargetUnit) o;
+        if(targetSignature == null && that.targetSignature == null) {
+            return true;
+        }
+        if(type == that.type) {
+            if(null != targetSignature && null != that.targetSignature) {
+                return targetSignature.getMember() == that.targetSignature.getMember();
+            }
+        }
+        return false;
+    }
 
+    @Override
+    public int hashCode() {
+        if(null == targetSignature) {
+            return Objects.hash(type);
+        }
+        if(null != targetSignature.getMember()) {
+            return targetSignature.getMember().hashCode();
+        }
+        return Objects.hash(type, targetSignature);
+    }
 }
