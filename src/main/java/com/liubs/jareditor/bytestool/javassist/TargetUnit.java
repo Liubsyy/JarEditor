@@ -52,13 +52,14 @@ public class TargetUnit {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TargetUnit that = (TargetUnit) o;
+        if(type != that.type) {
+            return false;
+        }
         if(targetSignature == null && that.targetSignature == null) {
             return true;
         }
-        if(type == that.type) {
-            if(null != targetSignature && null != that.targetSignature) {
-                return targetSignature.getMember() == that.targetSignature.getMember();
-            }
+        if(null != targetSignature && null != that.targetSignature) {
+            return targetSignature.getMember() == that.targetSignature.getMember();
         }
         return false;
     }

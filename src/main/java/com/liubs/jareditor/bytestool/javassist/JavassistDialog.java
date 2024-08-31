@@ -352,17 +352,7 @@ public class JavassistDialog extends DialogWrapper {
         }
 
         setOperationVisible();
-
-        targetComboBox.removeAllItems();
-        if(modifyRadio.isSelected() || deleteRadio.isSelected()) {
-            for(TargetUnit targetUnit : targets) {
-                targetComboBox.addItem(targetUnit);
-            }
-        }else {
-            targetComboBox.addItem(new TargetUnit(ISignature.Type.FIELD,null));
-            targetComboBox.addItem(new TargetUnit(ISignature.Type.METHOD,null));
-            targetComboBox.addItem(new TargetUnit(ISignature.Type.CONSTRUCTOR,null));
-        }
+        updateTargetComboBox();
     }
 
     private void initTarget(){
@@ -392,10 +382,7 @@ public class JavassistDialog extends DialogWrapper {
         }
         TargetUnit selectedItem = (TargetUnit)targetComboBox.getSelectedItem();
 
-        targetComboBox.removeAllItems();
-        for(TargetUnit targetUnit : targets) {
-            targetComboBox.addItem(targetUnit);
-        }
+        updateTargetComboBox();
 
         if(null != selectedItem) {
             for(TargetUnit targetUnit : targets) {
@@ -403,6 +390,19 @@ public class JavassistDialog extends DialogWrapper {
                     targetComboBox.setSelectedItem(targetUnit);
                 }
             }
+        }
+    }
+
+    private void updateTargetComboBox(){
+        targetComboBox.removeAllItems();
+        if(modifyRadio.isSelected() || deleteRadio.isSelected()) {
+            for(TargetUnit targetUnit : targets) {
+                targetComboBox.addItem(targetUnit);
+            }
+        }else {
+            targetComboBox.addItem(new TargetUnit(ISignature.Type.FIELD,null));
+            targetComboBox.addItem(new TargetUnit(ISignature.Type.METHOD,null));
+            targetComboBox.addItem(new TargetUnit(ISignature.Type.CONSTRUCTOR,null));
         }
     }
 
@@ -476,7 +476,7 @@ public class JavassistDialog extends DialogWrapper {
                 }
 
                 if("setBody".equals(operation)) {
-                    result = javassistTool.setBody((CtMethod) targetUnit.getTargetSignature().getMember(), text.substring(i, j+1));
+                    result = javassistTool.setBody((CtConstructor) targetUnit.getTargetSignature().getMember(), text.substring(i, j+1));
                 }else if("insertBefore".equals(operation)) {
                     result = javassistTool.insertBefore((CtMethod) targetUnit.getTargetSignature().getMember(), text.substring(i, j+1));
                 }else if("insertAfter".equals(operation)) {
@@ -491,6 +491,12 @@ public class JavassistDialog extends DialogWrapper {
             if(targetUnit.getType() == ISignature.Type.FIELD) {
                 String text = editor.getDocument().getText();
                 result = javassistTool.addField(text.trim());
+            }else if(targetUnit.getType() == ISignature.Type.METHOD) {
+                String text = editor.getDocument().getText();
+                result = javassistTool.addMethod(text.trim());
+            }else if(targetUnit.getType() == ISignature.Type.CONSTRUCTOR) {
+//                String text = editor.getDocument().getText();
+//                result = javassistTool.addMethod(text.trim());
             }
         }else if(deleteRadio.isSelected()){
             TargetUnit targetUnit = (TargetUnit)targetComboBox.getSelectedItem();
@@ -499,6 +505,10 @@ public class JavassistDialog extends DialogWrapper {
             }
             if(targetUnit.getType() == ISignature.Type.FIELD) {
                 result = javassistTool.deleteField((CtField) targetUnit.getTargetSignature().getMember());
+            }else if(targetUnit.getType() == ISignature.Type.METHOD) {
+                result = javassistTool.deleteMethod((CtMethod) targetUnit.getTargetSignature().getMember());
+            }else if(targetUnit.getType() == ISignature.Type.CONSTRUCTOR) {
+                result = javassistTool.deleteConstructor((CtConstructor) targetUnit.getTargetSignature().getMember());
             }
         }
 
@@ -518,7 +528,9 @@ public class JavassistDialog extends DialogWrapper {
                     myJarEditor.loadEditorContentFromSavedFile(destinationPath);
 
                     //刷新target
-                    this.initTarget();
+                    if(javassistTool.refreshCache()){
+                        this.initTarget();
+                    }
 
                 } catch (Exception ex) {
                     NoticeInfo.error ( "Error write file: " + ex.getMessage());

@@ -42,13 +42,23 @@ public class JavassistTool {
         try (InputStream inputStream = classInputStream) {
             this.ctClass = classPool.makeClass(inputStream);
 
-            constructors.addAll(Arrays.asList(ctClass.getConstructors()));
-            fields.addAll(Arrays.asList(ctClass.getDeclaredFields()));
-            methods.addAll(Arrays.asList(ctClass.getDeclaredMethods()));
-
+            refreshCache();
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public boolean refreshCache(){
+
+        constructors.clear();
+        fields.clear();
+        methods.clear();
+
+        constructors.addAll(Arrays.asList(ctClass.getConstructors()));
+        fields.addAll(Arrays.asList(ctClass.getDeclaredFields()));
+        methods.addAll(Arrays.asList(ctClass.getDeclaredMethods()));
+
+        return true;
     }
 
     public List<CtConstructor> getConstructors() {
@@ -77,12 +87,12 @@ public class JavassistTool {
 
     }
 
-    public Result setBody(CtMethod ctMethod,String body){
+    public Result setBody(CtBehavior ctBehavior,String body){
         Result result = new Result(true,null);
         try {
-            ctMethod.setBody(body);
-            result.setBytes(ctMethod.getDeclaringClass().toBytecode());
-            ctMethod.getDeclaringClass().defrost();
+            ctBehavior.setBody(body);
+            result.setBytes(ctClass.toBytecode());
+            ctClass.defrost();
         } catch (Exception e) {
             e.printStackTrace();
             return new Result(false,e.getMessage());
@@ -92,12 +102,12 @@ public class JavassistTool {
     public Result modifyField(CtField ctField,String newFieldSrc){
         Result result = new Result(true,null);
         try {
-            CtField newField = CtField.make(newFieldSrc, ctField.getDeclaringClass());
-            ctField.getDeclaringClass().removeField(ctField);
-            ctField.getDeclaringClass().addField(newField);
+            CtField newField = CtField.make(newFieldSrc, ctClass);
+            ctClass.removeField(ctField);
+            ctClass.addField(newField);
 
-            result.setBytes(ctField.getDeclaringClass().toBytecode());
-            ctField.getDeclaringClass().defrost();
+            result.setBytes(ctClass.toBytecode());
+            ctClass.defrost();
         } catch (Exception e) {
             e.printStackTrace();
             return new Result(false,e.getMessage());
@@ -118,26 +128,12 @@ public class JavassistTool {
         }
         return result;
     }
-
-    public Result deleteField(CtField ctField){
+    public Result addMethod(String newMethodSrc){
         Result result = new Result(true,null);
         try {
-            ctField.getDeclaringClass().removeField(ctField);
-            result.setBytes(ctField.getDeclaringClass().toBytecode());
-            ctField.getDeclaringClass().defrost();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new Result(false,e.getMessage());
-        }
-        return result;
-    }
+            CtMethod method = CtMethod.make(newMethodSrc, ctClass);
+            ctClass.addMethod(method);
 
-
-
-    public Result insertBefore(CtMethod ctMethod,String body){
-        Result result = new Result(true,null);
-        try {
-            ctMethod.insertBefore(body);
             result.setBytes(ctClass.toBytecode());
             ctClass.defrost();
         } catch (Exception e) {
@@ -146,10 +142,77 @@ public class JavassistTool {
         }
         return result;
     }
-    public Result insertAfter(CtMethod ctMethod,String body){
+//    public Result addConstructor(String newConstructorSrc){
+//        Result result = new Result(true,null);
+//        try {
+//            CtConstructor method = new CtCon
+//            ctClass.addMethod(method);
+//
+//            result.setBytes(ctClass.toBytecode());
+//            ctClass.defrost();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return new Result(false,e.getMessage());
+//        }
+//        return result;
+//    }
+
+    public Result deleteField(CtField ctField){
         Result result = new Result(true,null);
         try {
-            ctMethod.insertAfter(body);
+            ctClass.removeField(ctField);
+            result.setBytes(ctClass.toBytecode());
+            ctClass.defrost();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Result(false,e.getMessage());
+        }
+        return result;
+    }
+
+    public Result deleteMethod(CtMethod ctMethod){
+        Result result = new Result(true,null);
+        try {
+            ctClass.removeMethod(ctMethod);
+            result.setBytes(ctClass.toBytecode());
+            ctClass.defrost();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Result(false,e.getMessage());
+        }
+        return result;
+    }
+    public Result deleteConstructor(CtConstructor constructor){
+        Result result = new Result(true,null);
+        try {
+            ctClass.removeConstructor(constructor);
+            result.setBytes(ctClass.toBytecode());
+            ctClass.defrost();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Result(false,e.getMessage());
+        }
+        return result;
+    }
+
+
+
+    public Result insertBefore(CtBehavior ctBehavior,String body){
+        Result result = new Result(true,null);
+        try {
+            ctBehavior.insertBefore(body);
+            result.setBytes(ctClass.toBytecode());
+            ctClass.defrost();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Result(false,e.getMessage());
+        }
+        return result;
+    }
+    public Result insertAfter(CtBehavior ctBehavior,String body){
+        Result result = new Result(true,null);
+        try {
+            ctBehavior.insertAfter(body);
             result.setBytes(ctClass.toBytecode());
             ctClass.defrost();
         } catch (Exception e) {
