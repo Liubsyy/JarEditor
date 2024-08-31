@@ -25,7 +25,7 @@ group = pluginGroup
 // Configure project's dependencies
 repositories {
     mavenCentral()
-    jcenter()
+//    jcenter()
 }
 dependencies {
     // https://mvnrepository.com/artifact/org.javassist/javassist

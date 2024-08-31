@@ -43,6 +43,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeListener;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -80,6 +81,9 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
 
     //source jar相关的逻辑
     private SourceJarResolver sourceJarResolver;
+
+    //是否从jar_edit_out目录导入的保存文件
+    private boolean importFromSavedFile;
 
     @Nullable
     @Override
@@ -459,30 +463,12 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
                 String savePath = jarEditOutput+"/"+entryPathFromJar;
 
                 //如果有保存的文件，弹出确认框可导入修改文本
-                Path path = Paths.get(savePath);
-                if(Files.exists(path)) {
+                if(Files.exists(Paths.get(savePath))) {
                     if(Messages.YES == Messages.showYesNoDialog(project,
                             "This file was modified last time, do you need to import the changes ?",
                             "Import Confirmation",
                             Messages.getQuestionIcon())){
-
-                        final String newText;
-                        if("class".equals(file.getExtension())){
-                            VirtualFile virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByPath(savePath.replace("\\","/"));
-                            newText = getDecompiledText(project, virtualFile);
-                        }else {
-                            newText = Files.readString(path);
-                        }
-
-                        if(StringUtils.isNotEmpty(newText)) {
-                            Document document = editor.getDocument();
-
-                            WriteCommandAction.runWriteCommandAction(project, () -> {
-                                document.setText(newText);
-                            });
-
-                            PsiDocumentManager.getInstance(project).commitDocument(document);
-                        }
+                        loadEditorContentFromSavedFile(savePath);
                     }
                 }
             }catch (Throwable e) {
@@ -491,9 +477,34 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
 
         }
 
-
     }
 
 
+    public void loadEditorContentFromSavedFile(String savePath) throws IOException {
+        final String newText;
+        if("class".equals(file.getExtension())){
+            VirtualFile virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByPath(savePath.replace("\\","/"));
+            if (virtualFile != null) {
+                virtualFile.refresh(false, false);
+            }
+            newText = getDecompiledText(project, virtualFile);
+        }else {
+            newText = Files.readString(Paths.get(savePath));
+        }
 
+        if(StringUtils.isNotEmpty(newText)) {
+            Document document = editor.getDocument();
+
+            WriteCommandAction.runWriteCommandAction(project, () -> {
+                document.setText(newText);
+            });
+
+            PsiDocumentManager.getInstance(project).commitDocument(document);
+            importFromSavedFile = true;
+        }
+    }
+
+    public boolean isImportFromSavedFile() {
+        return importFromSavedFile;
+    }
 }
