@@ -1,6 +1,5 @@
 package com.liubs.jareditor.editor;
 
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -26,7 +25,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -233,22 +231,7 @@ public class JarEditorCore {
                         return;
                     }
 
-                    //Reload from Disk
-                    ArrayList<VirtualFile> filesToRefresh = new ArrayList<>();
-                    ProjectDependency.getDependentLib(project).forEach(c->{
-                        if(file.getPath().contains(jarPath)){
-                            filesToRefresh.add(file);
-                        }
-                    });
-                    if(!filesToRefresh.isEmpty()) {
-                        ApplicationManager.getApplication().invokeLater(() -> {
-                            for (VirtualFile refreshFile : filesToRefresh) {
-                                refreshFile.refresh(false,true);
-                            }
-                            // 刷新整个虚拟文件系统
-                            VirtualFileManager.getInstance().refreshWithoutFileWatcher(true);
-                        });
-                    }
+                    VirtualFileManager.getInstance().refreshWithoutFileWatcher(true);
 
                     //删除临时保存的class目录
                     MyFileUtil.deleteDir(MyPathUtil.getJarEditTemp(file.getPath()));
