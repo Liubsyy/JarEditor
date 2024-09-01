@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.liubs.jaredit</id>
   <name>JarEditor</name>
-  <version>2.x</version>
+  <version>2.1.1</version>
   <vendor email="Liubsyy@gmail.com" url="https://github.com/Liubsyy/JarEditor">Liubsyy</vendor>
 
   <description><![CDATA[
@@ -13,6 +13,11 @@
     ]]></description>
 
   <change-notes><![CDATA[
+
+     <h3>2.1</h3>
+      <ul>
+        <li>Support javassist</li>
+      </ul>
 
      <h3>1.5</h3>
       <ul>

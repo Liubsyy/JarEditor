@@ -16,13 +16,11 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.liubs.jareditor.editor.MyJarEditor;
+import com.liubs.jareditor.sdk.MessageDialog;
 import com.liubs.jareditor.sdk.NoticeInfo;
 import com.liubs.jareditor.util.MyPathUtil;
 import com.liubs.jareditor.util.PsiFileUtil;
-import javassist.CtConstructor;
-import javassist.CtField;
-import javassist.CtMethod;
-import javassist.NotFoundException;
+import javassist.*;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -79,8 +77,12 @@ public class JavassistDialog extends DialogWrapper {
                 String entryPathFromJar = MyPathUtil.getEntryPathFromJar(virtualFile.getPath());
                 String savePath = jarEditOutput+"/"+entryPathFromJar;
 
-                this.javassistTool = new JavassistTool(project,new FileInputStream(savePath));
-            }else {
+                if(Files.exists(Paths.get(savePath))){
+                    this.javassistTool = new JavassistTool(project,new FileInputStream(savePath));
+                }
+            }
+
+            if(null == this.javassistTool){
                 this.javassistTool = new JavassistTool(project,virtualFile.getInputStream());
             }
         } catch (IOException e) {
@@ -477,11 +479,11 @@ public class JavassistDialog extends DialogWrapper {
                 }
 
                 if("setBody".equals(operation)) {
-                    result = javassistTool.setBody((CtConstructor) targetUnit.getTargetSignature().getMember(), text.substring(i, j+1));
+                    result = javassistTool.setBody((CtBehavior)targetUnit.getTargetSignature().getMember(), text.substring(i, j+1));
                 }else if("insertBefore".equals(operation)) {
-                    result = javassistTool.insertBefore((CtMethod) targetUnit.getTargetSignature().getMember(), text.substring(i, j+1));
+                    result = javassistTool.insertBefore((CtBehavior) targetUnit.getTargetSignature().getMember(), text.substring(i, j+1));
                 }else if("insertAfter".equals(operation)) {
-                    result = javassistTool.insertAfter((CtMethod) targetUnit.getTargetSignature().getMember(), text.substring(i, j+1));
+                    result = javassistTool.insertAfter((CtBehavior) targetUnit.getTargetSignature().getMember(), text.substring(i, j+1));
                 }
             }
         }else if(addRadio.isSelected()) {
