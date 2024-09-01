@@ -373,7 +373,7 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         }
     }
 
-    private void buildJar() {
+    public void buildJar() {
         jarEditorCore.buildJar();
     }
 

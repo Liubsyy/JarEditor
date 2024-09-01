@@ -142,20 +142,20 @@ public class JavassistTool {
         }
         return result;
     }
-//    public Result addConstructor(String newConstructorSrc){
-//        Result result = new Result(true,null);
-//        try {
-//            CtConstructor method = new CtCon
-//            ctClass.addMethod(method);
-//
-//            result.setBytes(ctClass.toBytecode());
-//            ctClass.defrost();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return new Result(false,e.getMessage());
-//        }
-//        return result;
-//    }
+    public Result addConstructor(String newConstructorSrc){
+        Result result = new Result(true,null);
+        try {
+            CtConstructor constructor = CtNewConstructor.make(newConstructorSrc,ctClass);
+            ctClass.addConstructor(constructor);
+
+            result.setBytes(ctClass.toBytecode());
+            ctClass.defrost();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Result(false,e.getMessage());
+        }
+        return result;
+    }
 
     public Result deleteField(CtField ctField){
         Result result = new Result(true,null);

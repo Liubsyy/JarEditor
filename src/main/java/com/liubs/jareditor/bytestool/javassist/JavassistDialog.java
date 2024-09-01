@@ -303,6 +303,7 @@ public class JavassistDialog extends DialogWrapper {
         }
 
         saveBtn.addActionListener(this::saveBtn);
+        buildJarBtn.addActionListener(this::buildJar);
 
         return mainPanel;
     }
@@ -495,8 +496,8 @@ public class JavassistDialog extends DialogWrapper {
                 String text = editor.getDocument().getText();
                 result = javassistTool.addMethod(text.trim());
             }else if(targetUnit.getType() == ISignature.Type.CONSTRUCTOR) {
-//                String text = editor.getDocument().getText();
-//                result = javassistTool.addMethod(text.trim());
+                String text = editor.getDocument().getText();
+                result = javassistTool.addConstructor(text.trim());
             }
         }else if(deleteRadio.isSelected()){
             TargetUnit targetUnit = (TargetUnit)targetComboBox.getSelectedItem();
@@ -540,6 +541,10 @@ public class JavassistDialog extends DialogWrapper {
             }
         }
 
+    }
+
+    public void buildJar(ActionEvent e){
+        myJarEditor.buildJar();
     }
 
     private PsiFile getJarEditorPsiFile(){
