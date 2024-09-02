@@ -1,7 +1,6 @@
 package com.liubs.jareditor.bytestool.javassist;
 
-import com.intellij.psi.PsiField;
-import com.intellij.psi.PsiMember;
+import com.intellij.psi.*;
 import javassist.*;
 
 
@@ -51,5 +50,49 @@ public class FieldSignature implements ISignature{
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String convertToJavassistCode(PsiFile psiFile, PsiElement psiMember) {
+
+        if( ! (psiMember instanceof PsiField) ) {
+            return psiMember.getText();
+        }
+        PsiField psiField = (PsiField)psiMember;
+
+        /*
+        // 获取字段的修饰符列表（包括注解）
+        PsiModifierList modifierList = psiField.getModifierList();
+
+        // 构建字段声明部分
+        StringBuilder fieldDeclarationBuilder = new StringBuilder();
+
+        // 获取修饰符（例如private, static等），并排除注解
+        if (modifierList != null) {
+            for (PsiElement element : modifierList.getChildren()) {
+                if (!(element instanceof PsiAnnotation)) {
+                    fieldDeclarationBuilder.append(element.getText()).append(" ");
+                }
+            }
+        }
+
+        // 添加字段的类型和名称
+        fieldDeclarationBuilder.append(psiField.getType().getPresentableText()).append(" ");
+        fieldDeclarationBuilder.append(psiField.getName());
+*/
+
+        StringBuilder fieldDeclarationBuilder = new StringBuilder(this.show());
+
+
+        // 如果字段有初始化器，添加初始化部分
+        if (psiField.getInitializer() != null) {
+            fieldDeclarationBuilder.append(" = ").append(psiField.getInitializer().getText());
+        }
+
+        // 结束字段声明
+        fieldDeclarationBuilder.append(";");
+
+        // 返回去除注解后的字段声明字符串
+        return fieldDeclarationBuilder.toString();
     }
 }

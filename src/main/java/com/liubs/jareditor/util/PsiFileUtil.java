@@ -3,7 +3,9 @@ package com.liubs.jareditor.util;
 import com.intellij.psi.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Liubsyy
@@ -47,6 +49,80 @@ public class PsiFileUtil {
             }
         }
         return type.getCanonicalText();
+    }
+
+    public static Map<String, String> resoleGenericParam(PsiParameter[] parameters){
+        Map<String, String> parameterReplacementMap = new HashMap<>();
+        int index = 1;
+
+        // 记录每个参数的替换规则
+        for (PsiParameter parameter : parameters) {
+            PsiType type = parameter.getType();
+            String replacementType;
+
+            // 处理泛型类型
+            if (type instanceof PsiClassType) {
+                PsiClassType classType = (PsiClassType) type;
+                PsiType[] parametersOfClassType = classType.getParameters();
+                if (parametersOfClassType.length > 0) {
+                    // 泛型擦除
+                    replacementType = classType.rawType().getCanonicalText();
+                } else {
+                    replacementType = type.getCanonicalText();
+                }
+            } else if (type instanceof PsiArrayType) {
+                // 处理数组类型
+                PsiType componentType = ((PsiArrayType) type).getComponentType();
+                if (componentType instanceof PsiClassType) {
+                    replacementType = "java.lang.Object[]";
+                } else {
+                    replacementType = type.getCanonicalText();
+                }
+            } else if (type instanceof PsiTypeParameter) {
+                // 泛型类型参数，替换为java.lang.Object
+                replacementType = "java.lang.Object";
+            } else {
+                replacementType = type.getCanonicalText();
+            }
+
+            String replacementName = "$" + index++;
+            parameterReplacementMap.put(parameter.getName(), replacementName);
+            // 设置新的类型和名字
+            parameter.getTypeElement().replace(createTypeElementFromText(replacementType, parameter));
+            parameter.setName(replacementName);
+        }
+
+        return parameterReplacementMap;
+    }
+
+
+    private static PsiTypeElement createTypeElementFromText(String typeText, PsiElement context) {
+        PsiElementFactory factory = JavaPsiFacade.getElementFactory(context.getProject());
+        return factory.createTypeElementFromText(typeText, context);
+    }
+
+    public static PsiType replaceGenericType(PsiType type, PsiElement context) {
+        PsiElementFactory factory = JavaPsiFacade.getElementFactory(context.getProject());
+
+        if (type instanceof PsiClassType) {
+            PsiClassType classType = (PsiClassType) type;
+            PsiType[] parameters = classType.getParameters();
+            if (parameters.length > 0) {
+                return factory.createTypeByFQClassName(classType.rawType().getCanonicalText());
+            }
+        } else if (type instanceof PsiArrayType) {
+            PsiType componentType = ((PsiArrayType) type).getComponentType();
+            PsiType newComponentType = replaceGenericType(componentType, context);
+            return newComponentType.createArrayType();
+        } else if (type instanceof PsiTypeParameter) {
+            return PsiType.getJavaLangObject(PsiManager.getInstance(context.getProject()), context.getResolveScope());
+        }
+        return type;
+    }
+
+    public static PsiTypeElement createTypeElementFromType(PsiType type, PsiElement context) {
+        PsiElementFactory factory = JavaPsiFacade.getElementFactory(context.getProject());
+        return factory.createTypeElement(type);
     }
 
 

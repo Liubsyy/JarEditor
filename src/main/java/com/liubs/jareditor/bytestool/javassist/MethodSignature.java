@@ -110,46 +110,7 @@ public class MethodSignature implements ISignature{
 
 
         PsiParameter[] parameters = psiMethod.getParameterList().getParameters();
-        int index = 1;
-        Map<String, String> parameterReplacementMap = new HashMap<>();
-
-
-        // 记录每个参数的替换规则
-        for (PsiParameter parameter : parameters) {
-            PsiType type = parameter.getType();
-            String replacementType;
-
-            // 处理泛型类型
-            if (type instanceof PsiClassType) {
-                PsiClassType classType = (PsiClassType) type;
-                PsiType[] parametersOfClassType = classType.getParameters();
-                if (parametersOfClassType.length > 0) {
-                    // 泛型擦除
-                    replacementType = classType.rawType().getCanonicalText();
-                } else {
-                    replacementType = type.getCanonicalText();
-                }
-            } else if (type instanceof PsiArrayType) {
-                // 处理数组类型
-                PsiType componentType = ((PsiArrayType) type).getComponentType();
-                if (componentType instanceof PsiClassType) {
-                    replacementType = "java.lang.Object[]";
-                } else {
-                    replacementType = type.getCanonicalText();
-                }
-            } else if (type instanceof PsiTypeParameter) {
-                // 泛型类型参数，替换为java.lang.Object
-                replacementType = "java.lang.Object";
-            } else {
-                replacementType = type.getCanonicalText();
-            }
-
-            String replacementName = "$" + index++;
-            parameterReplacementMap.put(parameter.getName(), replacementName);
-            // 设置新的类型和名字
-            parameter.getTypeElement().replace(createTypeElementFromText(replacementType, parameter));
-            parameter.setName(replacementName);
-        }
+        Map<String, String> parameterReplacementMap = PsiFileUtil.resoleGenericParam(parameters);
 
         // 替换方法体内的引用
         psiMethod.accept(new JavaRecursiveElementVisitor() {
@@ -166,15 +127,18 @@ public class MethodSignature implements ISignature{
             public void visitTypeElement(PsiTypeElement typeElement) {
                 super.visitTypeElement(typeElement);
                 PsiType originalType = typeElement.getType();
-                PsiType newType = replaceGenericType(originalType, typeElement);
+                PsiType newType = PsiFileUtil.replaceGenericType(originalType, typeElement);
                 if (!newType.equals(originalType)) {
-                    typeElement.replace(createTypeElementFromType(newType, typeElement));
+                    typeElement.replace(PsiFileUtil.createTypeElementFromType(newType, typeElement));
                 }
             }
         });
 
-        String text = psiMethod.getText();
-        return text;
+        PsiCodeBlock psiCodeBlock = psiMethod.getBody();
+        if(null == psiCodeBlock) {
+            return psiMethod.getText();
+        }
+        return this.show() + psiCodeBlock.getText();
 
         /*int i = text.indexOf("{");
         int j = text.lastIndexOf("}");
@@ -187,35 +151,8 @@ public class MethodSignature implements ISignature{
          */
     }
 
-    private PsiType replaceGenericType(PsiType type, PsiElement context) {
-        PsiElementFactory factory = JavaPsiFacade.getElementFactory(context.getProject());
-
-        if (type instanceof PsiClassType) {
-            PsiClassType classType = (PsiClassType) type;
-            PsiType[] parameters = classType.getParameters();
-            if (parameters.length > 0) {
-                return factory.createTypeByFQClassName(classType.rawType().getCanonicalText());
-            }
-        } else if (type instanceof PsiArrayType) {
-            PsiType componentType = ((PsiArrayType) type).getComponentType();
-            PsiType newComponentType = replaceGenericType(componentType, context);
-            return newComponentType.createArrayType();
-        } else if (type instanceof PsiTypeParameter) {
-            return PsiType.getJavaLangObject(PsiManager.getInstance(context.getProject()), context.getResolveScope());
-        }
-        return type;
-    }
-
-    private PsiTypeElement createTypeElementFromType(PsiType type, PsiElement context) {
-        PsiElementFactory factory = JavaPsiFacade.getElementFactory(context.getProject());
-        return factory.createTypeElement(type);
-    }
 
 
-    private PsiTypeElement createTypeElementFromText(String typeText, PsiElement context) {
-        PsiElementFactory factory = JavaPsiFacade.getElementFactory(context.getProject());
-        return factory.createTypeElementFromText(typeText, context);
-    }
 
 
 }
