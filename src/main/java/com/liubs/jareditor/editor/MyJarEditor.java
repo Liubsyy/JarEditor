@@ -1,7 +1,7 @@
 package com.liubs.jareditor.editor;
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
-import com.intellij.icons.AllIcons;
+import com.intellij.ide.highlighter.JavaClassFileType;
 import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.command.WriteCommandAction;
@@ -22,11 +22,11 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.util.PsiErrorElementUtil;
-import com.intellij.util.ui.JBUI;
 import com.liubs.jareditor.decompile.MyDecompiler;
 import com.liubs.jareditor.persistent.SDKSettingStorage;
 import com.liubs.jareditor.sdk.JavacToolProvider;
 import com.liubs.jareditor.sdk.NoticeInfo;
+import com.liubs.jareditor.sdk.SDKSettingDialog;
 import com.liubs.jareditor.template.TemplateManager;
 import com.liubs.jareditor.constant.ClassVersion;
 import com.liubs.jareditor.util.CommandTools;
@@ -44,9 +44,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -104,7 +102,7 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         needCompiled = new JCheckBox("Compile");
         JButton saveButton = new JButton("Save");
         JButton rebuildJar = new JButton("Build Jar");
-        JButton resetButton = new JButton("Reset");
+//        JButton resetButton = new JButton("Reset");
 
         JPanel optPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
@@ -113,7 +111,7 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         optPanel.add(needCompiled);
         optPanel.add(saveButton);
         optPanel.add(rebuildJar);
-        optPanel.add(resetButton);
+//        optPanel.add(resetButton);
 
         needCompiled.setSelected("class".equals(file.getExtension()) || "kt".equals(file.getExtension()));
         compiledUIVisible(needCompiled.isSelected());
@@ -138,23 +136,35 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         needCompiled.addActionListener(e -> compiledUIVisible(needCompiled.isSelected()));
         saveButton.addActionListener(e -> saveChanges());
         rebuildJar.addActionListener(e -> buildJar());
-        resetButton.addActionListener(e -> cancelChanges());
+//        resetButton.addActionListener(e -> cancelChanges());
     }
 
     private void createActionToolBar(JPanel optPanel){
+        AnAction jarEditorReset = ActionManager.getInstance().getAction("jarEditorReset");
         AnAction jarEditorClear = ActionManager.getInstance().getAction("jarEditorClear");
         AnAction jarEditorSearch = ActionManager.getInstance().getAction("jarEditorSearch");
-        AnAction classBytesTool = ActionManager.getInstance().getAction("classBytesTool");
 
         ArrayList<AnAction> actions = new ArrayList<>();
+
+
+        if(null != jarEditorReset) {
+            actions.add(jarEditorReset);
+        }
+
         if(null != jarEditorClear) {
             actions.add(jarEditorClear);
         }
+
         if(null != jarEditorSearch) {
             actions.add(jarEditorSearch);
         }
-        if(null != classBytesTool) {
-            actions.add(classBytesTool);
+
+        //class字节码编辑工具
+        if("class".equals(file.getExtension())){
+            AnAction classBytesTool = ActionManager.getInstance().getAction("classBytesTool");
+            if(null != classBytesTool) {
+                actions.add(classBytesTool);
+            }
         }
 
         ActionToolbar myToolBar = ActionManager.getInstance().createActionToolbar(ActionPlaces.TOOLBAR,
@@ -238,7 +248,7 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         //select SDK
         selectJDKComboBox = new ComboBox<>(120);
         //select version
-        selectVersionComboBox = new ComboBox<>(70);
+        selectVersionComboBox = new ComboBox<>(60);
 
         JLabel sdkLabel = new JLabel("<html><span style=\"color: #5799EE;\">SDK</span></html>");
         sdkLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -377,7 +387,7 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         jarEditorCore.buildJar();
     }
 
-    private void cancelChanges() {
+    public void cancelChanges() {
         String decompiledText = getDecompiledText(project, file);
         Document document = editor.getDocument();
 

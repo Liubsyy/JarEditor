@@ -100,7 +100,7 @@ public class JavassistDialog extends DialogWrapper {
     @Override
     protected @Nullable JComponent createCenterPanel() {
 
-        JPanel mainPanel = new JPanel(new GridLayoutManager(9, 2));
+        JPanel mainPanel = new JPanel(new GridLayoutManager(8, 2));
         mainPanel.setPreferredSize(new Dimension(700, 500));
 
         String className = virtualFile.getName();
@@ -153,7 +153,7 @@ public class JavassistDialog extends DialogWrapper {
         line++;
 
         JLabel targetLabel = new JLabel("Target");
-        targetComboBox = new ComboBox<>();
+        targetComboBox = new ComboBox<>(400);
 
         //加载字段/函数
         targets = new ArrayList<>();
@@ -166,13 +166,13 @@ public class JavassistDialog extends DialogWrapper {
                 GridConstraints.SIZEPOLICY_FIXED, null, null, null));
         mainPanel.add(targetComboBox, new GridConstraints(line, 1, 1, 1, GridConstraints.ANCHOR_WEST,
                 GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW,
-                GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null));
+                GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(600,-1), new Dimension(600,-1)));
 
 
         line++;
 
         operationLabel = new JLabel("Operation");
-        operationComboBox = new ComboBox<>();
+        operationComboBox = new ComboBox<>(400);
         operationComboBox.addItem("setBody");
         operationComboBox.addItem("insertBefore");
         operationComboBox.addItem("insertAfter");
@@ -185,7 +185,7 @@ public class JavassistDialog extends DialogWrapper {
                 GridConstraints.SIZEPOLICY_FIXED, null, null, null));
         mainPanel.add(operationComboBox, new GridConstraints(line, 1, 1, 1, GridConstraints.ANCHOR_WEST,
                 GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW,
-                GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null));
+                GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(600,-1), new Dimension(600,-1)));
 
 
         line++;
@@ -222,8 +222,10 @@ public class JavassistDialog extends DialogWrapper {
             line++;
 
             mainPanel.add(importEditor.getComponent(), new GridConstraints(line, 0, 1, 2, GridConstraints.ANCHOR_WEST,
-                    GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED,
-                    GridConstraints.SIZEPOLICY_FIXED, new Dimension(700,100), new Dimension(-1,100),new Dimension(-1,100)));
+                    GridConstraints.FILL_BOTH,
+                    GridConstraints.SIZEPOLICY_CAN_GROW | GridConstraints.SIZEPOLICY_CAN_SHRINK ,
+                    GridConstraints.SIZEPOLICY_FIXED ,
+                    null, new Dimension(700,100),new Dimension(-1,100)));
 
             line++;
         }
@@ -241,11 +243,17 @@ public class JavassistDialog extends DialogWrapper {
                     GridConstraints.SIZEPOLICY_FIXED, null, null, null));
             line++;
 
-            mainPanel.add(editor.getComponent(), new GridConstraints(line, 0, 1, 2, GridConstraints.ANCHOR_WEST,
-                    GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED,
-                    GridConstraints.SIZEPOLICY_FIXED, new Dimension(700,300), new Dimension(-1,300), new Dimension(-1,300)));
+//            mainPanel.add(editor.getComponent(), new GridConstraints(line, 0, 1, 2, GridConstraints.ANCHOR_WEST,
+//                    GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED,
+//                    GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(700,300), null));
 
-            line++;
+            mainPanel.add(editor.getComponent(), new GridConstraints(line, 0, 1, 2, GridConstraints.ANCHOR_WEST,
+                    GridConstraints.FILL_BOTH,
+                    GridConstraints.SIZEPOLICY_CAN_GROW | GridConstraints.SIZEPOLICY_CAN_SHRINK ,
+                    GridConstraints.SIZEPOLICY_CAN_GROW | GridConstraints.SIZEPOLICY_CAN_SHRINK ,
+                    null, new Dimension(700,300), null));
+
+
         }
 
         /*
@@ -280,18 +288,6 @@ public class JavassistDialog extends DialogWrapper {
         line++;
 */
 
-
-        JPanel optPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton saveBtn  = new JButton("Save");
-        JButton buildJarBtn  = new JButton("Build Jar");
-        optPanel.add(saveBtn);
-        optPanel.add(buildJarBtn);
-
-        mainPanel.add(optPanel, new GridConstraints(line, 1, 1, 1, GridConstraints.ANCHOR_EAST,
-                GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED,
-                GridConstraints.SIZEPOLICY_FIXED, null, null, null));
-
-
         //UI事件
         modifyRadio.addItemListener(this::actionRadioChange);
         addRadio.addItemListener(this::actionRadioChange);
@@ -304,19 +300,49 @@ public class JavassistDialog extends DialogWrapper {
             targetComboBox.setSelectedIndex(0);
         }
 
-        saveBtn.addActionListener(this::saveBtn);
-        buildJarBtn.addActionListener(this::buildJar);
-
         return mainPanel;
     }
 
 
     @Override
     protected Action [] createActions() {
-        // Return an empty array to hide OK and Cancel buttons
-        return new Action[0];
+        Action saveBtn = new AbstractAction("Run") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                runAndSave(e);
+            }
+        };
+
+        Action buildJarBtn = new AbstractAction("Build Jar") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                buildJar(e);
+            }
+        };
+        Action closeButton = new AbstractAction("Close") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // 点击按钮时关闭对话框
+                close(DialogWrapper.OK_EXIT_CODE);
+            }
+        };
+
+        return new Action[]{saveBtn,buildJarBtn,closeButton};
     }
 
+
+    @Override
+    public void dispose() {
+        try{
+            EditorFactory.getInstance().releaseEditor(importEditor);
+        }catch (Throwable e) {}
+
+        try{
+            EditorFactory.getInstance().releaseEditor(editor);
+        }catch (Throwable e) {}
+
+        super.dispose();
+    }
 
     @Override
     public void doCancelAction() {
@@ -453,7 +479,7 @@ public class JavassistDialog extends DialogWrapper {
         targetComboBoxSelect(e);
     }
 
-    public void saveBtn(ActionEvent e){
+    public void runAndSave(ActionEvent e){
         JavassistTool.Result result = null;
         try{
             javassistTool.imports(importEditor.getDocument().getText().split("\n"));

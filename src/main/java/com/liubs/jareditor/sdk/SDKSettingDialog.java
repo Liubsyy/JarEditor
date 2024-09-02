@@ -1,4 +1,4 @@
-package com.liubs.jareditor.editor;
+package com.liubs.jareditor.sdk;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
@@ -64,7 +64,7 @@ public class SDKSettingDialog extends DialogWrapper {
 
         JCheckBox lines = new JCheckBox("lines");
         JCheckBox vars = new JCheckBox("vars");
-        JCheckBox source = new JCheckBox("source                           ");
+        JCheckBox source = new JCheckBox("source");
         genDebugInfosMap.put("lines",lines);
         genDebugInfosMap.put("vars",vars);
         genDebugInfosMap.put("source",source);
@@ -88,7 +88,8 @@ public class SDKSettingDialog extends DialogWrapper {
 
 
         mainPanel.add(genDebugInfoPanel, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_WEST,
-                GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED,
+                GridConstraints.FILL_HORIZONTAL,
+                GridConstraints.SIZEPOLICY_CAN_GROW | GridConstraints.SIZEPOLICY_CAN_SHRINK,
                 GridConstraints.SIZEPOLICY_FIXED, null, null, null));
 
 
