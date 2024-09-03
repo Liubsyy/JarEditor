@@ -85,7 +85,7 @@
 
           <group id="jarEditorNew"  text="New" description="New" popup="true">
               <action id="jarEditorAddJavaFile" class="com.liubs.jareditor.action.JarEditorAddJavaFile" text="Class" description="NewClass" icon="AllIcons.Nodes.Class" />
-              <action id="jarEditorAddKotlinFile" class="com.liubs.jareditor.action.JarEditorAddKotlinFile" text="Kotlin" description="NewKotlin" icon="AllIcons.FileTypes.Java" />
+              <action id="jarEditorAddKotlinFile" class="com.liubs.jareditor.action.JarEditorAddKotlinFile" text="Kotlin" description="NewKotlin" icon="MyIcons.KOTLIN_CLASS" />
               <action id="jarEditorAddResourceFile" class="com.liubs.jareditor.action.JarEditorAddResourceFile" text="File" description="NewFile" icon="AllIcons.FileTypes.Any_type" />
               <action id="jarEditorAddDirectory" class="com.liubs.jareditor.action.JarEditorAddDirectory" text="Directory" description="NewDirectory" icon="AllIcons.Nodes.Folder" />
           </group>
@@ -106,8 +106,8 @@
       <action id="jarEditorReset" class="com.liubs.jareditor.action.JarEditorReset" text="Reset editor content" description="Reset editor content" icon="MyIcons.RESET"/>
 
       <!--class bytes tool -->
-      <group id="classBytesTool" text="Class bytes tool" description="Class bytes tool" icon="MyIcons.BYTES_TOOL"  popup="true">
-          <action id="javassistAction" class="com.liubs.jareditor.action.JavassistAction" text="Javassist" description="Javassist" icon="MyIcons.HAMMER"/>
+      <group id="classBytesTool" text="Class bytes tool" description="Class bytes tool" icon="MyIcons.TOOL"  popup="true">
+          <action id="javassistAction" class="com.liubs.jareditor.action.JavassistAction" text="Javassist" description="Javassist"/>
       </group>
 
 

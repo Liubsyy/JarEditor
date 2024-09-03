@@ -1,7 +1,9 @@
 package com.liubs.jareditor.bytestool.javassist;
 
 import com.intellij.psi.*;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.liubs.jareditor.util.PsiFileUtil;
+import com.liubs.jareditor.util.StringUtils;
 import javassist.*;
 
 import java.util.*;
@@ -80,7 +82,7 @@ public class MethodSignature implements ISignature{
                 return false;
             }
 
-            String paramTypeText = PsiFileUtil.resoleGenericText(psiParameter.getType());
+            String paramTypeText = PsiFileUtil.resoleGenericType(psiParameter.getType());
 
             if(!paramTypes.get(i).equals(paramTypeText)){
                 return false;
@@ -101,6 +103,10 @@ public class MethodSignature implements ISignature{
      */
     @Override
     public String convertToJavassistCode(PsiFile psiFile,PsiElement psiMember) {
+        return convertToJavassistCode0(psiFile,psiMember);
+    }
+
+    public static String convertToJavassistCode0(PsiFile psiFile,PsiElement psiMember) {
         if( ! (psiMember instanceof PsiMethod) ) {
             return psiMember.getText();
         }
@@ -108,11 +114,29 @@ public class MethodSignature implements ISignature{
         PsiMethod psiMethod = (PsiMethod)psiMember;
         psiMethod = (PsiMethod)psiMethod.copy();
 
-
+        //参数: 替换为$i并擦除泛型
         PsiParameter[] parameters = psiMethod.getParameterList().getParameters();
-        Map<String, String> parameterReplacementMap = PsiFileUtil.resoleGenericParam(parameters);
+        Map<String, String> parameterReplacementMap = PsiFileUtil.resolePsiParams(parameters);
 
-        // 替换方法体内的引用
+        // 移除注解
+        try{
+            PsiModifierList modifierList = psiMethod.getModifierList();
+            PsiAnnotation[] annotations = modifierList.getAnnotations();
+            for (PsiAnnotation annotation : annotations) {
+                annotation.delete();
+            }
+        }catch (Exception ex){}
+
+        //擦除泛型
+        psiMethod.accept(new JavaRecursiveElementVisitor() {
+            @Override
+            public void visitTypeElement(PsiTypeElement typeElement) {
+                super.visitTypeElement(typeElement);
+                PsiFileUtil.replacePsiTypeElementIfGeneric(typeElement);
+            }
+        });
+
+        //将方法体引用的参数替换成$1,$2,$3
         psiMethod.accept(new JavaRecursiveElementVisitor() {
             @Override
             public void visitReferenceExpression(PsiReferenceExpression expression) {
@@ -122,33 +146,18 @@ public class MethodSignature implements ISignature{
                     expression.handleElementRename(parameterReplacementMap.get(refName));
                 }
             }
-
-            @Override
-            public void visitTypeElement(PsiTypeElement typeElement) {
-                super.visitTypeElement(typeElement);
-                PsiType originalType = typeElement.getType();
-                PsiType newType = PsiFileUtil.replaceGenericType(originalType, typeElement);
-                if (!newType.equals(originalType)) {
-                    typeElement.replace(PsiFileUtil.createTypeElementFromType(newType, typeElement));
-                }
-            }
         });
 
-        PsiCodeBlock psiCodeBlock = psiMethod.getBody();
-        if(null == psiCodeBlock) {
+        PsiCodeBlock methodBody = psiMethod.getBody();
+        if (methodBody == null) {
             return psiMethod.getText();
         }
-        return this.show() + psiCodeBlock.getText();
 
-        /*int i = text.indexOf("{");
-        int j = text.lastIndexOf("}");
-        if(i<0 || j<0) {
-            return text;
-        }
 
-        //用javassist的函数签名吧，省的替换泛型
-        return show()+"{"+text.substring(i+1,j)+"}";
-         */
+        return psiMethod.getText();
+
+        //一种投机取巧的方式，取javassist的函数签名+PsiMethod的方法体
+//        return this.show() + psiCodeBlock.getText();
     }
 
 

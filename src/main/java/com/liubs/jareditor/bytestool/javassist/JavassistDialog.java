@@ -1,5 +1,6 @@
 package com.liubs.jareditor.bytestool.javassist;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -166,7 +167,7 @@ public class JavassistDialog extends DialogWrapper {
                 GridConstraints.SIZEPOLICY_FIXED, null, null, null));
         mainPanel.add(targetComboBox, new GridConstraints(line, 1, 1, 1, GridConstraints.ANCHOR_WEST,
                 GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW,
-                GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(600,-1), new Dimension(600,-1)));
+                GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(600,-1), null));
 
 
         line++;
@@ -185,7 +186,7 @@ public class JavassistDialog extends DialogWrapper {
                 GridConstraints.SIZEPOLICY_FIXED, null, null, null));
         mainPanel.add(operationComboBox, new GridConstraints(line, 1, 1, 1, GridConstraints.ANCHOR_WEST,
                 GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW,
-                GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(600,-1), new Dimension(600,-1)));
+                GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(600,-1), null));
 
 
         line++;
@@ -561,18 +562,31 @@ public class JavassistDialog extends DialogWrapper {
                         this.initTarget();
                     }
 
+                    MessageDialog.showMessageDialog("Run success","Save success to: " + destinationPath);
+
                 } catch (Exception ex) {
                     NoticeInfo.error ( "Error write file: " + ex.getMessage());
+                    MessageDialog.showErrorMessageDialog("Run fail","Error write file: " + ex.getMessage());
+
                 }
             }else {
                 NoticeInfo.error("Save err: %s",result.getErr());
+                MessageDialog.showErrorMessageDialog("Run fail","Save err: "+result.getErr());
+
             }
         }
 
     }
 
     public void buildJar(ActionEvent e){
-        myJarEditor.buildJar();
+        myJarEditor.buildJar(jarBuildResult -> ApplicationManager.getApplication().invokeLater(() -> {
+            if(jarBuildResult.isSuccess()) {
+                MessageDialog.showMessageDialog("Build success","Build jar successfully!");
+                close(DialogWrapper.OK_EXIT_CODE);
+            }else {
+                MessageDialog.showErrorMessageDialog("Build fail","Build jar err:"+jarBuildResult.getErr());
+            }
+        }));
     }
 
     private PsiFile getJarEditorPsiFile(){

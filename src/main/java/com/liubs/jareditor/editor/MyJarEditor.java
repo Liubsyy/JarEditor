@@ -1,7 +1,6 @@
 package com.liubs.jareditor.editor;
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
-import com.intellij.ide.highlighter.JavaClassFileType;
 import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.command.WriteCommandAction;
@@ -23,6 +22,7 @@ import com.intellij.psi.*;
 import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.util.PsiErrorElementUtil;
 import com.liubs.jareditor.decompile.MyDecompiler;
+import com.liubs.jareditor.jarbuild.JarBuildResult;
 import com.liubs.jareditor.persistent.SDKSettingStorage;
 import com.liubs.jareditor.sdk.JavacToolProvider;
 import com.liubs.jareditor.sdk.NoticeInfo;
@@ -50,6 +50,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 
 
 /**
@@ -135,7 +136,7 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         //add action listener
         needCompiled.addActionListener(e -> compiledUIVisible(needCompiled.isSelected()));
         saveButton.addActionListener(e -> saveChanges());
-        rebuildJar.addActionListener(e -> buildJar());
+        rebuildJar.addActionListener(e -> buildJar(null));
 //        resetButton.addActionListener(e -> cancelChanges());
     }
 
@@ -383,8 +384,8 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         }
     }
 
-    public void buildJar() {
-        jarEditorCore.buildJar();
+    public void buildJar(Consumer<JarBuildResult> callBack) {
+        jarEditorCore.buildJar(callBack);
     }
 
     public void cancelChanges() {

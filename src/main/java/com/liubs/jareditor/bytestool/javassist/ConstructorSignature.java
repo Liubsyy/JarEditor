@@ -81,7 +81,7 @@ public class ConstructorSignature implements ISignature{
             }
 
             PsiType type = psiParameter.getType();
-            String paramTypeText = PsiFileUtil.resoleGenericText(type);
+            String paramTypeText = PsiFileUtil.resoleGenericType(type);
 
             if(!paramTypes.get(i).equals(paramTypeText)){
                 return false;
@@ -93,44 +93,7 @@ public class ConstructorSignature implements ISignature{
 
     @Override
     public String convertToJavassistCode(PsiFile psiFile,PsiElement psiMember) {
-        if( ! (psiMember instanceof PsiMethod) ) {
-            return psiMember.getText();
-        }
-
-        PsiMethod psiMethod = (PsiMethod)psiMember;
-        psiMethod = (PsiMethod)psiMethod.copy();
-
-
-        PsiParameter[] parameters = psiMethod.getParameterList().getParameters();
-        Map<String, String> parameterReplacementMap = PsiFileUtil.resoleGenericParam(parameters);
-
-        // 替换方法体内的引用
-        psiMethod.accept(new JavaRecursiveElementVisitor() {
-            @Override
-            public void visitReferenceExpression(PsiReferenceExpression expression) {
-                super.visitReferenceExpression(expression);
-                String refName = expression.getReferenceName();
-                if (refName != null && parameterReplacementMap.containsKey(refName)) {
-                    expression.handleElementRename(parameterReplacementMap.get(refName));
-                }
-            }
-
-            @Override
-            public void visitTypeElement(PsiTypeElement typeElement) {
-                super.visitTypeElement(typeElement);
-                PsiType originalType = typeElement.getType();
-                PsiType newType = PsiFileUtil.replaceGenericType(originalType, typeElement);
-                if (!newType.equals(originalType)) {
-                    typeElement.replace(PsiFileUtil.createTypeElementFromType(newType, typeElement));
-                }
-            }
-        });
-
-        PsiCodeBlock psiCodeBlock = psiMethod.getBody();
-        if(null == psiCodeBlock) {
-            return psiMethod.getText();
-        }
-        return this.show() + psiCodeBlock.getText();
+        return MethodSignature.convertToJavassistCode0(psiFile,psiMember);
     }
 
 

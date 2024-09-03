@@ -15,21 +15,21 @@ public class PsiFileUtil {
 
 
     /**
-     * 将参数进行范型擦除
+     * 将参数进行泛型擦除，返回擦除后的类型
      * 1. 形如T a，改成java.lang.Object
      * 2. 形如T [] a，改成java.lang.Object[]
      * 3.形如 java.lang.Class<T>，擦除<T>变成java.lang.Class
-     * @param type
+     * @param psiType
      * @return
      */
-    public static String resoleGenericText(PsiType type) {
-        if (type instanceof PsiPrimitiveType) {
-            return type.getCanonicalText();
-        } else if (type instanceof PsiArrayType) {
-            PsiType componentType = ((PsiArrayType) type).getComponentType();
-            return resoleGenericText(componentType) + "[]";
-        } else if (type instanceof PsiClassType) {
-            PsiClassType.ClassResolveResult resolveResult = ((PsiClassType) type).resolveGenerics();
+    public static String resoleGenericType(PsiType psiType) {
+        if (psiType instanceof PsiPrimitiveType) {
+            return psiType.getCanonicalText();
+        } else if (psiType instanceof PsiArrayType) {
+            PsiType componentType = ((PsiArrayType) psiType).getComponentType();
+            return resoleGenericType(componentType) + "[]";
+        } else if (psiType instanceof PsiClassType) {
+            PsiClassType.ClassResolveResult resolveResult = ((PsiClassType) psiType).resolveGenerics();
             PsiClass psiClass = resolveResult.getElement();
 
             if (psiClass != null) {
@@ -38,93 +38,68 @@ public class PsiFileUtil {
                 }
                 String qualifiedName = psiClass.getQualifiedName();
                 if (qualifiedName != null) {
-                    PsiType[] parameters = ((PsiClassType) type).getParameters();
+                    PsiType[] parameters = ((PsiClassType) psiType).getParameters();
                     if (parameters.length > 0) {
                         // 泛型擦除：移除所有泛型参数
                         return qualifiedName;
                     } else {
-                        return type.getCanonicalText();
+                        return psiType.getCanonicalText();
                     }
                 }
             }
         }
-        return type.getCanonicalText();
+        return psiType.getCanonicalText();
     }
 
-    public static Map<String, String> resoleGenericParam(PsiParameter[] parameters){
+    /**
+     * 将参数名替换成$1,$2,$3，并擦除泛型
+     * @param parameters
+     * @return paramName=>$i
+     */
+    public static Map<String, String> resolePsiParams(PsiParameter[] parameters){
         Map<String, String> parameterReplacementMap = new HashMap<>();
-        int index = 1;
+        for(int i = 0; i<parameters.length ;i++) {
+            PsiParameter parameter = parameters[i];
 
-        // 记录每个参数的替换规则
-        for (PsiParameter parameter : parameters) {
-            PsiType type = parameter.getType();
-            String replacementType;
-
-            // 处理泛型类型
-            if (type instanceof PsiClassType) {
-                PsiClassType classType = (PsiClassType) type;
-                PsiType[] parametersOfClassType = classType.getParameters();
-                if (parametersOfClassType.length > 0) {
-                    // 泛型擦除
-                    replacementType = classType.rawType().getCanonicalText();
-                } else {
-                    replacementType = type.getCanonicalText();
-                }
-            } else if (type instanceof PsiArrayType) {
-                // 处理数组类型
-                PsiType componentType = ((PsiArrayType) type).getComponentType();
-                if (componentType instanceof PsiClassType) {
-                    replacementType = "java.lang.Object[]";
-                } else {
-                    replacementType = type.getCanonicalText();
-                }
-            } else if (type instanceof PsiTypeParameter) {
-                // 泛型类型参数，替换为java.lang.Object
-                replacementType = "java.lang.Object";
-            } else {
-                replacementType = type.getCanonicalText();
-            }
-
-            String replacementName = "$" + index++;
+            //参数替换成$1,$2,$3
+            String replacementName = "$" + (i+1);
             parameterReplacementMap.put(parameter.getName(), replacementName);
-            // 设置新的类型和名字
-            parameter.getTypeElement().replace(createTypeElementFromText(replacementType, parameter));
             parameter.setName(replacementName);
-        }
 
+            //泛型擦除
+            replacePsiTypeElementIfGeneric(parameter);
+        }
         return parameterReplacementMap;
     }
 
 
-    private static PsiTypeElement createTypeElementFromText(String typeText, PsiElement context) {
+    /**
+     * 如果是泛型参数的话，替换为新类型
+     * @param psiParameter 参数
+     */
+    public static void replacePsiTypeElementIfGeneric(PsiParameter psiParameter){
+        replacePsiTypeElementIfGeneric(psiParameter.getTypeElement());
+    }
+    public static void replacePsiTypeElementIfGeneric(PsiTypeElement psiTypeElement){
+        if(null == psiTypeElement) {
+            return;
+        }
+        try{
+            PsiType psiType = psiTypeElement.getType();
+            String resoleText = resoleGenericType(psiType);
+            if(StringUtils.isNotEmpty(resoleText) && !resoleText.equals(psiType.getCanonicalText())) {
+                psiTypeElement.replace(createTypeElementFromText(resoleText, psiTypeElement));
+            }
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+    }
+
+
+    public static PsiTypeElement createTypeElementFromText(String typeText, PsiElement context) {
         PsiElementFactory factory = JavaPsiFacade.getElementFactory(context.getProject());
         return factory.createTypeElementFromText(typeText, context);
     }
-
-    public static PsiType replaceGenericType(PsiType type, PsiElement context) {
-        PsiElementFactory factory = JavaPsiFacade.getElementFactory(context.getProject());
-
-        if (type instanceof PsiClassType) {
-            PsiClassType classType = (PsiClassType) type;
-            PsiType[] parameters = classType.getParameters();
-            if (parameters.length > 0) {
-                return factory.createTypeByFQClassName(classType.rawType().getCanonicalText());
-            }
-        } else if (type instanceof PsiArrayType) {
-            PsiType componentType = ((PsiArrayType) type).getComponentType();
-            PsiType newComponentType = replaceGenericType(componentType, context);
-            return newComponentType.createArrayType();
-        } else if (type instanceof PsiTypeParameter) {
-            return PsiType.getJavaLangObject(PsiManager.getInstance(context.getProject()), context.getResolveScope());
-        }
-        return type;
-    }
-
-    public static PsiTypeElement createTypeElementFromType(PsiType type, PsiElement context) {
-        PsiElementFactory factory = JavaPsiFacade.getElementFactory(context.getProject());
-        return factory.createTypeElement(type);
-    }
-
 
 
 

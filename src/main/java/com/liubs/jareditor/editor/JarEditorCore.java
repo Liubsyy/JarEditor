@@ -1,5 +1,6 @@
 package com.liubs.jareditor.editor;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -28,6 +29,7 @@ import java.nio.file.*;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * 核心功能
@@ -193,27 +195,27 @@ public class JarEditorCore {
     }
 
 
-    public void buildJar(){
+    public void buildJar(Consumer<JarBuildResult> callBack){
         String jarEditClassPath = MyPathUtil.getJarEditOutput(file.getPath());
         if(null == jarEditClassPath){
             return;
         }
-        File file = new File(jarEditClassPath);
-        if(!file.exists()) {
+        File jarEditOutputDir = new File(jarEditClassPath);
+        if(!jarEditOutputDir.exists()) {
             NoticeInfo.warning("Nothing is modified in the jar!");
             return;
         }
 
-        String[] files = file.list();
-        if (files == null || files.length == 0) {
+        String[] jarEditOutputFiles = jarEditOutputDir.list();
+        if (jarEditOutputFiles == null || jarEditOutputFiles.length == 0) {
             NoticeInfo.warning("Nothing is modified in the jar!");
             return;
         }
 
-        buildJar0();
+        buildJar0(callBack);
     }
 
-    private void buildJar0(){
+    private void buildJar0(Consumer<JarBuildResult> callBack){
         ProgressManager.getInstance().run(new Task.Backgroundable(null, "Jar building...", true) {
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 try {
@@ -226,17 +228,23 @@ public class JarEditorCore {
 //                    JarBuildResult jarBuildResult = jarBuilder.writeJar(true);
                     JarBuildResult jarBuildResult = jarBuilder.writeJar(false);
 
-                    if(!jarBuildResult.isSuccess()) {
+                    if(jarBuildResult.isSuccess()) {
+                        ApplicationManager.getApplication().invokeLater(() -> {
+                            file.refresh(false,true);
+                            VirtualFileManager.getInstance().refreshWithoutFileWatcher(true);
+                        });
+
+                        //删除临时保存的class目录
+                        MyFileUtil.deleteDir(MyPathUtil.getJarEditTemp(file.getPath()));
+                        NoticeInfo.info("Build jar successfully!");
+                    }else {
                         NoticeInfo.error("Build jar err: \n%s",jarBuildResult.getErr());
-                        return;
                     }
 
-                    VirtualFileManager.getInstance().refreshWithoutFileWatcher(true);
+                    if(null != callBack) {
+                        callBack.accept(jarBuildResult);
+                    }
 
-                    //删除临时保存的class目录
-                    MyFileUtil.deleteDir(MyPathUtil.getJarEditTemp(file.getPath()));
-
-                    NoticeInfo.info("Build jar successfully!");
 
                 } catch (Exception e) {
                     NoticeInfo.error("Build jar err:%s",e.getMessage());
