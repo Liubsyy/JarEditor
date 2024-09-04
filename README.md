@@ -57,7 +57,7 @@ Click the **Class bytes tool** icon to select the tool
 #### javassist
 Fields and methods can be added, deleted, or modified
 
-<img src="./img/JarEditor_new_delete.png" width="800" height="593" />
+<img src="./img/JarEditor_javassist.png" width="800" height="593" />
 
 
 ### 4. Other operations of JarEditor

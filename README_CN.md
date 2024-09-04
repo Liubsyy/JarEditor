@@ -55,7 +55,7 @@
 #### javassist
 可以对字段和方法进行增删改
 
-<img src="./img/JarEditor_new_delete.png" width="800" height="593" />
+<img src="./img/JarEditor_javassist.png" width="800" height="593" />
 
 
 
