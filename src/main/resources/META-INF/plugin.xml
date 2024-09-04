@@ -6,9 +6,19 @@
 
   <description><![CDATA[
 
-    JarEditor is used to directly edit classes/resources in Jar without decompression.
+    IDEA plugin for modifying files in jar directly without decompression, including class and resource files.
     <br>
-    It also supports adding/deleting/copying/pasting files/folders in Jar.
+
+    <ul>
+        <li>Edit class/resource file in jar directly without decompression</li>
+        <li>Add/Delete/Rename file/directory in jar</li>
+        <li>Search the contents of the jar package</li>
+        <li>Copy/Paste file/directory to/from clipboard</li>
+        <li>Support SpringBoot jar</li>
+        <li>Support kotlin</li>
+        <li>Export source jar</li>
+        <li>Support class bytes tool : javassist</li>
+    </ul>
 
     ]]></description>
 

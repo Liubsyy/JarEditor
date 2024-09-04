@@ -18,15 +18,16 @@ IDEA plugin for modifying files in jar directly without decompression, including
 **Plugin marketplace** : [https://plugins.jetbrains.com/plugin/24397-jareditor](https://plugins.jetbrains.com/plugin/24397-jareditor)
 
 ## Features
-- Edit class/resource files in jar directly without decompression
+- Edit class/resource file in jar directly without decompression
 - Add/Delete/Rename file/directory in jar
-- Paste file/directory from clipboard
-- Copy file/directory to clipboard
+- Search the contents of the jar package
+- Copy/Paste file/directory to/from clipboard
 - Support SpringBoot jar
 - Support kotlin
-- Support source jar
-- Search the contents of the jar package
 - Export source jar
+- Support class bytes tool : javassist
+
+
 
 ## Quick start
 
