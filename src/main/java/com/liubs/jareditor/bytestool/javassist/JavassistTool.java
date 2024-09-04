@@ -75,7 +75,7 @@ public class JavassistTool {
 
 
 
-    public void imports(String[] imports) {
+    public void imports(List<String> imports) {
         classPool.clearImportedPackages();
         for(String importStr : imports){
             importStr = importStr.replace("import ", "").replace(";","").trim();

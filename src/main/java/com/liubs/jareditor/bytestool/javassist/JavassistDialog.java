@@ -8,6 +8,7 @@ import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -19,6 +20,7 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.liubs.jareditor.editor.MyJarEditor;
 import com.liubs.jareditor.sdk.MessageDialog;
 import com.liubs.jareditor.sdk.NoticeInfo;
+import com.liubs.jareditor.util.ExceptionUtil;
 import com.liubs.jareditor.util.MyPathUtil;
 import com.liubs.jareditor.util.PsiFileUtil;
 import javassist.*;
@@ -34,6 +36,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -482,8 +485,17 @@ public class JavassistDialog extends DialogWrapper {
 
     public void runAndSave(ActionEvent e){
         JavassistTool.Result result = null;
+        String editorText = "";
         try{
-            javassistTool.imports(importEditor.getDocument().getText().split("\n"));
+            List<String> imports = new ArrayList<>();
+            String[] editorTextTemp = new String[1];
+            ApplicationManager.getApplication().runReadAction(() -> {
+                imports.addAll(Arrays.stream(importEditor.getDocument().getText().split("\n"))
+                        .collect(Collectors.toList()));
+                editorTextTemp[0] = editor.getDocument().getText();
+            });
+            editorText = editorTextTemp[0];
+            javassistTool.imports(imports);
         }catch (Exception importErr){
             importErr.printStackTrace();
         }
@@ -494,11 +506,11 @@ public class JavassistDialog extends DialogWrapper {
                 return;
             }
             if(targetUnit.getType() == ISignature.Type.FIELD) {
-                String text = editor.getDocument().getText();
+                String text = editorText;
                 result = javassistTool.modifyField((CtField) targetUnit.getTargetSignature().getMember(), text.trim());
             }else if(targetUnit.getType() == ISignature.Type.METHOD ||  targetUnit.getType() == ISignature.Type.CONSTRUCTOR){
                 String operation = (String)operationComboBox.getSelectedItem();
-                String text = editor.getDocument().getText();
+                String text = editorText;
                 int i = text.indexOf('{');
                 int j = text.lastIndexOf('}');
                 if(i<0 ||j<0) {
@@ -519,13 +531,13 @@ public class JavassistDialog extends DialogWrapper {
                 return;
             }
             if(targetUnit.getType() == ISignature.Type.FIELD) {
-                String text = editor.getDocument().getText();
+                String text = editorText;
                 result = javassistTool.addField(text.trim());
             }else if(targetUnit.getType() == ISignature.Type.METHOD) {
-                String text = editor.getDocument().getText();
+                String text = editorText;
                 result = javassistTool.addMethod(text.trim());
             }else if(targetUnit.getType() == ISignature.Type.CONSTRUCTOR) {
-                String text = editor.getDocument().getText();
+                String text = editorText;
                 result = javassistTool.addConstructor(text.trim());
             }
         }else if(deleteRadio.isSelected()){
@@ -559,13 +571,17 @@ public class JavassistDialog extends DialogWrapper {
 
                     //刷新target
                     if(javassistTool.refreshCache()){
-                        this.initTarget();
+                        if (DumbService.isDumb(project)) {
+                            DumbService.getInstance(project).runWhenSmart(this::initTarget);
+                        } else {
+                            initTarget();
+                        }
                     }
 
                     MessageDialog.showMessageDialog("Run success","Save success to: " + destinationPath);
 
                 } catch (Exception ex) {
-                    NoticeInfo.error ( "Error write file: " + ex.getMessage());
+                    NoticeInfo.error ( "Error write file: " + ExceptionUtil.getExceptionTracing(ex));
                     MessageDialog.showErrorMessageDialog("Run fail","Error write file: " + ex.getMessage());
 
                 }
