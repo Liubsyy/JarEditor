@@ -6,6 +6,7 @@ import com.liubs.jareditor.sdk.ProjectDependency;
 import com.liubs.jareditor.util.StringUtils;
 import javassist.*;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,7 +25,7 @@ public class JavassistTool {
     private List<CtField> fields ;
     private List<CtMethod> methods;
 
-    public JavassistTool(Project project, InputStream classInputStream){
+    public JavassistTool(Project project, byte[] bytes){
         classPool = new ClassPool();
         constructors = new ArrayList<>();
         fields = new ArrayList<>();
@@ -39,9 +40,8 @@ public class JavassistTool {
             }
         });
 
-        try (InputStream inputStream = classInputStream) {
+        try ( ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes)) {
             this.ctClass = classPool.makeClass(inputStream);
-
             refreshCache();
         } catch (Exception e) {
             e.printStackTrace();

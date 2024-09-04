@@ -12,6 +12,7 @@ import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -30,9 +31,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -82,12 +81,13 @@ public class JavassistDialog extends DialogWrapper {
                 String savePath = jarEditOutput+"/"+entryPathFromJar;
 
                 if(Files.exists(Paths.get(savePath))){
-                    this.javassistTool = new JavassistTool(project,new FileInputStream(savePath));
+                    this.javassistTool = new JavassistTool(project,Files.readAllBytes(Paths.get(savePath)));
                 }
             }
 
             if(null == this.javassistTool){
-                this.javassistTool = new JavassistTool(project,virtualFile.getInputStream());
+                byte[] classBytes = VfsUtilCore.loadBytes(virtualFile);
+                this.javassistTool = new JavassistTool(project, classBytes);
             }
         } catch (IOException e) {
             e.printStackTrace();
