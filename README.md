@@ -50,6 +50,10 @@ Finally click **Build Jar** to write the compiled and saved class file into the 
 
 Modifying the resource files in the jar package is also supported.
 
+Here is an example:
+
+<img src="./img/JarEditor_demo.gif"  />
+
 ### 3. Modify bytecode tools
 For obfuscated jars, the decompilation effect is not very satisfactory. In this case, you can use tools to directly modify the bytecode.
 Click the **Class bytes tool** icon to select the tool
