@@ -52,14 +52,14 @@ Modifying the resource files in the jar package is also supported.
 
 Here is an example:
 
-<img src="./img/JarEditor_demo.gif"  />
+<img src="./img/JarEditor_demo.gif"  width="800" height="511" />
 
 ### 3. Class bytes tool
 For obfuscated jars, the decompilation result is not very satisfactory. In this case, you can use tools to directly modify the bytecode.
 Click the **Class bytes tool** icon to select the tool
 
-#### javassist
-Fields and methods can be added, deleted, or modified
+- `javassist` : Fields and methods can be modified/added/deleted
+
 
 <img src="./img/JarEditor_javassist.png" width="800" height="593" />
 

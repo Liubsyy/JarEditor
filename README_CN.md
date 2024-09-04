@@ -48,19 +48,18 @@
 
 修改jar包中的资源文件也是支持的。
 
+下面是一个演示例子:
+
+<img src="./img/JarEditor_demo.gif"  width="800" height="511" />
+
 ### 3. 修改字节码工具
 针对混淆jar，反编译的效果不是很好，此时可以使用直接修改字节码工具
 点击 **Class bytes tool** 图标选择工具
 
-#### javassist
-可以对字段和方法进行增删改
+- `javassist` : 可以对字段和方法进行增删改
 
 <img src="./img/JarEditor_javassist.png" width="800" height="593" />
 
-
-下面是一个演示例子:
-
-<img src="./img/JarEditor_demo.gif"  />
 
 ### 4. 其他操作
 在jar包的项目视图中，右键可以看到**JarEditor->New/Delete**等操作，可以在jar内添加/删除/重命名/复制/粘贴/导出文件。
