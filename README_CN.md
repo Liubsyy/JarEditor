@@ -48,10 +48,22 @@
 
 修改jar包中的资源文件也是支持的。
 
-### 3. 其他操作
-在jar包的项目视图中，右键可以看到**JarEditor->New/Delete**等操作，可以在jar内添加/删除/重命名/复制/粘贴文件。
+### 3. 修改字节码工具
+针对混淆jar，反编译的效果不是很好，此时可以使用直接修改字节码工具
+点击 **Class bytes tool** 图标选择工具
 
-<img src="./img/JarEditor_new_delete.png" width="600" height="560" />
+#### javassist
+可以对字段和方法进行增删改
+
+<img src="./img/JarEditor_new_delete.png" width="800" height="593" />
+
+
+
+
+### 4. 其他操作
+在jar包的项目视图中，右键可以看到**JarEditor->New/Delete**等操作，可以在jar内添加/删除/重命名/复制/粘贴/导出文件。
+
+<img src="./img/JarEditor_new_delete.png" width="600" height="550" />
 
 点击 **Search** 图标，可以搜索jar包的内容，如果是class jar将根据反编译的内容进行搜索
 

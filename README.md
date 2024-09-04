@@ -50,10 +50,20 @@ Finally click **Build Jar** to write the compiled and saved class file into the 
 
 Modifying the resource files in the jar package is also supported.
 
-### 3. Other operations of JarEditor
-In the project view of the jar package, right-click to see **JarEditor->New/Delete** and other operations, where you can add/delete/rename/copy/paste files.
+### 3. Modify bytecode tools
+For obfuscated jars, the decompilation effect is not very satisfactory. In this case, you can use tools to directly modify the bytecode.
+Click the **Class bytes tool** icon to select the tool
 
-<img src="./img/JarEditor_new_delete.png" width="600" height="560" />
+#### javassist
+Fields and methods can be added, deleted, or modified
+
+<img src="./img/JarEditor_new_delete.png" width="800" height="593" />
+
+
+### 4. Other operations of JarEditor
+In the project view of the jar package, right-click to see **JarEditor->New/Delete** and other operations, where you can add/delete/rename/copy/paste/export files.
+
+<img src="./img/JarEditor_new_delete.png" width="600" height="550" />
 
 
 Click the **Search** icon to search the contents of the jar package. If it is a class jar, it will be searched based on the decompiled content.
