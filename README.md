@@ -54,7 +54,7 @@ Here is an example:
 
 <img src="./img/JarEditor_demo.gif"  />
 
-### 3. Modify bytecode tools
+### 3. Class bytes tool
 For obfuscated jars, the decompilation effect is not very satisfactory. In this case, you can use tools to directly modify the bytecode.
 Click the **Class bytes tool** icon to select the tool
 
