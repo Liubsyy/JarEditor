@@ -219,6 +219,7 @@ public class JavassistDialog extends DialogWrapper {
                 editorEx.setCaretVisible(true);
                 editorEx.setEmbeddedIntoDialogWrapper(true);
             }
+            MyJarEditor.handleTabKeyInEditor(project,importEditor);
 
             mainPanel.add(new JLabel("Import"), new GridConstraints(line, 0, 1, 1, GridConstraints.ANCHOR_WEST,
                     GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED,
@@ -242,6 +243,8 @@ public class JavassistDialog extends DialogWrapper {
                 editorEx.setCaretVisible(true);
                 editorEx.setEmbeddedIntoDialogWrapper(true);
             }
+            MyJarEditor.handleTabKeyInEditor(project,editor);
+
             mainPanel.add(new JLabel("Code"), new GridConstraints(line, 0, 1, 1, GridConstraints.ANCHOR_WEST,
                     GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED,
                     GridConstraints.SIZEPOLICY_FIXED, null, null, null));

@@ -4,6 +4,7 @@ import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
@@ -40,6 +41,8 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeListener;
@@ -353,6 +356,7 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
                 editorEx.setCaretVisible(true);
                 editorEx.setEmbeddedIntoDialogWrapper(true);
             }
+            MyJarEditor.handleTabKeyInEditor(project,editor);
         }
 
         return editor;
@@ -517,5 +521,42 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
 
     public boolean isImportFromSavedFile() {
         return importFromSavedFile;
+    }
+
+
+    /**
+     * 编辑器的tab缩进，没有找到合适的API，这里简单粗暴处理一下手动加上 \t，
+     * TODO 如果发现合适的API再优化这里
+     */
+    public static void handleTabKeyInEditor(Project project,Editor editor) {
+        if(null == editor){
+            return;
+        }
+        try{
+
+            //禁用焦点遍历键（如Tab、Shift+Tab等）
+            editor.getContentComponent().setFocusTraversalKeysEnabled(false);
+
+            //处理tab的事件
+            editor.getContentComponent().addKeyListener(new KeyAdapter() {
+                @Override
+                public void keyPressed(KeyEvent e) {
+                    if (e.getKeyCode() == KeyEvent.VK_TAB) {
+                        CaretModel caretModel = editor.getCaretModel();
+                        Document document = editor.getDocument();
+
+                        // tab缩进
+                        WriteCommandAction.runWriteCommandAction(project, () -> {
+                            document.insertString(caretModel.getOffset(), "\t");
+                        });
+                        PsiDocumentManager.getInstance(project).commitDocument(document);
+
+                        caretModel.moveToOffset(caretModel.getOffset());  // 移动光标
+                    }
+                }
+            });
+        }catch (Throwable e){
+            e.printStackTrace();
+        }
     }
 }
