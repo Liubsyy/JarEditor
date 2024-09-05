@@ -25,6 +25,14 @@ public class JavassistTool {
     private List<CtField> fields ;
     private List<CtMethod> methods;
 
+
+    static {
+        //javassist禁用jar连接缓存
+        //如果开启可能会导致修改完的jar再次修改时读取异常
+        ClassPool.cacheOpenedJarFile = false;
+    }
+
+
     public JavassistTool(Project project, byte[] bytes){
         classPool = new ClassPool();
         constructors = new ArrayList<>();
