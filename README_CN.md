@@ -56,7 +56,7 @@
 针对混淆jar，反编译的效果不是很好，此时可以使用直接修改字节码工具
 点击 **Class bytes tool** 图标选择工具
 
-- `javassist` : 可以对字段和方法进行增删改
+- **Javassist** : 可以对字段和方法进行增删改
 
 <img src="./img/JarEditor_javassist.png" width="800" height="593" />
 
