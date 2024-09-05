@@ -533,7 +533,6 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
             return;
         }
         try{
-
             //禁用焦点遍历键（如Tab、Shift+Tab等）
             editor.getContentComponent().setFocusTraversalKeysEnabled(false);
 
@@ -541,18 +540,20 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
             editor.getContentComponent().addKeyListener(new KeyAdapter() {
                 @Override
                 public void keyPressed(KeyEvent e) {
-                    if (e.getKeyCode() == KeyEvent.VK_TAB) {
-                        CaretModel caretModel = editor.getCaretModel();
-                        Document document = editor.getDocument();
+                    try{
+                        if (e.getKeyCode() == KeyEvent.VK_TAB) {
+                            CaretModel caretModel = editor.getCaretModel();
+                            Document document = editor.getDocument();
 
-                        // tab缩进
-                        WriteCommandAction.runWriteCommandAction(project, () -> {
-                            document.insertString(caretModel.getOffset(), "\t");
-                        });
-                        PsiDocumentManager.getInstance(project).commitDocument(document);
+                            // tab缩进
+                            WriteCommandAction.runWriteCommandAction(project, () -> {
+                                document.insertString(caretModel.getOffset(), "\t");
+                            });
+                            PsiDocumentManager.getInstance(project).commitDocument(document);
 
-                        caretModel.moveToOffset(caretModel.getOffset());  // 移动光标
-                    }
+                            caretModel.moveToOffset(caretModel.getOffset());  // 移动光标
+                        }
+                    }catch (Throwable ex){}
                 }
             });
         }catch (Throwable e){
