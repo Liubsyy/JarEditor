@@ -54,9 +54,9 @@ public class SearchAllJarPanel extends JPanel {
         searchField = new JTextField(20);
         searchButton = new JButton("Search");
         searchResult = new DefaultListModel<>();
-        caseSensitiveCheckBox = new JCheckBox("区分大小写", true);
-        wholeWordsCheckBox = new JCheckBox("单词搜索", false);
-        regexCheckBox = new JCheckBox("正则表达式", false);
+        caseSensitiveCheckBox = new JCheckBox("Match Case", true);
+        wholeWordsCheckBox = new JCheckBox("Words", false);
+        regexCheckBox = new JCheckBox("Regex", false);
 
         searchButton.addActionListener(e -> runSearch());
 
@@ -81,7 +81,7 @@ public class SearchAllJarPanel extends JPanel {
                     int index = resultList.locationToIndex(e.getPoint());
                     if (index >= 0) {
                         SearchResultItem selectedPath = resultList.getModel().getElementAt(index);
-                        VirtualFile openFile = selectedPath.getJarFile();
+                        VirtualFile openFile = selectedPath.getFile();
                         if (openFile != null) {
                             FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
                             FileEditor[] fileEditors = fileEditorManager.openFile(openFile, true);
@@ -181,7 +181,7 @@ public class SearchAllJarPanel extends JPanel {
                                                     try {
                                                         Pattern pattern = Pattern.compile(query, caseSensitive ? 0 : Pattern.CASE_INSENSITIVE);
                                                         if (pattern.matcher(allText).find()) {
-                                                            addResult(file, eachJar);
+                                                            addResult(file);
                                                         }
                                                     } catch (PatternSyntaxException e) {
                                                         // 正则表达式无效，忽略
@@ -190,11 +190,11 @@ public class SearchAllJarPanel extends JPanel {
                                                     String wordBoundary = "\\b" + Pattern.quote(query) + "\\b";
                                                     Pattern pattern = Pattern.compile(wordBoundary, caseSensitive ? 0 : Pattern.CASE_INSENSITIVE);
                                                     if (pattern.matcher(allText).find()) {
-                                                        addResult(file, eachJar);
+                                                        addResult(file);
                                                     }
                                                 } else {
                                                     if (caseSensitive ? allText.contains(query) : allText.toLowerCase().contains(query.toLowerCase())) {
-                                                        addResult(file, eachJar);
+                                                        addResult(file);
                                                     }
                                                 }
                                             });
@@ -212,12 +212,12 @@ public class SearchAllJarPanel extends JPanel {
 
             }
 
-            private void addResult(VirtualFile file, VirtualFile jarFile) {
+            private void addResult(VirtualFile file) {
                 ApplicationManager.getApplication().invokeLater(() -> {
-                    if (currentIndicator.isCanceled()) {
+                    if (null == currentIndicator ||currentIndicator.isCanceled()) {
                         return;
                     }
-                    searchResult.addElement(new SearchResultItem(file, jarFile, MyPathUtil.getEntryPathFromJar(file.getPath())));
+                    searchResult.addElement(new SearchResultItem(file, MyPathUtil.getEntryPathFromJar(file.getPath())));
                 });
             }
         });
@@ -230,32 +230,4 @@ public class SearchAllJarPanel extends JPanel {
         }
     }
 
-    public static class SearchResultItem {
-        private final VirtualFile file;
-        private final VirtualFile jarFile;
-        private final String path;
-
-        public SearchResultItem(VirtualFile file, VirtualFile jarFile, String path) {
-            this.file = file;
-            this.jarFile = jarFile;
-            this.path = path;
-        }
-
-        public VirtualFile getFile() {
-            return file;
-        }
-
-        public VirtualFile getJarFile() {
-            return jarFile;
-        }
-
-        public String getPath() {
-            return path;
-        }
-
-        @Override
-        public String toString() {
-            return path;
-        }
-    }
 }

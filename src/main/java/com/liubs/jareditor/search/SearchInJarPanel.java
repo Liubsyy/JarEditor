@@ -55,9 +55,10 @@ public class SearchInJarPanel extends JPanel {
         this.setLayout(new BorderLayout());
         searchField = new JTextField(20);
         searchResult = new DefaultListModel<>();
-        caseSensitiveCheckBox = new JCheckBox("区分大小写", true);
-        wholeWordsCheckBox = new JCheckBox("单词搜索", false);
-        regexCheckBox = new JCheckBox("正则表达式", false);
+
+        caseSensitiveCheckBox = new JCheckBox("Match Case", true);
+        wholeWordsCheckBox = new JCheckBox("Words", false);
+        regexCheckBox = new JCheckBox("Regex", false);
 
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.add(searchField, BorderLayout.CENTER);
@@ -197,7 +198,7 @@ public class SearchInJarPanel extends JPanel {
 
             private void addResult(VirtualFile file) {
                 ApplicationManager.getApplication().invokeLater(() -> {
-                    if (currentIndicator.isCanceled()) {
+                    if (null == currentIndicator || currentIndicator.isCanceled()) {
                         return;
                     }
                     searchResult.addElement(MyPathUtil.getEntryPathFromJar(file.getPath()));
