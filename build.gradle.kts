@@ -31,6 +31,11 @@ dependencies {
     // https://mvnrepository.com/artifact/org.javassist/javassist
     implementation("org.javassist:javassist:3.30.2-GA")
 
+    // https://mvnrepository.com/artifact/org.ow2.asm/asm
+    implementation("org.ow2.asm:asm:9.7")
+
+    // https://mvnrepository.com/artifact/org.ow2.asm/asm-commons
+    implementation("org.ow2.asm:asm-commons:9.7")
 
 }
 

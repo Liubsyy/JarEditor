@@ -101,12 +101,15 @@
           </group>
 
           <action id="jarEditorDeleteFiles" class="com.liubs.jareditor.action.JarEditorDeleteFiles" text="Delete" description="Delete"/>
-          <action id="jarEditorRenameFile" class="com.liubs.jareditor.action.JarEditorRenameFile" text="Rename" description="Rename"/>
+          <group id="jarEditorRename"  text="Rename" description="Rename" popup="true">
+              <action id="jarEditorRenameFile" class="com.liubs.jareditor.action.JarEditorRenameFile" text="Rename Only" description="Rename only"/>
+              <action id="jarEditorRefactor" class="com.liubs.jareditor.action.JarEditorRefactorClass" text="Refactor Class" description="Refactor class"/>
+          </group>
           <action id="jarEditorCopyFile" class="com.liubs.jareditor.action.JarEditorCopyFile" text="Copy" description="Copy"/>
           <action id="jarEditorPasteFile" class="com.liubs.jareditor.action.JarEditorPasteFile" text="Paste" description="Paste"/>
 
           <group id="jarEditorExport"  text="Export" description="Export" popup="true">
-              <action id="jarEditorExportSourceJar" class="com.liubs.jareditor.action.JarEditorExportSourceJar" text="Source jar" description="Source jar"/>
+              <action id="jarEditorExportSourceJar" class="com.liubs.jareditor.action.JarEditorExportSourceJar" text="Source Jar" description="Source jar"/>
           </group>
 
           <action id="jarEditorSearch" class="com.liubs.jareditor.action.JarEditorSearch" text="Search" description="Search" icon="AllIcons.Actions.Search"/>

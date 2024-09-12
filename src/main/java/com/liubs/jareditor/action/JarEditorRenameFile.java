@@ -48,7 +48,7 @@ public class JarEditorRenameFile extends AnAction {
 
         String userInput = Messages.showInputDialog(
                 e.getProject(),
-                "Enter name for new name:",
+                "Enter new name:",
                 "Rename File",
                 Messages.getQuestionIcon(),
                 selectedFile.getName(),
