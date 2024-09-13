@@ -15,6 +15,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.VirtualFileVisitor;
 import com.intellij.ui.components.JBList;
+import com.intellij.ui.components.JBScrollPane;
 import com.liubs.jareditor.editor.MyFileEditorProvider;
 import com.liubs.jareditor.editor.MyJarEditor;
 import com.liubs.jareditor.util.MyPathUtil;
@@ -93,7 +94,7 @@ public class SearchInJarPanel extends JPanel {
 
         this.add(topPanel, BorderLayout.NORTH);
         JBList<String> resultList = new JBList<>(searchResult);
-        this.add(new JScrollPane(resultList), BorderLayout.CENTER);
+        this.add(new JBScrollPane(resultList), BorderLayout.CENTER);
 
         resultList.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {

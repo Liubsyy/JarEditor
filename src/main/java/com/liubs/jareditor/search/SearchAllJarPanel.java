@@ -14,6 +14,7 @@ import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileVisitor;
 import com.intellij.ui.components.JBList;
+import com.intellij.ui.components.JBScrollPane;
 import com.liubs.jareditor.editor.MyFileEditorProvider;
 import com.liubs.jareditor.editor.MyJarEditor;
 import com.liubs.jareditor.editor.SourceJarResolver;
@@ -23,8 +24,6 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.regex.Pattern;
@@ -73,7 +72,7 @@ public class SearchAllJarPanel extends JPanel {
         this.add(searchPanel, BorderLayout.NORTH);
 
         JBList<SearchResultItem> resultList = new JBList<>(searchResult);
-        this.add(new JScrollPane(resultList), BorderLayout.CENTER);
+        this.add(new JBScrollPane(resultList), BorderLayout.CENTER);
 
         resultList.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
@@ -110,15 +109,6 @@ public class SearchAllJarPanel extends JPanel {
             }
         });
 
-        ItemListener itemListener = new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                runSearch();
-            }
-        };
-        caseSensitiveCheckBox.addItemListener(itemListener);
-        wholeWordsCheckBox.addItemListener(itemListener);
-        regexCheckBox.addItemListener(itemListener);
     }
 
     private void runSearch() {
