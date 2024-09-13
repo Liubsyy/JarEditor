@@ -164,8 +164,12 @@ public class JarRefactor extends JarBuilder {
                             tempJarOutputStream.write(renamedClass);
                         }
 
-                    } else {
-                        JarEntry newEntry = copyNewEntry(originalJar, entry, entry.getName());
+                    }else {
+                        String newEntryName = entry.getName();
+                        if(newEntryName.startsWith(oldPackage)){
+                            newEntryName = newEntryName.replaceFirst(oldPackage,newPackage);
+                        }
+                        JarEntry newEntry = copyNewEntry(originalJar, entry, newEntryName);
                         tempJarOutputStream.putNextEntry(newEntry);
 
                         try (InputStream entryInputStream = originalJar.getInputStream(entry)) {
