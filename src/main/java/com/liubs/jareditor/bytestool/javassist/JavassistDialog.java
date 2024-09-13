@@ -24,6 +24,7 @@ import com.liubs.jareditor.sdk.NoticeInfo;
 import com.liubs.jareditor.util.ExceptionUtil;
 import com.liubs.jareditor.util.MyPathUtil;
 import com.liubs.jareditor.util.PsiFileUtil;
+import com.liubs.jareditor.util.StringUtils;
 import javassist.*;
 import org.jetbrains.annotations.Nullable;
 
@@ -62,7 +63,7 @@ public class JavassistDialog extends DialogWrapper {
     private ComboBox<String> operationComboBox;
 
     //targets暂存
-    private java.util.List<TargetUnit> targets;//
+    private java.util.List<TargetUnit> targets;
 
     //编辑器
     private Editor importEditor;
@@ -369,7 +370,8 @@ public class JavassistDialog extends DialogWrapper {
             TargetUnit selectedItem = (TargetUnit)targetComboBox.getSelectedItem();
             if(null != selectedItem) {
                 if(selectedItem.getType() == ISignature.Type.METHOD
-                        || selectedItem.getType() == ISignature.Type.CONSTRUCTOR){
+                        || selectedItem.getType() == ISignature.Type.CONSTRUCTOR
+                        || selectedItem.getType() == ISignature.Type.CLASS_INITIALIZER){
                     showOperationUI = true;
                 }else {
                     showOperationUI = false;
@@ -408,6 +410,9 @@ public class JavassistDialog extends DialogWrapper {
                 e.printStackTrace();
             }
         }
+
+        CtConstructor classInitializer = javassistTool.getClassInitializer();
+        targets.add(new TargetUnit(ISignature.Type.CLASS_INITIALIZER,new ClassInitializerSignature(classInitializer)));
 
         for(CtMethod ctMethod : javassistTool.getMethods()){
             try {
@@ -459,11 +464,16 @@ public class JavassistDialog extends DialogWrapper {
         if(!psiElements.isEmpty() ){
             text = selectedItem.convertToJavassistCode(psiFile,psiElements.get(0));
         }
-        if(modifyRadio.isSelected() & (
-                "insertBefore".equals(operationComboBox.getSelectedItem())
-                        || "insertAfter".equals(operationComboBox.getSelectedItem())
-        )){
-            text = "{\n}";
+        if(modifyRadio.isSelected()) {
+            if(selectedItem.getType() == ISignature.Type.CLASS_INITIALIZER && StringUtils.isEmpty(text)) {
+                text = "static{\n\t//Insert static code here...\n}";
+            }
+
+            if("insertBefore".equals(operationComboBox.getSelectedItem())
+                    || "insertAfter".equals(operationComboBox.getSelectedItem())) {
+                text = "{\n}";
+            }
+
         }
 
 
@@ -511,7 +521,9 @@ public class JavassistDialog extends DialogWrapper {
             if(targetUnit.getType() == ISignature.Type.FIELD) {
                 String text = editorText;
                 result = javassistTool.modifyField((CtField) targetUnit.getTargetSignature().getMember(), text.trim());
-            }else if(targetUnit.getType() == ISignature.Type.METHOD ||  targetUnit.getType() == ISignature.Type.CONSTRUCTOR){
+            }else if(targetUnit.getType() == ISignature.Type.METHOD
+                    ||  targetUnit.getType() == ISignature.Type.CONSTRUCTOR
+                    ||  targetUnit.getType() == ISignature.Type.CLASS_INITIALIZER){
                 String operation = (String)operationComboBox.getSelectedItem();
                 String text = editorText;
                 int i = text.indexOf('{');
@@ -520,12 +532,21 @@ public class JavassistDialog extends DialogWrapper {
                     return;
                 }
 
+
+                CtBehavior ctMember = (CtBehavior)targetUnit.getTargetSignature().getMember();
+                if(targetUnit.getType() == ISignature.Type.CLASS_INITIALIZER) {
+                    //静态代码块如果不存在先创建
+                    if(null == ctMember) {
+                        ctMember = javassistTool.createClassInitializer();
+                    }
+                }
+
                 if("setBody".equals(operation)) {
-                    result = javassistTool.setBody((CtBehavior)targetUnit.getTargetSignature().getMember(), text.substring(i, j+1));
+                    result = javassistTool.setBody(ctMember, text.substring(i, j+1));
                 }else if("insertBefore".equals(operation)) {
-                    result = javassistTool.insertBefore((CtBehavior) targetUnit.getTargetSignature().getMember(), text.substring(i, j+1));
+                    result = javassistTool.insertBefore(ctMember, text.substring(i, j+1));
                 }else if("insertAfter".equals(operation)) {
-                    result = javassistTool.insertAfter((CtBehavior) targetUnit.getTargetSignature().getMember(), text.substring(i, j+1));
+                    result = javassistTool.insertAfter(ctMember, text.substring(i, j+1));
                 }
             }
         }else if(addRadio.isSelected()) {

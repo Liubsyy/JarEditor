@@ -14,7 +14,10 @@ import javassist.CtMember;
 public interface ISignature {
 
     enum Type{
-        FIELD("Field"),METHOD("Method"),CONSTRUCTOR("Constructor");
+        FIELD("Field"),
+        METHOD("Method"),
+        CONSTRUCTOR("Constructor"),
+        CLASS_INITIALIZER("ClassInitializer");
         public String name;
 
         Type(String name) {

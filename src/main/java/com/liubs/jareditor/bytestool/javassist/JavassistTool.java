@@ -25,6 +25,8 @@ public class JavassistTool {
     private List<CtField> fields ;
     private List<CtMethod> methods;
 
+    private CtConstructor classInitializer;//静态代码块
+
 
     static {
         //javassist禁用jar连接缓存
@@ -65,7 +67,7 @@ public class JavassistTool {
         constructors.addAll(Arrays.asList(ctClass.getConstructors()));
         fields.addAll(Arrays.asList(ctClass.getDeclaredFields()));
         methods.addAll(Arrays.asList(ctClass.getDeclaredMethods()));
-
+        classInitializer = ctClass.getClassInitializer();
         return true;
     }
 
@@ -82,6 +84,19 @@ public class JavassistTool {
     }
 
 
+    public CtConstructor getClassInitializer() {
+        return classInitializer;
+    }
+    public CtConstructor createClassInitializer(){
+        try {
+            ctClass.makeClassInitializer();
+            classInitializer = ctClass.getClassInitializer();
+            return classInitializer;
+        } catch (CannotCompileException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     public void imports(List<String> imports) {
         classPool.clearImportedPackages();

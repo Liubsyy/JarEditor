@@ -22,7 +22,13 @@ public class TargetUnit {
 
     @Override
     public String toString() {
-        return null == targetSignature ? type.name : targetSignature.show()+";";
+        if(null == targetSignature){
+            return type.name;
+        }
+        if(type == ISignature.Type.CLASS_INITIALIZER) {
+            return targetSignature.show();
+        }
+        return targetSignature.show()+";";
     }
 
     public ISignature.Type getType() {
