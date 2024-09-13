@@ -141,6 +141,16 @@ public class MethodSignature implements ISignature{
             @Override
             public void visitReferenceExpression(PsiReferenceExpression expression) {
                 super.visitReferenceExpression(expression);
+
+                //如果是this.field和super.field就不要替换了，肯定不是参数
+                PsiExpression qualifier = expression.getQualifierExpression();
+                if(null != qualifier){
+                    String qualifierText = qualifier.getText();
+                    if ("this".equals(qualifierText) || "super".equals(qualifierText)) {
+                        return;
+                    }
+                }
+
                 String refName = expression.getReferenceName();
                 if (refName != null && parameterReplacementMap.containsKey(refName)) {
                     expression.handleElementRename(parameterReplacementMap.get(refName));
