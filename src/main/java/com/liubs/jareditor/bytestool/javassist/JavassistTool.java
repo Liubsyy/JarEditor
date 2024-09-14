@@ -217,6 +217,22 @@ public class JavassistTool {
         }
         return result;
     }
+    public Result deleteClassInitializer(){
+        Result result = new Result(true,null);
+        try {
+            CtConstructor classInitializer = ctClass.getClassInitializer();
+            if(null != classInitializer) {
+                ctClass.removeConstructor(classInitializer);
+            }
+            this.classInitializer = null;
+            result.setBytes(ctClass.toBytecode());
+            ctClass.defrost();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Result(false,e.getMessage());
+        }
+        return result;
+    }
 
 
 

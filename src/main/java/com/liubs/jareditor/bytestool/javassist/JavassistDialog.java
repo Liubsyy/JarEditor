@@ -575,6 +575,8 @@ public class JavassistDialog extends DialogWrapper {
                 result = javassistTool.deleteMethod((CtMethod) targetUnit.getTargetSignature().getMember());
             }else if(targetUnit.getType() == ISignature.Type.CONSTRUCTOR) {
                 result = javassistTool.deleteConstructor((CtConstructor) targetUnit.getTargetSignature().getMember());
+            }else if(targetUnit.getType() == ISignature.Type.CLASS_INITIALIZER) {
+                result = javassistTool.deleteClassInitializer();
             }
         }
 
