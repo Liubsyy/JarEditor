@@ -128,6 +128,40 @@ public class JarUtil {
         return copiedFiles;
     }
 
+    /**
+     *  拷贝jar内class和内部类目标目录
+     * @param jarPath
+     * @param destDir
+     * @param fullClassPath a/b/c这样的格式
+     * @return
+     * @throws IOException
+     */
+    public static List<File> copyJarClassEntries(String jarPath, String destDir, String fullClassPath) throws IOException {
+        List<File> copiedFiles = new ArrayList<>();
+        String extractClassEntryPath = fullClassPath.substring(0,fullClassPath.length()-".class".length());
+
+        try (JarFile jarFile = new JarFile(jarPath)) {
+            Enumeration<JarEntry> entries = jarFile.entries();
+            while (entries.hasMoreElements()) {
+                JarEntry entry = entries.nextElement();
+                String entryName = entry.getName();
+
+                if(!entryName.endsWith(".class") ){
+                    continue;
+                }
+
+                if(entryName.equals(fullClassPath) || entryName.startsWith(extractClassEntryPath+"$")) {
+                    String relaPath = fullClassPath.substring(0, fullClassPath.lastIndexOf("/"));
+                    String entrySimpleName = getEntrySimpleName(entryName);
+                    Path path = Paths.get(destDir,relaPath, entrySimpleName);
+                    createFile(jarFile,entry,path);
+                    copiedFiles.add(path.toFile());
+                }
+            }
+        }
+        return copiedFiles;
+    }
+
     private static String getEntrySimpleName(String entryName){
         if(entryName.endsWith("/")) {
             String substring = entryName.substring(0, entryName.length() - 1);

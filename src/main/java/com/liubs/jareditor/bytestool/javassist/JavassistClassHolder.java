@@ -7,26 +7,35 @@ import com.liubs.jareditor.util.StringUtils;
 import javassist.*;
 
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Liubsyy
  * @date 2024/8/27
  */
-public class JavassistTool {
+public class JavassistClassHolder {
 
     private ClassPool classPool;
-
     private CtClass ctClass;
-    private List<CtConstructor> constructors ;
-    private List<CtField> fields ;
-    private List<CtMethod> methods;
 
-    private CtConstructor classInitializer;//静态代码块
 
+    //构造函数
+    private List<CtConstructor> constructors = new ArrayList<>() ;
+    //字段
+    private List<CtField> fields = new ArrayList<>() ;
+    //函数
+    private List<CtMethod> methods = new ArrayList<>() ;
+    //静态代码块
+    private CtConstructor classInitializer;
+
+
+    /**
+     * 内部类，多个层级形成树形结构
+     */
+    private List<JavassistClassHolder> innerClasses = new ArrayList<>();
+
+    //所有字段/函数/构造函数/静态代码块 成员
+    private List<TargetUnit> memberUnits = new ArrayList<>();
 
     static {
         //javassist禁用jar连接缓存
@@ -35,12 +44,8 @@ public class JavassistTool {
     }
 
 
-    public JavassistTool(Project project, byte[] bytes){
+    public JavassistClassHolder(Project project, byte[] bytes){
         classPool = new ClassPool();
-        constructors = new ArrayList<>();
-        fields = new ArrayList<>();
-        methods = new ArrayList<>();
-
         classPool.appendSystemPath();
         ProjectDependency.getDependentLib(project).forEach(c->{
             try {
@@ -58,8 +63,56 @@ public class JavassistTool {
         }
     }
 
-    public boolean refreshCache(){
+    public JavassistClassHolder(ClassPool classPool, CtClass ctClass) {
+        this.classPool = classPool;
+        this.ctClass = ctClass;
+        try {
+            refreshCache();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
+    /**
+     * 递归初始化内部类(可能存在多层内部类)
+     */
+    public void initInnerClasses(){
+        try {
+            CtClass[] declaredClasses = ctClass.getDeclaredClasses();
+            if(null == declaredClasses || declaredClasses.length ==0) {
+                return;
+            }
+            for(CtClass ctInnerClass : declaredClasses) {
+                if(ctInnerClass == ctClass) {
+                    continue;
+                }
+                JavassistClassHolder innerClassJavassistClassHolder = new JavassistClassHolder(classPool, ctInnerClass);
+                innerClasses.add(innerClassJavassistClassHolder);
+                innerClassJavassistClassHolder.initInnerClasses();
+            }
+        } catch (NotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 深层遍历获取所有的内部类
+     * 采用先序遍历，好处是父类和子类并排展示，符合正常人的浏览习惯
+     * @return
+     */
+    public Map<String, JavassistClassHolder> getDepthClassHolders(){
+        Map<String,JavassistClassHolder> allHolders = new LinkedHashMap<>();
+        visitClassHolders(allHolders);
+        return allHolders;
+    }
+    private void visitClassHolders(Map<String,JavassistClassHolder> allHolders){
+        allHolders.put(ctClass.getName(),this);
+        for(JavassistClassHolder innerClass : innerClasses) {
+            innerClass.visitClassHolders(allHolders);
+        }
+    }
+
+    public boolean refreshCache(){
         constructors.clear();
         fields.clear();
         methods.clear();
@@ -114,6 +167,7 @@ public class JavassistTool {
         Result result = new Result(true,null);
         try {
             ctBehavior.setBody(body);
+            result.setClassName(ctClass.getName());
             result.setBytes(ctClass.toBytecode());
             ctClass.defrost();
         } catch (Exception e) {
@@ -129,6 +183,7 @@ public class JavassistTool {
             ctClass.removeField(ctField);
             ctClass.addField(newField);
 
+            result.setClassName(ctClass.getName());
             result.setBytes(ctClass.toBytecode());
             ctClass.defrost();
         } catch (Exception e) {
@@ -143,6 +198,7 @@ public class JavassistTool {
             CtField newField = CtField.make(newFieldSrc, ctClass);
             ctClass.addField(newField);
 
+            result.setClassName(ctClass.getName());
             result.setBytes(ctClass.toBytecode());
             ctClass.defrost();
         } catch (Exception e) {
@@ -157,6 +213,7 @@ public class JavassistTool {
             CtMethod method = CtMethod.make(newMethodSrc, ctClass);
             ctClass.addMethod(method);
 
+            result.setClassName(ctClass.getName());
             result.setBytes(ctClass.toBytecode());
             ctClass.defrost();
         } catch (Exception e) {
@@ -171,6 +228,7 @@ public class JavassistTool {
             CtConstructor constructor = CtNewConstructor.make(newConstructorSrc,ctClass);
             ctClass.addConstructor(constructor);
 
+            result.setClassName(ctClass.getName());
             result.setBytes(ctClass.toBytecode());
             ctClass.defrost();
         } catch (Exception e) {
@@ -184,6 +242,8 @@ public class JavassistTool {
         Result result = new Result(true,null);
         try {
             ctClass.removeField(ctField);
+
+            result.setClassName(ctClass.getName());
             result.setBytes(ctClass.toBytecode());
             ctClass.defrost();
         } catch (Exception e) {
@@ -197,6 +257,8 @@ public class JavassistTool {
         Result result = new Result(true,null);
         try {
             ctClass.removeMethod(ctMethod);
+
+            result.setClassName(ctClass.getName());
             result.setBytes(ctClass.toBytecode());
             ctClass.defrost();
         } catch (Exception e) {
@@ -209,6 +271,8 @@ public class JavassistTool {
         Result result = new Result(true,null);
         try {
             ctClass.removeConstructor(constructor);
+
+            result.setClassName(ctClass.getName());
             result.setBytes(ctClass.toBytecode());
             ctClass.defrost();
         } catch (Exception e) {
@@ -225,6 +289,8 @@ public class JavassistTool {
                 ctClass.removeConstructor(classInitializer);
             }
             this.classInitializer = null;
+
+            result.setClassName(ctClass.getName());
             result.setBytes(ctClass.toBytecode());
             ctClass.defrost();
         } catch (Exception e) {
@@ -240,6 +306,8 @@ public class JavassistTool {
         Result result = new Result(true,null);
         try {
             ctBehavior.insertBefore(body);
+
+            result.setClassName(ctClass.getName());
             result.setBytes(ctClass.toBytecode());
             ctClass.defrost();
         } catch (Exception e) {
@@ -252,6 +320,7 @@ public class JavassistTool {
         Result result = new Result(true,null);
         try {
             ctBehavior.insertAfter(body);
+            result.setClassName(ctClass.getName());
             result.setBytes(ctClass.toBytecode());
             ctClass.defrost();
         } catch (Exception e) {
@@ -261,10 +330,49 @@ public class JavassistTool {
         return result;
     }
 
+    public List<TargetUnit> initMemberTarget(){
+        memberUnits.clear();
+        for(CtConstructor constructor : getConstructors()){
+            try {
+                memberUnits.add(new TargetUnit(ISignature.Type.CONSTRUCTOR, new ConstructorSignature(constructor)));
+            } catch (NotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+        for(CtField ctField : getFields()){
+            try {
+                memberUnits.add(new TargetUnit(ISignature.Type.FIELD, new FieldSignature(ctField)));
+            } catch (NotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+        CtConstructor classInitializer = getClassInitializer();
+        memberUnits.add(new TargetUnit(ISignature.Type.CLASS_INITIALIZER,new ClassInitializerSignature(classInitializer)));
+
+        for(CtMethod ctMethod : getMethods()){
+            try {
+                memberUnits.add(new TargetUnit(ISignature.Type.METHOD, new MethodSignature(ctMethod)));
+            } catch (NotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        return memberUnits;
+    }
+
+    public List<TargetUnit> getMemberUnits() {
+        return memberUnits;
+    }
+
+    public String getClassName(){
+        return ctClass.getName();
+    }
 
     public static class Result {
         private final boolean success;
         private final String err;
+        private String className;
         private byte[] bytes;
 
         public Result(boolean success, String err) {
@@ -288,6 +396,15 @@ public class JavassistTool {
             return err;
         }
 
+        public String getClassName() {
+            return className;
+        }
+
+        public void setClassName(String className) {
+            this.className = className;
+        }
     }
+
+
 
 }

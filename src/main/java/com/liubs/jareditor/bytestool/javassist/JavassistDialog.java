@@ -18,6 +18,7 @@ import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
+import com.liubs.jareditor.bytestool.ToClassFile;
 import com.liubs.jareditor.editor.MyJarEditor;
 import com.liubs.jareditor.sdk.MessageDialog;
 import com.liubs.jareditor.sdk.NoticeInfo;
@@ -38,6 +39,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -49,12 +51,14 @@ public class JavassistDialog extends DialogWrapper {
 
     private final Project project;
     private final VirtualFile virtualFile;
-    private JavassistTool javassistTool;
+    private JavassistClassHolder javassistClassHolder;
+    private Map<String,JavassistClassHolder> allClassHolders;
 
     //需要从MyJarEditor中导入代码段到javassist编辑器editor
     private MyJarEditor myJarEditor;
 
     //UI组件
+    private ComboBox<String> allClassComboBox; //当有内部类时展示多个
     private JRadioButton modifyRadio;
     private JRadioButton addRadio;
     private JRadioButton deleteRadio;
@@ -62,13 +66,9 @@ public class JavassistDialog extends DialogWrapper {
     private ComboBox<TargetUnit> targetComboBox;
     private ComboBox<String> operationComboBox;
 
-    //targets暂存
-    private java.util.List<TargetUnit> targets;
-
     //编辑器
     private Editor importEditor;
     private Editor editor;
-
 
     public JavassistDialog(@Nullable Project project, VirtualFile virtualFile, MyJarEditor myJarEditor) {
         super(true);
@@ -82,18 +82,22 @@ public class JavassistDialog extends DialogWrapper {
                 String savePath = jarEditOutput+"/"+entryPathFromJar;
 
                 if(Files.exists(Paths.get(savePath))){
-                    this.javassistTool = new JavassistTool(project,Files.readAllBytes(Paths.get(savePath)));
+                    this.javassistClassHolder = new JavassistClassHolder(project,Files.readAllBytes(Paths.get(savePath)));
                 }
             }
 
-            if(null == this.javassistTool){
+            if(null == this.javassistClassHolder){
                 byte[] classBytes = VfsUtilCore.loadBytes(virtualFile);
-                this.javassistTool = new JavassistTool(project, classBytes);
+                this.javassistClassHolder = new JavassistClassHolder(project, classBytes);
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }finally {
+            if(null != this.javassistClassHolder) {
+                this.javassistClassHolder.initInnerClasses();
+                this.allClassHolders = javassistClassHolder.getDepthClassHolders();
+            }
         }
-
 
 
         init();
@@ -108,26 +112,18 @@ public class JavassistDialog extends DialogWrapper {
         JPanel mainPanel = new JPanel(new GridLayoutManager(8, 2));
         mainPanel.setPreferredSize(new Dimension(700, 500));
 
-        String className = virtualFile.getName();
-        PsiFile psiFile = PsiManager.getInstance(project).findFile(virtualFile);
-        if (psiFile instanceof PsiClassOwner) {
-            PsiClass[] classes = ((PsiClassOwner) psiFile).getClasses();
-            for (PsiClass psiClass : classes) {
-                className = psiClass.getQualifiedName();
-                break;
-            }
-        }
-
         int line = 0;
 
         JLabel classNameLabel = new JLabel("Class");
-        JLabel classNameValue = new JLabel(className);
+        allClassComboBox = new ComboBox<>(400);
+        this.allClassHolders.forEach((c,v)-> allClassComboBox.addItem(c));
         mainPanel.add(classNameLabel, new GridConstraints(line, 0, 1, 1, GridConstraints.ANCHOR_WEST,
                 GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED,
                 GridConstraints.SIZEPOLICY_FIXED, null, null, null));
-        mainPanel.add(classNameValue, new GridConstraints(line, 1, 1, 1, GridConstraints.ANCHOR_WEST,
+        mainPanel.add(allClassComboBox, new GridConstraints(line, 1, 1, 1, GridConstraints.ANCHOR_WEST,
                 GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW,
-                GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null));
+                GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(600,-1), null));
+
 
         line++;
 
@@ -161,8 +157,6 @@ public class JavassistDialog extends DialogWrapper {
         targetComboBox = new ComboBox<>(400);
 
         //加载字段/函数
-        targets = new ArrayList<>();
-
         this.initTarget();
 
 
@@ -297,6 +291,8 @@ public class JavassistDialog extends DialogWrapper {
 */
 
         //UI事件
+        allClassComboBox.addActionListener(this::updateClassComboBoxSelect);
+
         modifyRadio.addItemListener(this::actionRadioChange);
         addRadio.addItemListener(this::actionRadioChange);
         deleteRadio.addItemListener(this::actionRadioChange);
@@ -394,39 +390,12 @@ public class JavassistDialog extends DialogWrapper {
     }
 
     private void initTarget(){
-        targets.clear();
-        for(CtConstructor constructor : javassistTool.getConstructors()){
-            try {
-                targets.add(new TargetUnit(ISignature.Type.CONSTRUCTOR, new ConstructorSignature(constructor)));
-            } catch (NotFoundException e) {
-                e.printStackTrace();
-            }
-        }
-
-        for(CtField ctField : javassistTool.getFields()){
-            try {
-                targets.add(new TargetUnit(ISignature.Type.FIELD, new FieldSignature(ctField)));
-            } catch (NotFoundException e) {
-                e.printStackTrace();
-            }
-        }
-
-        CtConstructor classInitializer = javassistTool.getClassInitializer();
-        targets.add(new TargetUnit(ISignature.Type.CLASS_INITIALIZER,new ClassInitializerSignature(classInitializer)));
-
-        for(CtMethod ctMethod : javassistTool.getMethods()){
-            try {
-                targets.add(new TargetUnit(ISignature.Type.METHOD, new MethodSignature(ctMethod)));
-            } catch (NotFoundException e) {
-                e.printStackTrace();
-            }
-        }
-        TargetUnit selectedItem = (TargetUnit)targetComboBox.getSelectedItem();
-
+        List<TargetUnit> targetUnits = javassistClassHolder.initMemberTarget();
         updateTargetComboBox();
 
+        TargetUnit selectedItem = (TargetUnit)targetComboBox.getSelectedItem();
         if(null != selectedItem) {
-            for(TargetUnit targetUnit : targets) {
+            for(TargetUnit targetUnit : targetUnits) {
                 if(targetUnit.equals(selectedItem)) {
                     targetComboBox.setSelectedItem(targetUnit);
                 }
@@ -437,7 +406,7 @@ public class JavassistDialog extends DialogWrapper {
     private void updateTargetComboBox(){
         targetComboBox.removeAllItems();
         if(modifyRadio.isSelected() || deleteRadio.isSelected()) {
-            for(TargetUnit targetUnit : targets) {
+            for(TargetUnit targetUnit : javassistClassHolder.getMemberUnits()) {
                 targetComboBox.addItem(targetUnit);
             }
         }else {
@@ -445,6 +414,17 @@ public class JavassistDialog extends DialogWrapper {
             targetComboBox.addItem(new TargetUnit(ISignature.Type.METHOD,null));
             targetComboBox.addItem(new TargetUnit(ISignature.Type.CONSTRUCTOR,null));
         }
+    }
+
+    public void updateClassComboBoxSelect(ActionEvent e){
+        String selectClass = (String)allClassComboBox.getSelectedItem();
+        if(null != selectClass) {
+            javassistClassHolder = allClassHolders.get(selectClass);
+        }
+        if(null == javassistClassHolder) {
+            javassistClassHolder = allClassHolders.values().iterator().next();
+        }
+        initTarget();
     }
 
     public void targetComboBoxSelect(ActionEvent e){
@@ -458,11 +438,24 @@ public class JavassistDialog extends DialogWrapper {
         editor.getDocument().setReadOnly(false);
 
         PsiFile psiFile = getJarEditorPsiFile();
-        java.util.List<PsiElement> psiElements = PsiTreeUtil.findChildrenOfType(psiFile, PsiMember.class)
+        java.util.List<PsiMember> psiMembers = PsiTreeUtil.findChildrenOfType(psiFile, PsiMember.class)
                     .stream().filter(selectedItem::isSameTarget).collect(Collectors.toList());
         String text = "" ;
-        if(!psiElements.isEmpty() ){
-            text = selectedItem.convertToJavassistCode(psiFile,psiElements.get(0));
+        if(!psiMembers.isEmpty() ){
+            String className = javassistClassHolder.getClassName();
+            if(className.contains("$")) {
+                //存在内部类，按类匹配
+                for(PsiMember psiMember : psiMembers) {
+                    PsiClass containingClass = psiMember.getContainingClass();
+                    if(null != containingClass &&
+                            className.equals(PsiFileUtil.getFullClassNameIncludingPackage(containingClass))) {
+                        text = selectedItem.convertToJavassistCode(psiFile,psiMember);
+                        break;
+                    }
+                }
+            }else{
+                text = selectedItem.convertToJavassistCode(psiFile,psiMembers.get(0));
+            }
         }
         if(modifyRadio.isSelected()) {
             if(selectedItem.getType() == ISignature.Type.CLASS_INITIALIZER && StringUtils.isEmpty(text)) {
@@ -497,7 +490,7 @@ public class JavassistDialog extends DialogWrapper {
     }
 
     public void runAndSave(ActionEvent e){
-        JavassistTool.Result result = null;
+        JavassistClassHolder.Result result = null;
         String editorText = "";
         try{
             List<String> imports = new ArrayList<>();
@@ -508,7 +501,7 @@ public class JavassistDialog extends DialogWrapper {
                 editorTextTemp[0] = editor.getDocument().getText();
             });
             editorText = editorTextTemp[0];
-            javassistTool.imports(imports);
+            javassistClassHolder.imports(imports);
         }catch (Exception importErr){
             importErr.printStackTrace();
         }
@@ -520,7 +513,7 @@ public class JavassistDialog extends DialogWrapper {
             }
             if(targetUnit.getType() == ISignature.Type.FIELD) {
                 String text = editorText;
-                result = javassistTool.modifyField((CtField) targetUnit.getTargetSignature().getMember(), text.trim());
+                result = javassistClassHolder.modifyField((CtField) targetUnit.getTargetSignature().getMember(), text.trim());
             }else if(targetUnit.getType() == ISignature.Type.METHOD
                     ||  targetUnit.getType() == ISignature.Type.CONSTRUCTOR
                     ||  targetUnit.getType() == ISignature.Type.CLASS_INITIALIZER){
@@ -537,16 +530,16 @@ public class JavassistDialog extends DialogWrapper {
                 if(targetUnit.getType() == ISignature.Type.CLASS_INITIALIZER) {
                     //静态代码块如果不存在先创建
                     if(null == ctMember) {
-                        ctMember = javassistTool.createClassInitializer();
+                        ctMember = javassistClassHolder.createClassInitializer();
                     }
                 }
 
                 if("setBody".equals(operation)) {
-                    result = javassistTool.setBody(ctMember, text.substring(i, j+1));
+                    result = javassistClassHolder.setBody(ctMember, text.substring(i, j+1));
                 }else if("insertBefore".equals(operation)) {
-                    result = javassistTool.insertBefore(ctMember, text.substring(i, j+1));
+                    result = javassistClassHolder.insertBefore(ctMember, text.substring(i, j+1));
                 }else if("insertAfter".equals(operation)) {
-                    result = javassistTool.insertAfter(ctMember, text.substring(i, j+1));
+                    result = javassistClassHolder.insertAfter(ctMember, text.substring(i, j+1));
                 }
             }
         }else if(addRadio.isSelected()) {
@@ -556,13 +549,13 @@ public class JavassistDialog extends DialogWrapper {
             }
             if(targetUnit.getType() == ISignature.Type.FIELD) {
                 String text = editorText;
-                result = javassistTool.addField(text.trim());
+                result = javassistClassHolder.addField(text.trim());
             }else if(targetUnit.getType() == ISignature.Type.METHOD) {
                 String text = editorText;
-                result = javassistTool.addMethod(text.trim());
+                result = javassistClassHolder.addMethod(text.trim());
             }else if(targetUnit.getType() == ISignature.Type.CONSTRUCTOR) {
                 String text = editorText;
-                result = javassistTool.addConstructor(text.trim());
+                result = javassistClassHolder.addConstructor(text.trim());
             }
         }else if(deleteRadio.isSelected()){
             TargetUnit targetUnit = (TargetUnit)targetComboBox.getSelectedItem();
@@ -570,33 +563,34 @@ public class JavassistDialog extends DialogWrapper {
                 return;
             }
             if(targetUnit.getType() == ISignature.Type.FIELD) {
-                result = javassistTool.deleteField((CtField) targetUnit.getTargetSignature().getMember());
+                result = javassistClassHolder.deleteField((CtField) targetUnit.getTargetSignature().getMember());
             }else if(targetUnit.getType() == ISignature.Type.METHOD) {
-                result = javassistTool.deleteMethod((CtMethod) targetUnit.getTargetSignature().getMember());
+                result = javassistClassHolder.deleteMethod((CtMethod) targetUnit.getTargetSignature().getMember());
             }else if(targetUnit.getType() == ISignature.Type.CONSTRUCTOR) {
-                result = javassistTool.deleteConstructor((CtConstructor) targetUnit.getTargetSignature().getMember());
+                result = javassistClassHolder.deleteConstructor((CtConstructor) targetUnit.getTargetSignature().getMember());
             }else if(targetUnit.getType() == ISignature.Type.CLASS_INITIALIZER) {
-                result = javassistTool.deleteClassInitializer();
+                result = javassistClassHolder.deleteClassInitializer();
             }
         }
 
         if(null != result) {
             if(result.isSuccess()) {
+                String jarPath = MyPathUtil.getJarPathFromJar(virtualFile.getPath());
                 String jarEditOutput = MyPathUtil.getJarEditOutput(virtualFile.getPath());
                 String jarRelativePath = MyPathUtil.getEntryPathFromJar(virtualFile.getPath());
                 try {
-                    String destinationPath = Paths.get(jarEditOutput, jarRelativePath).toString();
-                    File destinationFile = new File(destinationPath);
-                    destinationFile.getParentFile().mkdirs();
+                    ToClassFile toClassFile = new ToClassFile(jarPath,jarRelativePath,jarEditOutput);
+                    toClassFile.addCoverFile(result.getClassName(),result.getBytes());
+                    toClassFile.writeFiles();
 
-                    Files.write(Paths.get(destinationPath),result.getBytes());
+                    String destinationPath = Paths.get(jarEditOutput, jarRelativePath).toString();
                     NoticeInfo.info("Save success to: " + destinationPath);
 
                     //刷新MyJarEditor中的源码加载
                     myJarEditor.loadEditorContentFromSavedFile(destinationPath);
 
                     //刷新target
-                    if(javassistTool.refreshCache()){
+                    if(javassistClassHolder.refreshCache()){
                         if (DumbService.isDumb(project)) {
                             DumbService.getInstance(project).runWhenSmart(this::initTarget);
                         } else {

@@ -131,4 +131,36 @@ public class PsiFileUtil {
 
         return imports;
     }
+
+
+    /**
+     * 获取全类名，包括内部类用$隔开
+     * @param psiClassPri
+     * @return 结果可以直接反射获取Class
+     */
+    public static String getFullClassNameIncludingPackage(PsiClass psiClassPri) {
+        PsiClass psiClass = psiClassPri;
+        StringBuilder classNameBuilder = new StringBuilder();
+        while (psiClass != null) {
+            if (classNameBuilder.length() > 0) {
+                classNameBuilder.insert(0, "$");
+            }
+            classNameBuilder.insert(0, psiClass.getName());
+            PsiElement parent = psiClass.getParent();
+            while (!(parent instanceof PsiClass) && parent != null) {
+                parent = parent.getParent();
+            }
+            psiClass = (parent instanceof PsiClass) ? (PsiClass) parent : null;
+        }
+
+        PsiFile psiFile = psiClassPri.getContainingFile();
+        if (psiFile instanceof PsiJavaFile) {
+            String packageName = ((PsiJavaFile) psiFile).getPackageName();
+            if (!packageName.isEmpty()) {
+                classNameBuilder.insert(0, ".");
+                classNameBuilder.insert(0, packageName);
+            }
+        }
+        return classNameBuilder.toString();
+    }
 }

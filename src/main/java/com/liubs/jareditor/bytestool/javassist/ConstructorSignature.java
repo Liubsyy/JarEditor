@@ -15,7 +15,9 @@ import java.util.Map;
 public class ConstructorSignature implements ISignature{
 
     private int modifier;
-    private String methodName;
+    private String constructName;
+    private String simpleMethodName;
+
     private List<String> paramTypes;
     private CtConstructor constructor;
 
@@ -24,9 +26,14 @@ public class ConstructorSignature implements ISignature{
         // 获取修饰符
         this.modifier = constructor.getModifiers();
 
-
-        // 获取方法名称
-        this.methodName = constructor.getName();
+        // 获取构造函数名称
+        this.constructName = this.simpleMethodName = constructor.getName();
+        if(constructName.contains("$")){
+            int lastIndexOf = constructName.lastIndexOf("$");
+            if( lastIndexOf+1 < constructName.length() ) {
+                simpleMethodName = simpleMethodName.substring(lastIndexOf+1);
+            }
+        }
 
         // 获取参数类型
         this.paramTypes = new ArrayList<>();
@@ -58,7 +65,7 @@ public class ConstructorSignature implements ISignature{
                     .append(i + 1);
         }
 
-        return String.format("%s %s(%s)", modifiers, methodName, params.toString());
+        return String.format("%s %s(%s)", modifiers, constructName, params.toString());
     }
 
     @Override
@@ -67,7 +74,7 @@ public class ConstructorSignature implements ISignature{
             return false;
         }
         PsiMethod psiMethod = (PsiMethod)psiMember;
-        if( !methodName.equals(psiMethod.getName()) ){
+        if( !constructName.equals(psiMethod.getName()) && !simpleMethodName.equals(psiMethod.getName()) ){
             return false;
         }
         PsiParameterList parameterList = psiMethod.getParameterList();
