@@ -44,9 +44,16 @@ public class JavassistClassHolder {
     }
 
 
-    public JavassistClassHolder(Project project, byte[] bytes){
+    public JavassistClassHolder(Project project, byte[] bytes, String ... extraClassPath){
         classPool = new ClassPool();
         classPool.appendSystemPath();
+        for(String path : extraClassPath) {
+            try {
+                classPool.appendClassPath(path);
+            } catch (NotFoundException e) {
+                e.printStackTrace();
+            }
+        }
         ProjectDependency.getDependentLib(project).forEach(c->{
             try {
                 classPool.appendClassPath(PathUtil.getLocalPath(c.getPath()));

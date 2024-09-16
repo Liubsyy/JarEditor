@@ -12,6 +12,7 @@ import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
@@ -22,10 +23,7 @@ import com.liubs.jareditor.bytestool.ToClassFile;
 import com.liubs.jareditor.editor.MyJarEditor;
 import com.liubs.jareditor.sdk.MessageDialog;
 import com.liubs.jareditor.sdk.NoticeInfo;
-import com.liubs.jareditor.util.ExceptionUtil;
-import com.liubs.jareditor.util.MyPathUtil;
-import com.liubs.jareditor.util.PsiFileUtil;
-import com.liubs.jareditor.util.StringUtils;
+import com.liubs.jareditor.util.*;
 import javassist.*;
 import org.jetbrains.annotations.Nullable;
 
@@ -82,7 +80,22 @@ public class JavassistDialog extends DialogWrapper {
                 String savePath = jarEditOutput+"/"+entryPathFromJar;
 
                 if(Files.exists(Paths.get(savePath))){
-                    this.javassistClassHolder = new JavassistClassHolder(project,Files.readAllBytes(Paths.get(savePath)));
+                    String fullClassName = JavaFileUtil.getFullClassName(savePath);
+                    String extraPath = null;
+                    if(null != fullClassName) {
+                        int indexOfPackage = savePath.lastIndexOf(fullClassName);
+                        if(indexOfPackage>0) {
+                            extraPath = savePath.substring(0,indexOfPackage);
+                        }
+                    }
+                    if(null == extraPath) {
+                        this.javassistClassHolder = new JavassistClassHolder(project,
+                                Files.readAllBytes(Paths.get(savePath)));
+                    }else {
+                        this.javassistClassHolder = new JavassistClassHolder(project,
+                                Files.readAllBytes(Paths.get(savePath)),extraPath);
+                    }
+
                 }
             }
 
@@ -585,6 +598,16 @@ public class JavassistDialog extends DialogWrapper {
 
                     String destinationPath = Paths.get(jarEditOutput, jarRelativePath).toString();
                     NoticeInfo.info("Save success to: " + destinationPath);
+
+                    try{
+                        JavaFileUtil.getFullClassFiles(destinationPath).forEach(c->{
+                            VirtualFile virtualFile = LocalFileSystem.getInstance()
+                                    .refreshAndFindFileByPath(c.replace("\\","/"));
+                            if (virtualFile != null) {
+                                virtualFile.refresh(false, false);
+                            }
+                        });
+                    }catch (Throwable exx) {}
 
                     //刷新MyJarEditor中的源码加载
                     myJarEditor.loadEditorContentFromSavedFile(destinationPath);
