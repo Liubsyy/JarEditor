@@ -79,10 +79,10 @@
 
 ### SDK Default对应JDK版本
 
-编译选择 **SDK Default** 时，对应的JDK版本如下
+编译选择 **SDK Default** 时，使用的是Jetbrains集成的运行时JDK(JBR)，如果不选SDK Default则是具体用户安装的JDK
 
 IDEA|JDK
 ---|---
-IDEA 2020.3 - IDEA 2022.1 |JDK 11
-IDEA 2022.2 - IDEA 2024.1 |JDK 17
-IDEA 2024.2 及更高版本 |JDK 21
+IDEA 2020.3 - IDEA 2022.1 |JBR JDK11
+IDEA 2022.2 - IDEA 2024.1 |JBR JDK17
+IDEA 2024.2 及更高版本 |JBR JDK21
