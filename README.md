@@ -82,10 +82,10 @@ Click the **Search** icon to search the contents of the jar package. If it is a 
 
 ### SDK Default Versions
 
-When compiling and selecting **SDK Default**, the corresponding JDK version is as follows
+When compiling and selecting **SDK Default**, the runtime JDK (JBR) integrated by Jetbrains is used. If SDK Default is not selected, the JDK installed by the specific user will be used.
 
 IDEA|JDK
 ---|---
-IDEA 2020.3 - IDEA 2022.1 |JDK 11
-IDEA 2022.2 - IDEA 2024.1 |JDK 17
-IDEA 2024.2 and later |JDK 21
+IDEA 2020.3 - IDEA 2022.1 |JBR JDK11
+IDEA 2022.2 - IDEA 2024.1 |JBR JDK17
+IDEA 2024.2 and later |JBR JDK21
