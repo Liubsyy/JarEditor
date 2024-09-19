@@ -58,7 +58,7 @@
 
 - **Javassist** : 可以对字段和方法进行增删改
 
-<img src="./img/JarEditor_javassist.png" width="800" height="593" />
+<img src="./img/JarEditor_javassist.png" width="800" height="695" />
 
 
 ### 4. 其他操作
@@ -68,7 +68,7 @@
 
 点击 **Search** 图标，可以搜索jar包的内容，如果是class jar将根据反编译的内容进行搜索
 
-<img src="./img/JarEditor_search.png" width="700" height="530" />
+<img src="./img/JarEditor_search.png" width="800" height="600" />
 
 
 
