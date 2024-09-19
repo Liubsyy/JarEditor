@@ -61,7 +61,7 @@ Click the **Class bytes tool** icon to select the tool
 - **Javassist** : Fields and methods can be modified/added/deleted
 
 
-<img src="./img/JarEditor_javassist.png" width="800" height="695" />
+<img src="./img/JarEditor_javassist.png" width="800" height="580" />
 
 
 ### 4. Other operations of JarEditor
@@ -72,7 +72,7 @@ In the project view of the jar package, right-click to see **JarEditor->New/Dele
 
 Click the **Search** icon to search the contents of the jar package. If it is a class jar, it will be searched based on the decompiled content.
 
-<img src="./img/JarEditor_search.png" width="800" height="600" />
+<img src="./img/JarEditor_search.png" width="800" height="685" />
 
 ## Some mechanisms
 - The JDK that the compilation depends on is the JDK of your SDK list. You can choose SDK and target version of the compiled class.
