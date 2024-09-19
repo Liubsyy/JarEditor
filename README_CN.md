@@ -68,7 +68,7 @@
 
 点击 **Search** 图标，可以搜索jar包的内容，如果是class jar将根据反编译的内容进行搜索
 
-<img src="./img/JarEditor_search.png" width="800" height="685" />
+<img src="./img/JarEditor_search.png" width="700" height="600" />
 
 
 
