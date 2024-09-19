@@ -55,10 +55,10 @@ Here is an example:
 <img src="./img/JarEditor_demo.gif"  width="800" height="511" />
 
 ### 3. Class bytes tool
-For obfuscated jars, the decompilation result is not very satisfactory. In this case, you can use tools to directly modify the bytecode.
+For obfuscated jars, the decompilation result is not satisfactory. In this case, you can use tools to directly modify the bytecode.
 Click the **Class bytes tool** icon to select the tool
 
-- **Javassist** : Fields and methods can be modified/added/deleted
+- **Javassist** : Field/method/constructor/static code can be modified/added/deleted (include inner class)
 
 
 <img src="./img/JarEditor_javassist.png" width="800" height="580" />
