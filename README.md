@@ -61,7 +61,7 @@ Click the **Class bytes tool** icon to select the tool
 - **Javassist** : Field/method/constructor/static code can be modified/added/deleted (include inner class)
 
 
-<img src="./img/JarEditor_javassist.png" width="800" height="580" />
+<img src="./img/JarEditor_javassist.png" width="800" height="600" />
 
 
 ### 4. Other operations of JarEditor

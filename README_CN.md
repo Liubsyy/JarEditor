@@ -58,7 +58,7 @@
 
 - **Javassist** : 可以对字段/方法/构造函数/静态代码块进行增删改 (包括内部类)
 
-<img src="./img/JarEditor_javassist.png" width="800" height="580" />
+<img src="./img/JarEditor_javassist.png" width="800" height="600" />
 
 
 ### 4. 其他操作
