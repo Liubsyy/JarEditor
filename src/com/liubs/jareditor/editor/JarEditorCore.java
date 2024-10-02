@@ -26,10 +26,10 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * 核心功能
@@ -195,27 +195,27 @@ public class JarEditorCore {
     }
 
 
-    public void buildJar(){
+    public void buildJar(Consumer<JarBuildResult> callBack){
         String jarEditClassPath = MyPathUtil.getJarEditOutput(file.getPath());
         if(null == jarEditClassPath){
             return;
         }
-        File file = new File(jarEditClassPath);
-        if(!file.exists()) {
+        File jarEditOutputDir = new File(jarEditClassPath);
+        if(!jarEditOutputDir.exists()) {
             NoticeInfo.warning("Nothing is modified in the jar!");
             return;
         }
 
-        String[] files = file.list();
-        if (files == null || files.length == 0) {
+        String[] jarEditOutputFiles = jarEditOutputDir.list();
+        if (jarEditOutputFiles == null || jarEditOutputFiles.length == 0) {
             NoticeInfo.warning("Nothing is modified in the jar!");
             return;
         }
 
-        buildJar0();
+        buildJar0(callBack);
     }
 
-    private void buildJar0(){
+    private void buildJar0(Consumer<JarBuildResult> callBack){
         ProgressManager.getInstance().run(new Task.Backgroundable(null, "Jar building...", true) {
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 try {
@@ -228,32 +228,23 @@ public class JarEditorCore {
 //                    JarBuildResult jarBuildResult = jarBuilder.writeJar(true);
                     JarBuildResult jarBuildResult = jarBuilder.writeJar(false);
 
-                    if(!jarBuildResult.isSuccess()) {
-                        NoticeInfo.error("Build jar err: \n%s",jarBuildResult.getErr());
-                        return;
-                    }
-
-                    //Reload from Disk
-                    ArrayList<VirtualFile> filesToRefresh = new ArrayList<>();
-                    ProjectDependency.getDependentLib(project).forEach(c->{
-                        if(file.getPath().contains(jarPath)){
-                            filesToRefresh.add(file);
-                        }
-                    });
-                    if(!filesToRefresh.isEmpty()) {
+                    if(jarBuildResult.isSuccess()) {
                         ApplicationManager.getApplication().invokeLater(() -> {
-                            for (VirtualFile refreshFile : filesToRefresh) {
-                                refreshFile.refresh(false,true);
-                            }
-                            // 刷新整个虚拟文件系统
+                            file.refresh(false,true);
                             VirtualFileManager.getInstance().refreshWithoutFileWatcher(true);
                         });
+
+                        //删除临时保存的class目录
+                        MyFileUtil.deleteDir(MyPathUtil.getJarEditTemp(file.getPath()));
+                        NoticeInfo.info("Build jar successfully!");
+                    }else {
+                        NoticeInfo.error("Build jar err: \n%s",jarBuildResult.getErr());
                     }
 
-                    //删除临时保存的class目录
-                    MyFileUtil.deleteDir(MyPathUtil.getJarEditTemp(file.getPath()));
+                    if(null != callBack) {
+                        callBack.accept(jarBuildResult);
+                    }
 
-                    NoticeInfo.info("Build jar successfully!");
 
                 } catch (Exception e) {
                     NoticeInfo.error("Build jar err:%s",e.getMessage());

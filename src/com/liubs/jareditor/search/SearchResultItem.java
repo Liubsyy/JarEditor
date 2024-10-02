@@ -8,32 +8,24 @@ import com.liubs.jareditor.util.MyPathUtil;
  * @date 2024/7/17
  */
 public class SearchResultItem {
-    private VirtualFile jarFile;
+    private VirtualFile file;
     private String entryPath;
 
-    public SearchResultItem(VirtualFile jarFile, String entryPath) {
-        this.jarFile = jarFile;
+    public SearchResultItem(VirtualFile file, String entryPath) {
+        this.file = file;
         this.entryPath = entryPath;
     }
 
-    public VirtualFile getJarFile() {
-        return jarFile;
+    public VirtualFile getFile() {
+        return file;
     }
 
-    public void setJarFile(VirtualFile jarFile) {
-        this.jarFile = jarFile;
-    }
-
-    public String getEntryPath() {
-        return entryPath;
-    }
-
-    public void setEntryPath(String entryPath) {
-        this.entryPath = entryPath;
-    }
-
+    /**
+     * 这个toString就是搜索结果展示的行
+     * @return
+     */
     @Override
     public String toString() {
-        return String.format("[%s] %s", MyPathUtil.getJarSingleName(jarFile.getPath()),entryPath);
+        return String.format("[%s] %s", MyPathUtil.getJarSingleName(file.getPath()),entryPath);
     }
 }

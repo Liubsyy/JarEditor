@@ -1,10 +1,10 @@
 package com.liubs.jareditor.editor;
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
-import com.intellij.icons.AllIcons;
 import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
@@ -22,11 +22,12 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.util.PsiErrorElementUtil;
-import com.intellij.util.ui.JBUI;
 import com.liubs.jareditor.decompile.MyDecompiler;
+import com.liubs.jareditor.jarbuild.JarBuildResult;
 import com.liubs.jareditor.persistent.SDKSettingStorage;
 import com.liubs.jareditor.sdk.JavacToolProvider;
 import com.liubs.jareditor.sdk.NoticeInfo;
+import com.liubs.jareditor.sdk.SDKSettingDialog;
 import com.liubs.jareditor.template.TemplateManager;
 import com.liubs.jareditor.constant.ClassVersion;
 import com.liubs.jareditor.util.CommandTools;
@@ -40,17 +41,19 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeListener;
-import java.nio.charset.StandardCharsets;
+import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 
 
 /**
@@ -81,6 +84,9 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
     //source jar相关的逻辑
     private SourceJarResolver sourceJarResolver;
 
+    //是否从jar_edit_out目录导入的保存文件
+    private boolean importFromSavedFile;
+
     @Nullable
     @Override
     public VirtualFile getFile() {
@@ -100,7 +106,7 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         needCompiled = new JCheckBox("Compile");
         JButton saveButton = new JButton("Save");
         JButton rebuildJar = new JButton("Build Jar");
-        JButton resetButton = new JButton("Reset");
+//        JButton resetButton = new JButton("Reset");
 
         JPanel optPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
@@ -109,7 +115,7 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         optPanel.add(needCompiled);
         optPanel.add(saveButton);
         optPanel.add(rebuildJar);
-        optPanel.add(resetButton);
+//        optPanel.add(resetButton);
 
         needCompiled.setSelected("class".equals(file.getExtension()) || "kt".equals(file.getExtension()));
         compiledUIVisible(needCompiled.isSelected());
@@ -133,20 +139,36 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         //add action listener
         needCompiled.addActionListener(e -> compiledUIVisible(needCompiled.isSelected()));
         saveButton.addActionListener(e -> saveChanges());
-        rebuildJar.addActionListener(e -> buildJar());
-        resetButton.addActionListener(e -> cancelChanges());
+        rebuildJar.addActionListener(e -> buildJar(null));
+//        resetButton.addActionListener(e -> cancelChanges());
     }
 
     private void createActionToolBar(JPanel optPanel){
+        AnAction jarEditorReset = ActionManager.getInstance().getAction("jarEditorReset");
         AnAction jarEditorClear = ActionManager.getInstance().getAction("jarEditorClear");
         AnAction jarEditorSearch = ActionManager.getInstance().getAction("jarEditorSearch");
 
         ArrayList<AnAction> actions = new ArrayList<>();
+
+
+        if(null != jarEditorReset) {
+            actions.add(jarEditorReset);
+        }
+
         if(null != jarEditorClear) {
             actions.add(jarEditorClear);
         }
+
         if(null != jarEditorSearch) {
             actions.add(jarEditorSearch);
+        }
+
+        //class字节码编辑工具
+        if("class".equals(file.getExtension())){
+            AnAction classBytesTool = ActionManager.getInstance().getAction("classBytesTool");
+            if(null != classBytesTool) {
+                actions.add(classBytesTool);
+            }
         }
 
         ActionToolbar myToolBar = ActionManager.getInstance().createActionToolbar(ActionPlaces.TOOLBAR,
@@ -230,7 +252,7 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         //select SDK
         selectJDKComboBox = new ComboBox<>(120);
         //select version
-        selectVersionComboBox = new ComboBox<>();
+        selectVersionComboBox = new ComboBox<>(60);
 
         JLabel sdkLabel = new JLabel("<html><span style=\"color: #5799EE;\">SDK</span></html>");
         sdkLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -334,6 +356,7 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
                 editorEx.setCaretVisible(true);
                 editorEx.setEmbeddedIntoDialogWrapper(true);
             }
+            MyJarEditor.handleTabKeyInEditor(project,editor);
         }
 
         return editor;
@@ -365,11 +388,11 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         }
     }
 
-    private void buildJar() {
-        jarEditorCore.buildJar();
+    public void buildJar(Consumer<JarBuildResult> callBack) {
+        jarEditorCore.buildJar(callBack);
     }
 
-    private void cancelChanges() {
+    public void cancelChanges() {
         String decompiledText = getDecompiledText(project, file);
         Document document = editor.getDocument();
 
@@ -455,30 +478,12 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
                 String savePath = jarEditOutput+"/"+entryPathFromJar;
 
                 //如果有保存的文件，弹出确认框可导入修改文本
-                Path path = Paths.get(savePath);
-                if(Files.exists(path)) {
+                if(Files.exists(Paths.get(savePath))) {
                     if(Messages.YES == Messages.showYesNoDialog(project,
                             "This file was modified last time, do you need to import the changes ?",
                             "Import Confirmation",
                             Messages.getQuestionIcon())){
-
-                        final String newText;
-                        if("class".equals(file.getExtension())){
-                            VirtualFile virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByPath(savePath.replace("\\","/"));
-                            newText = getDecompiledText(project, virtualFile);
-                        }else {
-                            newText = Files.readString(path);
-                        }
-
-                        if(StringUtils.isNotEmpty(newText)) {
-                            Document document = editor.getDocument();
-
-                            WriteCommandAction.runWriteCommandAction(project, () -> {
-                                document.setText(newText);
-                            });
-
-                            PsiDocumentManager.getInstance(project).commitDocument(document);
-                        }
+                        loadEditorContentFromSavedFile(savePath);
                     }
                 }
             }catch (Throwable e) {
@@ -487,9 +492,72 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
 
         }
 
-
     }
 
 
+    public void loadEditorContentFromSavedFile(String savePath) throws IOException {
+        final String newText;
+        if("class".equals(file.getExtension())){
+            VirtualFile virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByPath(savePath.replace("\\","/"));
+            if (virtualFile != null) {
+                virtualFile.refresh(false, false);
+            }
+            newText = getDecompiledText(project, virtualFile);
+        }else {
+            newText = Files.readString(Paths.get(savePath));
+        }
 
+        if(StringUtils.isNotEmpty(newText)) {
+            Document document = editor.getDocument();
+
+            WriteCommandAction.runWriteCommandAction(project, () -> {
+                document.setText(newText);
+            });
+
+            PsiDocumentManager.getInstance(project).commitDocument(document);
+            importFromSavedFile = true;
+        }
+    }
+
+    public boolean isImportFromSavedFile() {
+        return importFromSavedFile;
+    }
+
+
+    /**
+     * 编辑器的tab缩进，没有找到合适的API，这里简单粗暴处理一下手动加上 \t，
+     * TODO 如果发现合适的API再优化这里
+     */
+    public static void handleTabKeyInEditor(Project project,Editor editor) {
+        if(null == editor){
+            return;
+        }
+        try{
+            //禁用焦点遍历键（如Tab、Shift+Tab等）
+            editor.getContentComponent().setFocusTraversalKeysEnabled(false);
+
+            //处理tab的事件
+            editor.getContentComponent().addKeyListener(new KeyAdapter() {
+                @Override
+                public void keyPressed(KeyEvent e) {
+                    try{
+                        if (e.getKeyCode() == KeyEvent.VK_TAB) {
+                            CaretModel caretModel = editor.getCaretModel();
+                            Document document = editor.getDocument();
+
+                            // tab缩进
+                            WriteCommandAction.runWriteCommandAction(project, () -> {
+                                document.insertString(caretModel.getOffset(), "\t");
+                            });
+                            PsiDocumentManager.getInstance(project).commitDocument(document);
+
+                            caretModel.moveToOffset(caretModel.getOffset());  // 移动光标
+                        }
+                    }catch (Throwable ex){}
+                }
+            });
+        }catch (Throwable e){
+            e.printStackTrace();
+        }
+    }
 }

@@ -1,18 +1,38 @@
 <idea-plugin>
   <id>com.liubs.jaredit</id>
   <name>JarEditor</name>
-  <version>1.5.6</version>
+  <version>2.1.3</version>
   <vendor email="Liubsyy@gmail.com" url="https://github.com/Liubsyy/JarEditor">Liubsyy</vendor>
 
   <description><![CDATA[
 
-    JarEditor is used to directly edit classes/resources in Jar without decompression.
+    IDEA plugin for modifying files in jar directly without decompression, including class and resource files.
     <br>
-    It also supports adding/deleting/copying/pasting files/folders in Jar.
+
+    <ul>
+        <li>Edit class/resource file in jar directly without decompression</li>
+        <li>Add/Delete/Rename file/directory in jar</li>
+        <li>Search the contents of the jar package</li>
+        <li>Copy/Paste file/directory to/from clipboard</li>
+        <li>Support SpringBoot jar</li>
+        <li>Support kotlin</li>
+        <li>Export source jar</li>
+        <li>Support class bytes tool : javassist</li>
+    </ul>
 
     ]]></description>
 
   <change-notes><![CDATA[
+
+     <h3>2.1</h3>
+      <ul>
+        <li>Support Javassist Tool for add/delete/modify field and method</li>
+        <li>Rename: Refactor package/class</li>
+        <li>Added search options within jar: Match Case/Words/Regex</li>
+        <li>Javassist Tool: support static code and inner classes</li>
+
+
+      </ul>
 
      <h3>1.5</h3>
       <ul>
@@ -75,30 +95,40 @@
 
   <actions>
 
+      <group id="JarEditorProjectGroup"  text="JarEditor" description="JarEditor" popup="true">
+          <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+
+          <group id="jarEditorNew"  text="New" description="New" popup="true">
+              <action id="jarEditorAddJavaFile" class="com.liubs.jareditor.action.JarEditorAddJavaFile" text="Class" description="NewClass" icon="AllIcons.Nodes.Class" />
+              <action id="jarEditorAddKotlinFile" class="com.liubs.jareditor.action.JarEditorAddKotlinFile" text="Kotlin" description="NewKotlin" icon="MyIcons.KOTLIN_CLASS" />
+              <action id="jarEditorAddResourceFile" class="com.liubs.jareditor.action.JarEditorAddResourceFile" text="File" description="NewFile" icon="AllIcons.FileTypes.Any_type" />
+              <action id="jarEditorAddDirectory" class="com.liubs.jareditor.action.JarEditorAddDirectory" text="Directory" description="NewDirectory" icon="AllIcons.Nodes.Folder" />
+          </group>
+
+          <action id="jarEditorDeleteFiles" class="com.liubs.jareditor.action.JarEditorDeleteFiles" text="Delete" description="Delete"/>
+          <group id="jarEditorRename"  text="Rename" description="Rename" popup="true">
+              <action id="jarEditorRenameFile" class="com.liubs.jareditor.action.JarEditorRenameFile" text="Rename Only" description="Rename only"/>
+              <action id="jarEditorRefactor" class="com.liubs.jareditor.action.JarEditorRefactorClass" text="Refactor Class" description="Refactor class"/>
+          </group>
+          <action id="jarEditorCopyFile" class="com.liubs.jareditor.action.JarEditorCopyFile" text="Copy" description="Copy"/>
+          <action id="jarEditorPasteFile" class="com.liubs.jareditor.action.JarEditorPasteFile" text="Paste" description="Paste"/>
+
+          <group id="jarEditorExport"  text="Export" description="Export" popup="true">
+              <action id="jarEditorExportSourceJar" class="com.liubs.jareditor.action.JarEditorExportSourceJar" text="Source Jar" description="Source jar"/>
+          </group>
+
+          <action id="jarEditorSearch" class="com.liubs.jareditor.action.JarEditorSearch" text="Search" description="Search" icon="AllIcons.Actions.Search"/>
+      </group>
+
+      <action id="jarEditorClear" class="com.liubs.jareditor.action.JarEditorClear" text="Clear saved files" description="Clear saved files" icon="MyIcons.CLEAN"/>
+      <action id="jarEditorReset" class="com.liubs.jareditor.action.JarEditorReset" text="Reset editor content" description="Reset editor content" icon="MyIcons.RESET"/>
+
+      <!--class bytes tool -->
+      <group id="classBytesTool" text="Class bytes tool" description="Class bytes tool" icon="MyIcons.TOOL"  popup="true">
+          <action id="javassistAction" class="com.liubs.jareditor.action.JavassistAction" text="Javassist" description="Javassist"/>
+      </group>
 
 
-    <group id="JarEditorProjectGroup"  text="JarEditor" description="JarEditor" popup="true">
-        <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
-        <group id="jarEditorNew"  text="New" description="New" popup="true">
-            <action id="jarEditorAddJavaFile" class="com.liubs.jareditor.action.JarEditorAddJavaFile" text="Class" description="NewClass" icon="AllIcons.Nodes.Class" />
-            <action id="jarEditorAddKotlinFile" class="com.liubs.jareditor.action.JarEditorAddKotlinFile" text="Kotlin" description="NewKotlin" icon="AllIcons.FileTypes.Java" />
-            <action id="jarEditorAddResourceFile" class="com.liubs.jareditor.action.JarEditorAddResourceFile" text="File" description="NewFile" icon="AllIcons.FileTypes.Any_type" />
-            <action id="jarEditorAddDirectory" class="com.liubs.jareditor.action.JarEditorAddDirectory" text="Directory" description="NewDirectory" icon="AllIcons.Nodes.Folder" />
-        </group>
-        <action id="jarEditorDeleteFiles" class="com.liubs.jareditor.action.JarEditorDeleteFiles" text="Delete" description="Delete"/>
-        <action id="jarEditorRenameFile" class="com.liubs.jareditor.action.JarEditorRenameFile" text="Rename" description="Rename"/>
-        <action id="jarEditorCopyFile" class="com.liubs.jareditor.action.JarEditorCopyFile" text="Copy" description="Copy"/>
-        <action id="jarEditorPasteFile" class="com.liubs.jareditor.action.JarEditorPasteFile" text="Paste" description="Paste"/>
-
-        <group id="jarEditorExport"  text="Export" description="Export" popup="true">
-            <action id="jarEditorExportSourceJar" class="com.liubs.jareditor.action.JarEditorExportSourceJar" text="Source jar" description="Source jar"/>
-        </group>
-
-        <action id="jarEditorSearch" class="com.liubs.jareditor.action.JarEditorSearch" text="Search" description="Search" icon="AllIcons.Actions.Search"/>
-    </group>
-
-
-    <action id="jarEditorClear" class="com.liubs.jareditor.action.JarEditorClear" text="Clear saved files" description="Clear saved files" icon="MyIcons.CLEAN"/>
 
 
   </actions>

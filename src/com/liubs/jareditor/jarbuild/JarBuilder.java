@@ -24,7 +24,7 @@ import java.util.zip.CRC32;
 public class JarBuilder {
 
     private String classDirectory;
-    private String jarFile;
+    protected String jarFile;
 
     public JarBuilder(String classDirectory, String jarFile) {
         this.classDirectory = classDirectory;
@@ -267,7 +267,7 @@ public class JarBuilder {
         return jarBuildResult;
     }
 
-    private void writeTargetJar(File tempJarFile) throws IOException {
+    public void writeTargetJar(File tempJarFile) throws IOException {
         // 将临时 JAR 文件内容写回目标 JAR 文件
         try (FileInputStream tempInputStream = new FileInputStream(tempJarFile);
              FileOutputStream fileOutputStream = new FileOutputStream(jarFile)) {
@@ -292,7 +292,7 @@ public class JarBuilder {
 
     }
 
-    private JarEntry copyNewEntry(JarFile originalJar,JarEntry entry, String newEntryName) throws IOException {
+    public JarEntry copyNewEntry(JarFile originalJar,JarEntry entry, String newEntryName) throws IOException {
 
         JarEntry newEntry = new JarEntry(newEntryName);
         newEntry.setTime(entry.getTime());
