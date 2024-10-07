@@ -4,9 +4,15 @@ import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.IdeaPluginDescriptorImpl;
 import com.intellij.ide.plugins.PluginManagerCore;
 import com.intellij.openapi.extensions.PluginId;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
+import com.intellij.util.PsiErrorElementUtil;
+import com.liubs.jareditor.util.StringUtils;
 
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 /**
  * @author Liubsyy
@@ -16,6 +22,20 @@ public class MyDecompiler {
     private static ClassLoader pluginClassLoader;
     private static Object decompiler;
     private static Method decompileMethod;
+
+    public static String getDecompiledText(Project project, VirtualFile file) {
+        PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
+        if (psiFile != null && !PsiErrorElementUtil.hasErrors(project, file)) {
+            if(Objects.equals(file.getExtension(), "class")
+                    && !"java".equalsIgnoreCase(psiFile.getLanguage().getDisplayName())) {
+                String decompileText = MyDecompiler.decompileText(file);
+                return StringUtils.isEmpty(decompileText) ? psiFile.getText() : decompileText;
+            }
+            return psiFile.getText(); //default decompiled text;
+        }
+        return "";
+    }
+
 
     private static ClassLoader getPluginClassLoader(){
         try{
@@ -30,12 +50,7 @@ public class MyDecompiler {
         return null;
     }
 
-    /**
-     * Decompile file anyway
-     * @param file
-     * @return
-     */
-    public static String decompileText(VirtualFile file) {
+    private static String decompileText(VirtualFile file) {
         if(null == pluginClassLoader) {
             pluginClassLoader = getPluginClassLoader();
             if(null == pluginClassLoader) {

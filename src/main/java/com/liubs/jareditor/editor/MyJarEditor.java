@@ -261,24 +261,6 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
             public void mouseClicked(MouseEvent e) {
                 SDKSettingDialog dialog = new SDKSettingDialog();
                 if(dialog.showAndGet()){
-                    //持久化
-                    SDKSettingStorage.getInstance().setMySdks(dialog.getAllItems());
-                    SDKSettingStorage.getInstance().setGenDebugInfos(dialog.getGenDebugInfo());
-
-                    //刷新最高jdk版本
-                    int maxJavaVersion = SDKSettingStorage.getInstance().getMySdks().parallelStream().map(sdk->{
-                        try{
-                            String javacVersion = CommandTools.exec(sdk.getPath()+"/bin/javac","-version");
-                            if(null != javacVersion) {
-                                return JavacToolProvider.parseJavaVersion(javacVersion);
-                            }
-                        }catch (Throwable ex){}
-                        return 8;
-                    }).max(Integer::compareTo).orElse(8);
-                    maxJavaVersion = Math.max(maxJavaVersion,JavacToolProvider.parseJavaVersion(System.getProperty("java.version"))); //当前IDEA运行的java版本
-
-                    SDKSettingStorage.getInstance().setMaxJavaVersion(maxJavaVersion);
-
                     initSDKComboBox();
                 }
             }
@@ -363,16 +345,7 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
     }
 
     public static String getDecompiledText(Project project, VirtualFile file) {
-        PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
-        if (psiFile != null && !PsiErrorElementUtil.hasErrors(project, file)) {
-            if(Objects.equals(file.getExtension(), "class")
-                    && !"java".equalsIgnoreCase(psiFile.getLanguage().getDisplayName())) {
-                String decompileText = MyDecompiler.decompileText(file);
-                return StringUtils.isEmpty(decompileText) ? psiFile.getText() : decompileText;
-            }
-            return psiFile.getText(); //default decompiled text;
-        }
-        return "";
+        return MyDecompiler.getDecompiledText(project,file);
     }
 
 

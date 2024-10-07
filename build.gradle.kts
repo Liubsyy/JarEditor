@@ -37,6 +37,9 @@ dependencies {
     // https://mvnrepository.com/artifact/org.ow2.asm/asm-commons
     implementation("org.ow2.asm:asm-commons:9.7")
 
+    // https://mvnrepository.com/artifact/org.benf/cfr
+    implementation("org.benf:cfr:0.152")
+
 }
 
 

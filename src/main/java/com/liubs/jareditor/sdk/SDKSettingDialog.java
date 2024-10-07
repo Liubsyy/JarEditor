@@ -2,6 +2,7 @@ package com.liubs.jareditor.sdk;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
+import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.TextBrowseFolderListener;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
@@ -10,7 +11,9 @@ import com.intellij.ui.components.JBScrollPane;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.util.ui.JBUI;
+import com.liubs.jareditor.decompile.DecompiledEnum;
 import com.liubs.jareditor.persistent.SDKSettingStorage;
+import com.liubs.jareditor.util.CommandTools;
 import com.liubs.jareditor.util.StringUtils;
 
 
@@ -35,6 +38,7 @@ public class SDKSettingDialog extends DialogWrapper {
 
     private java.util.List<SDKSettingStorage.MyItem> allItems = new ArrayList<>();
     private java.util.List<JComponent> enables = new ArrayList<>();
+    private ComboBox<String> decompiledToolComboBox;
 
     private Map<String,JCheckBox> genDebugInfosMap = new HashMap<>();
 
@@ -57,7 +61,7 @@ public class SDKSettingDialog extends DialogWrapper {
 
         //basic config panel
         JPanel mainPanel = new JPanel(new GridLayoutManager(3, 2));
-        mainPanel.setPreferredSize(new Dimension(500, 300));
+        mainPanel.setPreferredSize(new Dimension(500, 360));
 
         JPanel genDebugInfoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JLabel genDebugInfoLabel= new JLabel("Generate debug info(-g) : ");
@@ -84,11 +88,37 @@ public class SDKSettingDialog extends DialogWrapper {
 
 
 
+        JPanel preferencePanel = new JPanel(new GridLayout(2,1));
         Border etchedBorder = BorderFactory.createEtchedBorder(EtchedBorder.RAISED);
-        genDebugInfoPanel.setBorder(BorderFactory.createTitledBorder(etchedBorder,"Preferences"));
+        preferencePanel.setBorder(BorderFactory.createTitledBorder(etchedBorder,"Preferences"));
+
+        preferencePanel.add(genDebugInfoPanel,new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST,
+                GridConstraints.FILL_HORIZONTAL,
+                GridConstraints.SIZEPOLICY_CAN_GROW | GridConstraints.SIZEPOLICY_CAN_SHRINK,
+                GridConstraints.SIZEPOLICY_FIXED, null, null, null));
 
 
-        mainPanel.add(genDebugInfoPanel, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_WEST,
+        JPanel decompiledToolPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JLabel decompiledToolLabel = new JLabel("Decompiled with : ");
+        decompiledToolComboBox = new ComboBox<>();
+        for(DecompiledEnum decompiledEnum : DecompiledEnum.values()) {
+            decompiledToolComboBox.addItem(decompiledEnum.name);
+            if(decompiledEnum.value == SDKSettingStorage.getInstance().getDecompiledTool()) {
+                decompiledToolComboBox.setSelectedItem(decompiledEnum.name);
+            }
+        }
+
+
+        decompiledToolPanel.add(decompiledToolLabel);
+        decompiledToolPanel.add(decompiledToolComboBox);
+
+        preferencePanel.add(decompiledToolPanel,new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST,
+                GridConstraints.FILL_HORIZONTAL,
+                GridConstraints.SIZEPOLICY_CAN_GROW | GridConstraints.SIZEPOLICY_CAN_SHRINK,
+                GridConstraints.SIZEPOLICY_FIXED, null, null, null));
+
+
+        mainPanel.add(preferencePanel, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_WEST,
                 GridConstraints.FILL_HORIZONTAL,
                 GridConstraints.SIZEPOLICY_CAN_GROW | GridConstraints.SIZEPOLICY_CAN_SHRINK,
                 GridConstraints.SIZEPOLICY_FIXED, null, null, null));
@@ -348,6 +378,25 @@ public class SDKSettingDialog extends DialogWrapper {
 
     @Override
     protected void doOKAction() {
+        //持久化
+        SDKSettingStorage.getInstance().setMySdks(this.getAllItems());
+        SDKSettingStorage.getInstance().setGenDebugInfos(this.getGenDebugInfo());
+
+        //刷新最高jdk版本
+        int maxJavaVersion = SDKSettingStorage.getInstance().getMySdks().parallelStream().map(sdk->{
+            try{
+                String javacVersion = CommandTools.exec(sdk.getPath()+"/bin/javac","-version");
+                if(null != javacVersion) {
+                    return JavacToolProvider.parseJavaVersion(javacVersion);
+                }
+            }catch (Throwable ex){}
+            return 8;
+        }).max(Integer::compareTo).orElse(8);
+        maxJavaVersion = Math.max(maxJavaVersion,JavacToolProvider.parseJavaVersion(System.getProperty("java.version"))); //当前IDEA运行的java版本
+
+        SDKSettingStorage.getInstance().setMaxJavaVersion(maxJavaVersion);
+        SDKSettingStorage.getInstance().setDecompiledTool(DecompiledEnum.findByName((String)decompiledToolComboBox.getSelectedItem()).value);
+
         super.doOKAction();
     }
 
