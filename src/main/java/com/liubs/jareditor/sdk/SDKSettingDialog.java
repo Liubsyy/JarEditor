@@ -42,10 +42,15 @@ public class SDKSettingDialog extends DialogWrapper {
 
     private Map<String,JCheckBox> genDebugInfosMap = new HashMap<>();
 
+    private String lastDecompiledTool;
+
     public SDKSettingDialog() {
         super(true); // use current window as parent
         init();
         setTitle("SDK setting");
+
+
+        lastDecompiledTool = DecompiledEnum.findByValue(SDKSettingStorage.getInstance().getDecompiledTool()).name;
 
         pack(); //调整窗口大小以适应其子组件
     }
@@ -375,6 +380,9 @@ public class SDKSettingDialog extends DialogWrapper {
         return StringUtils.isEmpty(genDebugInfo) ? "none" : genDebugInfo;
     }
 
+    public boolean isDecompiledChanged(){
+        return !lastDecompiledTool.equals(decompiledToolComboBox.getSelectedItem());
+    }
 
     @Override
     protected void doOKAction() {

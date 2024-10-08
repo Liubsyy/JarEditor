@@ -40,6 +40,9 @@ dependencies {
     // https://mvnrepository.com/artifact/org.benf/cfr
     implementation("org.benf:cfr:0.152")
 
+    // https://mvnrepository.com/artifact/org.bitbucket.mstrobel/procyon-compilertools
+    implementation("org.bitbucket.mstrobel:procyon-compilertools:0.6.0")
+
 }
 
 

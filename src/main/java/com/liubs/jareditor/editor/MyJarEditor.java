@@ -21,7 +21,6 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.testFramework.LightVirtualFile;
-import com.intellij.util.PsiErrorElementUtil;
 import com.liubs.jareditor.decompile.MyDecompiler;
 import com.liubs.jareditor.jarbuild.JarBuildResult;
 import com.liubs.jareditor.persistent.SDKSettingStorage;
@@ -30,7 +29,6 @@ import com.liubs.jareditor.sdk.NoticeInfo;
 import com.liubs.jareditor.sdk.SDKSettingDialog;
 import com.liubs.jareditor.template.TemplateManager;
 import com.liubs.jareditor.constant.ClassVersion;
-import com.liubs.jareditor.util.CommandTools;
 import com.liubs.jareditor.util.MyPathUtil;
 import com.liubs.jareditor.util.StringUtils;
 import org.jetbrains.annotations.NonNls;
@@ -51,7 +49,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -262,6 +259,9 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
                 SDKSettingDialog dialog = new SDKSettingDialog();
                 if(dialog.showAndGet()){
                     initSDKComboBox();
+                    if(dialog.isDecompiledChanged()) {
+                        resetEditorContent();
+                    }
                 }
             }
         });
@@ -365,7 +365,7 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         jarEditorCore.buildJar(callBack);
     }
 
-    public void cancelChanges() {
+    public void resetEditorContent() {
         String decompiledText = getDecompiledText(project, file);
         Document document = editor.getDocument();
 

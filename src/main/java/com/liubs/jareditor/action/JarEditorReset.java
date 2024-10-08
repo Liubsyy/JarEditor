@@ -32,6 +32,6 @@ public class JarEditorReset extends MyToolbarAction {
             return;
         }
         MyJarEditor myJarEditor = (MyJarEditor)editors.get(0);
-        myJarEditor.cancelChanges();
+        myJarEditor.resetEditorContent();
     }
 }
