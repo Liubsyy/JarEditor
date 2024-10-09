@@ -66,7 +66,7 @@ public class SDKSettingDialog extends DialogWrapper {
 
         //basic config panel
         JPanel mainPanel = new JPanel(new GridLayoutManager(3, 2));
-        mainPanel.setPreferredSize(new Dimension(500, 360));
+        mainPanel.setPreferredSize(new Dimension(500, 380));
 
         JPanel genDebugInfoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JLabel genDebugInfoLabel= new JLabel("Generate debug info(-g) : ");
@@ -132,14 +132,15 @@ public class SDKSettingDialog extends DialogWrapper {
 
         Dimension buttonSize = new Dimension(20, 20);
 
-        JButton copyNewButton = new JButton(AllIcons.Actions.Copy);
-        copyNewButton.setOpaque(false);
-        copyNewButton.setContentAreaFilled(false);
-        copyNewButton.setBorderPainted(false);
-        copyNewButton.setMargin(JBUI.emptyInsets());
-        copyNewButton.setPreferredSize(buttonSize);
-        copyNewButton.setMaximumSize(buttonSize);
-        copyNewButton.setToolTipText("Copy new");
+//        JButton copyNewButton = new JButton(AllIcons.Actions.Copy);
+//        copyNewButton.setOpaque(false);
+//        copyNewButton.setContentAreaFilled(false);
+//        copyNewButton.setBorderPainted(false);
+//        copyNewButton.setMargin(JBUI.emptyInsets());
+//        copyNewButton.setPreferredSize(buttonSize);
+//        copyNewButton.setMaximumSize(buttonSize);
+//        copyNewButton.setToolTipText("Copy new");
+        JLabel sdkListLabel = new JLabel("SDK List");
 
         JButton addButton = new JButton(AllIcons.General.Add);
         addButton.setOpaque(false);
@@ -160,11 +161,12 @@ public class SDKSettingDialog extends DialogWrapper {
 
         JPanel mappingLabelPanel = new JPanel();
         mappingLabelPanel.setLayout(new BoxLayout(mappingLabelPanel, BoxLayout.X_AXIS));
-        mappingLabelPanel.add(Box.createHorizontalStrut(10));
-        mappingLabelPanel.add(copyNewButton);
-        mappingLabelPanel.add(Box.createHorizontalStrut(10));
+        mappingLabelPanel.add(sdkListLabel);
+        mappingLabelPanel.add(Box.createHorizontalStrut(20));
+//        mappingLabelPanel.add(copyNewButton);
+//        mappingLabelPanel.add(Box.createHorizontalStrut(10));
         mappingLabelPanel.add(addButton);
-        mappingLabelPanel.add(Box.createHorizontalStrut(10));
+//        mappingLabelPanel.add(Box.createHorizontalStrut(5));
         mappingLabelPanel.add(removeButton);
 
 
@@ -275,28 +277,28 @@ public class SDKSettingDialog extends DialogWrapper {
 
 
 
-        copyNewButton.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent me) {
-                copyNewButton.setBorderPainted(true);
-            }
-            public void mouseExited(MouseEvent me) {
-                copyNewButton.setBorderPainted(false);
-            }
-            public void mousePressed(MouseEvent me) {
-                // When addButton is clicked, add a new item to the list
-                String newItem = "New SDK";
-                connectionList.addElement(newItem);
-
-                SDKSettingStorage.MyItem copyConnection = new SDKSettingStorage.MyItem();
-                copyConnection.setName(nameField.getText());
-                copyConnection.setPath(sdkHomeField.getText());
-                allItems.add(copyConnection);
-
-                // Select the new item
-                list.setSelectedIndex(connectionList.getSize() - 1);
-                enableField(true);
-            }
-        });
+//        copyNewButton.addMouseListener(new MouseAdapter() {
+//            public void mouseEntered(MouseEvent me) {
+//                copyNewButton.setBorderPainted(true);
+//            }
+//            public void mouseExited(MouseEvent me) {
+//                copyNewButton.setBorderPainted(false);
+//            }
+//            public void mousePressed(MouseEvent me) {
+//                // When addButton is clicked, add a new item to the list
+//                String newItem = "New SDK";
+//                connectionList.addElement(newItem);
+//
+//                SDKSettingStorage.MyItem copyConnection = new SDKSettingStorage.MyItem();
+//                copyConnection.setName(nameField.getText());
+//                copyConnection.setPath(sdkHomeField.getText());
+//                allItems.add(copyConnection);
+//
+//                // Select the new item
+//                list.setSelectedIndex(connectionList.getSize() - 1);
+//                enableField(true);
+//            }
+//        });
 
         // Update addButton MouseAdapter
         addButton.addMouseListener(new MouseAdapter() {
