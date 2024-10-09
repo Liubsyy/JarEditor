@@ -31,6 +31,7 @@
         <li>Rename: Refactor package/class</li>
         <li>Added search options within jar: Match Case/Words/Regex</li>
         <li>Javassist Tool: support static code and inner classes</li>
+        <li>Decompilers : Fernflower/CFR/Procyon</li>
 
 
       </ul>
