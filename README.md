@@ -26,6 +26,7 @@ IDEA plugin for modifying files in jar directly without decompression, including
 - Support kotlin
 - Export source jar
 - Support class bytes tool : javassist
+- Decompilers : Fernflower/CFR/Procyon
 
 
 

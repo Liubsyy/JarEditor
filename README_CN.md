@@ -26,6 +26,7 @@
 - 支持kotlin
 - 可导出source jar
 - 支持class字节码修改工具 : javassist
+- 反编译器 : Fernflower/CFR/Procyon
 
 ## 快速开始
 
