@@ -4,6 +4,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.PathUtil;
+import com.liubs.jareditor.constant.PathConstant;
 import com.liubs.jareditor.sdk.ProjectDependency;
 import org.benf.cfr.reader.api.CfrDriver;
 import org.benf.cfr.reader.api.OutputSinkFactory;
@@ -44,7 +45,6 @@ public class CFRDecompiler implements IDecompiler{
         };
 
         HashMap<String, String> options = new HashMap<>();
-        options.put("showversion", "false");
         options.put("hideutf", "false");
         options.put("trackbytecodeloc", "true");
         options.put(OptionsImpl.EXTRA_CLASS_PATH.getName(),  ProjectDependency.getDependentLib(project).stream()
@@ -57,7 +57,7 @@ public class CFRDecompiler implements IDecompiler{
                     @Override
                     public Pair<byte[], String> getClassFileContent(String classPath) throws IOException {
                         if(classPath.equals(classFilePath)) {
-                            return new Pair<>(classBytes,classFilePath.split(".jar!/")[1]);
+                            return new Pair<>(classBytes,classPath);
                         }
                         return super.getClassFileContent(classPath);
                     }
@@ -74,7 +74,13 @@ public class CFRDecompiler implements IDecompiler{
     @Override
     public String decompile(Project project, VirtualFile virtualFile) {
         try {
-            return decompile(project,virtualFile.getPath(), VfsUtilCore.loadBytes(virtualFile));
+            String path;
+            if(virtualFile.getPath().contains("jar!/")) {
+                path = virtualFile.getPath().split("jar!/")[1];
+            }else {
+                path = virtualFile.getPath().split(PathConstant.TEMP_SUFFIX+"/"+ PathConstant.JAR_EDIT_CLASS_PATH+"/")[1];
+            }
+            return decompile(project,path, VfsUtilCore.loadBytes(virtualFile));
         } catch (Exception e) {
             e.printStackTrace();
         }
