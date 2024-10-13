@@ -147,7 +147,7 @@ public class MyPathUtil {
             return classNameInJar.substring(0,classNameInJar.length()-2);
         }
         String[] split = classNameInJar.split(".jar!/");
-        if(split.length!=2) {
+        if(split.length<2) {
             return null;
         }
         return split[0]+".jar";
@@ -166,6 +166,12 @@ public class MyPathUtil {
             return path.substring(lastIndex+1);
         }
         return path;
+    }
+
+
+    public static String getNestedJarPath(String filePath){
+        String jarEditTemp = getJarEditTemp(filePath);
+        return null == jarEditTemp ? null : jarEditTemp+"/"+PathConstant.NESTED_JAR_DIR;
     }
 
 
