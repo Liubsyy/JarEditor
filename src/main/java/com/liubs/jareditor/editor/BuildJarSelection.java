@@ -10,16 +10,19 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.jar.JarEntry;
 
 public class BuildJarSelection extends DialogWrapper {
 
-    private ComboBox<String> comboBox;
+    private ComboBox<String> jarComboBox;
+    private ComboBox<String> methodComboBox;
     private String[] nestedJars;
+    private String[] methods = {"STORED", "DEFLATED"};  // Method options
 
     public BuildJarSelection(String[] nestedJars) {
         super(true);
         this.nestedJars = nestedJars;
-        setTitle("Build Jar");
+        setTitle("Nested Jar Build");
         init();
     }
 
@@ -33,27 +36,45 @@ public class BuildJarSelection extends DialogWrapper {
         // Add padding/margin around the panel
         panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        // Add label with the specified text and some spacing
-        JLabel label = new JLabel("This is a nested jar, which jar do you want to build?");
-        label.setAlignmentX(Component.LEFT_ALIGNMENT); // Align left
-        panel.add(label);
-
-        // Add vertical spacing between label and combobox
-        panel.add(Box.createRigidArea(new Dimension(0, 10))); // 10px vertical space
-
-        // Create a ComboBox with the jar options
-        comboBox = new ComboBox<>(nestedJars);
-        comboBox.setAlignmentX(Component.LEFT_ALIGNMENT); // Align left
-        panel.add(comboBox);
+        // First row: "Build Jar" label and jarComboBox
+        JPanel jarPanel = new JPanel();
+        jarPanel.setLayout(new BoxLayout(jarPanel, BoxLayout.X_AXIS));  // Horizontal alignment
+        JLabel jarLabel = new JLabel("Build Jar : ");
+        jarComboBox = new ComboBox<>(nestedJars);
+        jarPanel.add(jarLabel);
+        jarPanel.add(Box.createRigidArea(new Dimension(10, 0)));  // Add horizontal spacing
+        jarPanel.add(jarComboBox);
 
         // Set preferred size for the ComboBox to make it larger
-        comboBox.setPreferredSize(new Dimension(200, 30));
+        jarComboBox.setPreferredSize(new Dimension(200, 30));
+        panel.add(jarPanel);
+
+        // Add vertical spacing between the first row and second row
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));  // 10px vertical space
+
+        // Second row: "Nested Jar Method" label and methodComboBox
+        JPanel methodPanel = new JPanel();
+        methodPanel.setLayout(new BoxLayout(methodPanel, BoxLayout.X_AXIS));  // Horizontal alignment
+        JLabel methodLabel = new JLabel("Nested Jar Method : ");
+        methodComboBox = new ComboBox<>(methods);
+        methodPanel.add(methodLabel);
+        methodPanel.add(Box.createRigidArea(new Dimension(10, 0)));  // Add horizontal spacing
+        methodPanel.add(methodComboBox);
+
+        // Set preferred size for the method ComboBox
+        methodComboBox.setPreferredSize(new Dimension(200, 30));
+        panel.add(methodPanel);
+
         return panel;
     }
 
-    // Getter method to retrieve the selected option
+    // Getter method to retrieve the selected jar option
     public int getSelectedJar() {
-        return comboBox.getSelectedIndex();
+        return jarComboBox.getSelectedIndex();
     }
 
+    // Getter method to retrieve the selected method option
+    public int getSelectedMethod() {
+        return methodComboBox.getSelectedIndex() == 0 ? JarEntry.STORED : JarEntry.DEFLATED;
+    }
 }

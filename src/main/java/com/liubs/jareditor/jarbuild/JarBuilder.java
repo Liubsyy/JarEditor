@@ -36,6 +36,9 @@ public class JarBuilder {
     }
 
     public JarBuildResult writeJar(boolean compareEntry) {
+        return writeJar(compareEntry,null);
+    }
+    public JarBuildResult writeJar(boolean compareEntry,ChangedItemCallBack changedItemCallBack) {
 
         JarBuildResult jarBuildResult;
         File tempJarFile = null;
@@ -64,7 +67,12 @@ public class JarBuilder {
                  JarOutputStream tempJarOutputStream = new JarOutputStream(new FileOutputStream(tempJarFile))) {
 
                 copyExistingEntries(originalJar, tempJarOutputStream, classDirPath);
-                addOrUpdateClasses(classDirPath, tempJarOutputStream);
+                if(null == changedItemCallBack) {
+                    addOrUpdateClasses(classDirPath, tempJarOutputStream);
+                }else {
+                    changedItemCallBack.writeStream(classDirPath,tempJarOutputStream);
+                }
+
             }
 
             // 将临时 JAR 文件内容写回目标 JAR 文件
@@ -290,6 +298,19 @@ public class JarBuilder {
                 });
         copyExistingEntries(originalJar,tempJarOutputStream,classesToReplace,false);
 
+    }
+
+    public static JarEntry createStoredEntry(String newEntryName,byte[] fileBytes) throws IOException {
+        JarEntry newEntry = new JarEntry(newEntryName);
+        newEntry.setMethod(JarEntry.STORED);
+        newEntry.setSize(fileBytes.length);
+        newEntry.setCompressedSize(fileBytes.length);
+
+        // Calculate CRC32 and size for the entry (required for STORE method)
+        CRC32 crc = new CRC32();
+        crc.update(fileBytes);
+        newEntry.setCrc(crc.getValue());
+        return newEntry;
     }
 
     public JarEntry copyNewEntry(JarFile originalJar,JarEntry entry, String newEntryName) throws IOException {

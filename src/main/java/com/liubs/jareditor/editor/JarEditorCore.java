@@ -27,12 +27,14 @@ import com.liubs.jareditor.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.jar.JarEntry;
 
 /**
  * 核心功能
@@ -225,6 +227,13 @@ public class JarEditorCore {
             if(dialog.showAndGet()){
                 int selectedIndex = dialog.getSelectedJar();
 
+                /**
+                 * 嵌套jar压缩方式
+                 * 嵌套jar往往是STORED方式（非压缩方式），可参考SpringBoot中的org.springframework.boot.loader.jar.JarFile#createJarFileFromFileEntry
+                 * 亲测修改过的SpringBoot嵌套jar可以正常启动并且已生效
+                 */
+                int nestedJarEntryMethod = dialog.getSelectedMethod();
+
                 ProgressManager.getInstance().run(new Task.Backgroundable(null, "Jar building...", true) {
                     @Override
                     public void run(@NotNull ProgressIndicator progressIndicator) {
@@ -237,7 +246,33 @@ public class JarEditorCore {
                                 String jarEditOutput = MyPathUtil.getJarEditOutput(jarPath);
                                 JarBuilder jarBuilder = new JarBuilder(jarEditOutput , jarPath);
 
-                                jarBuildResult = jarBuilder.writeJar(false);
+                                jarBuildResult = jarBuilder.writeJar(false, (jarEditOutDir, tempJarOutputStream) -> {
+                                    try {
+                                        Files.walk(jarEditOutDir)
+                                                .filter(Files::isRegularFile)
+                                                .forEach(path -> {
+                                                    String jarEntryName = jarEditOutDir.relativize(path).toString().replace("\\", "/");
+                                                    try {
+                                                        if(path.toString().endsWith(".jar") && nestedJarEntryMethod == JarEntry.STORED) {
+                                                            byte[] fileBytes = Files.readAllBytes(path);
+                                                            JarEntry newEntry = JarBuilder.createStoredEntry(jarEntryName,fileBytes);
+                                                            tempJarOutputStream.putNextEntry(newEntry);
+                                                            tempJarOutputStream.write(fileBytes);
+                                                            tempJarOutputStream.closeEntry();
+                                                        }else {
+                                                            tempJarOutputStream.putNextEntry(new JarEntry(jarEntryName));
+                                                            Files.copy(path, tempJarOutputStream);
+                                                            tempJarOutputStream.closeEntry();
+                                                        }
+                                                    } catch (IOException e) {
+                                                        System.err.println("Error adding/updating class: " + jarEntryName);
+                                                        e.printStackTrace();
+                                                    }
+                                                });
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                });
 
                                 if(jarBuildResult.isSuccess()) {
                                     if(i == selectedIndex) {
