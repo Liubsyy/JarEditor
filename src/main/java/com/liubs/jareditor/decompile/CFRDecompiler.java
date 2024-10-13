@@ -6,6 +6,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.PathUtil;
 import com.liubs.jareditor.constant.PathConstant;
 import com.liubs.jareditor.sdk.ProjectDependency;
+import com.liubs.jareditor.util.JavaFileUtil;
 import org.benf.cfr.reader.api.CfrDriver;
 import org.benf.cfr.reader.api.OutputSinkFactory;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
@@ -14,6 +15,8 @@ import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -24,7 +27,7 @@ import java.util.stream.Collectors;
  */
 public class CFRDecompiler implements IDecompiler{
 
-    public String decompile(Project project, String classFilePath, byte[] classBytes) {
+    public String decompile(Project project,Map<String,byte[]> classBytesMap) {
         final StringBuilder sb = new StringBuilder();
 
         OutputSinkFactory mySink = new OutputSinkFactory() {
@@ -56,8 +59,8 @@ public class CFRDecompiler implements IDecompiler{
                 .withClassFileSource(new ClassFileSourceImpl(OptionsImpl.getFactory().create(options)){
                     @Override
                     public Pair<byte[], String> getClassFileContent(String classPath) throws IOException {
-                        if(classPath.equals(classFilePath)) {
-                            return new Pair<>(classBytes,classPath);
+                        if(classBytesMap.containsKey(classPath)) {
+                            return new Pair<>(classBytesMap.get(classPath),classPath);
                         }
                         return super.getClassFileContent(classPath);
                     }
@@ -65,7 +68,7 @@ public class CFRDecompiler implements IDecompiler{
                 .withOutputSink(mySink)
                 .build();
 
-        List<String> toAnalyse = Collections.singletonList(classFilePath);
+        List<String> toAnalyse = new ArrayList<>(classBytesMap.keySet());
         driver.analyse(toAnalyse);
 
         return sb.toString();
@@ -74,13 +77,19 @@ public class CFRDecompiler implements IDecompiler{
     @Override
     public String decompile(Project project, VirtualFile virtualFile) {
         try {
-            String path;
+            Map<String,byte[]> classBytesMap = new HashMap<>();
             if(virtualFile.getPath().contains("jar!/")) {
-                path = virtualFile.getPath().split("jar!/")[1];
+                String path = virtualFile.getPath().split("jar!/")[1];
+                classBytesMap.put(path, VfsUtilCore.loadBytes(virtualFile));
             }else {
-                path = virtualFile.getPath().split(PathConstant.TEMP_SUFFIX+"/"+ PathConstant.JAR_EDIT_CLASS_PATH+"/")[1];
+                List<String> fullClassFiles = JavaFileUtil.getFullClassFiles(virtualFile.getPath());
+                for(String path : fullClassFiles) {
+                    byte[] bytes = Files.readAllBytes(Paths.get(path));
+                    path = path.split(PathConstant.TEMP_SUFFIX+"/"+ PathConstant.JAR_EDIT_CLASS_PATH+"/")[1];
+                    classBytesMap.put(path,bytes);
+                }
             }
-            return decompile(project,path, VfsUtilCore.loadBytes(virtualFile));
+            return decompile(project,classBytesMap);
         } catch (Exception e) {
             e.printStackTrace();
         }

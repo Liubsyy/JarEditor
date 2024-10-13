@@ -11,6 +11,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.PathUtil;
 import com.liubs.jareditor.compile.*;
+import com.liubs.jareditor.constant.PathConstant;
 import com.liubs.jareditor.dependency.ExtraDependencyManager;
 import com.liubs.jareditor.dependency.NestedJarDependency;
 import com.liubs.jareditor.filetree.NestedJar;
@@ -211,7 +212,76 @@ public class JarEditorCore {
             return;
         }
 
-        buildJar0(callBack);
+        if(nestedJar.isNested()) {
+            List<NestedJar> nestedJars = nestedJar.listDepthJars();
+            String[] comboOptions = nestedJars.stream().map(c->{
+                int i = c.getCurrentPath().lastIndexOf("/");
+                if(i<=0){
+                    return c.getCurrentPath();
+                }
+                return c.getCurrentPath().substring(i+1);
+            }).toArray(String[]::new);
+            BuildJarSelection dialog = new BuildJarSelection(comboOptions);
+            if(dialog.showAndGet()){
+                int selectedIndex = dialog.getSelectedJar();
+
+                ProgressManager.getInstance().run(new Task.Backgroundable(null, "Jar building...", true) {
+                    @Override
+                    public void run(@NotNull ProgressIndicator progressIndicator) {
+
+                        try {
+                            JarBuildResult jarBuildResult = null;
+                            for(int i = 0; i <= selectedIndex ;i++) {
+                                //一层一层构建jar
+                                String jarPath = nestedJars.get(i).getCurrentPath();
+                                String jarEditOutput = MyPathUtil.getJarEditOutput(jarPath);
+                                JarBuilder jarBuilder = new JarBuilder(jarEditOutput , jarPath);
+
+                                jarBuildResult = jarBuilder.writeJar(false);
+
+                                if(jarBuildResult.isSuccess()) {
+                                    if(i == selectedIndex) {
+                                        NoticeInfo.info("Build jar successfully!");
+                                    }
+                                    if(selectedIndex == nestedJars.size()-1){
+                                        //删除临时保存的目录
+                                        MyFileUtil.deleteDir(MyPathUtil.getJarEditTemp(jarPath));
+                                    }else {
+                                        //拷贝生成的jar到父层的jar_edit_out目录
+                                        String parentJarTemp = MyPathUtil.getJarEditTemp(nestedJar.getParentPath());
+                                        String relaPath = jarPath.replace(parentJarTemp, "")
+                                                .replaceFirst(PathConstant.NESTED_JAR_DIR, PathConstant.JAR_EDIT_CLASS_PATH);
+                                        String parentDestinationPath = Paths.get(parentJarTemp, relaPath).toString();
+                                        File destinationFile = new File(parentDestinationPath);
+                                        destinationFile.getParentFile().mkdirs();
+
+                                        Files.copy(Paths.get(jarPath) ,Paths.get(parentDestinationPath), StandardCopyOption.REPLACE_EXISTING);
+                                    }
+
+                                    ApplicationManager.getApplication().invokeLater(() -> {
+                                        file.refresh(false,true);
+                                        VirtualFileManager.getInstance().refreshWithoutFileWatcher(true);
+                                    });
+                                }else {
+                                    NoticeInfo.error("Build jar err: \n%s",jarBuildResult.getErr());
+                                    break;
+                                }
+                            }
+
+                            if(null != callBack && null != jarBuildResult) {
+                                callBack.accept(jarBuildResult);
+                            }
+                        } catch (Exception e) {
+                            NoticeInfo.error("Build jar err:%s",e.getMessage());
+                        }
+
+                    }
+                });
+            }
+        }else {
+            buildJar0(callBack);
+        }
+
     }
 
     private void buildJar0(Consumer<JarBuildResult> callBack){

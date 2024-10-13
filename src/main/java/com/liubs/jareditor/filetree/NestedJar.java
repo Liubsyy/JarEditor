@@ -1,6 +1,7 @@
 package com.liubs.jareditor.filetree;
 
 import com.liubs.jareditor.constant.PathConstant;
+import com.liubs.jareditor.util.MyPathUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,12 +41,16 @@ public class NestedJar {
 
 
     public NestedJar(String currentPath) {
+        if(!currentPath.endsWith(".jar")){
+            currentPath = MyPathUtil.getJarFullPath(currentPath);
+        }
         this.currentPath = currentPath;
-
-        int lastIndexOfKey = currentPath.lastIndexOf(KEY);
-        if(lastIndexOfKey >0){
-            this.parentPath = currentPath.substring(0,lastIndexOfKey)+".jar";
-            this.originalPath = this.parentPath+"!"+currentPath.substring(lastIndexOfKey+KEY.length());
+        if(null != currentPath) {
+            int lastIndexOfKey = currentPath.lastIndexOf(KEY);
+            if(lastIndexOfKey >0){
+                this.parentPath = currentPath.substring(0,lastIndexOfKey)+".jar";
+                this.originalPath = this.parentPath+"!"+currentPath.substring(lastIndexOfKey+KEY.length());
+            }
         }
     }
 
@@ -53,9 +58,10 @@ public class NestedJar {
      * 依次列出多层嵌套jar的每一层jar
      * @return
      */
-    public List<NestedJar> listDepthJars(NestedJar nestedJar){
+    public List<NestedJar> listDepthJars(){
         List<NestedJar> result = new ArrayList<>();
         String currentPath;
+        NestedJar nestedJar = this;
         do{
             result.add(nestedJar);
             currentPath = nestedJar.getParentPath();
