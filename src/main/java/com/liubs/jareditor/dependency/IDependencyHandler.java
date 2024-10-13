@@ -10,5 +10,5 @@ public interface IDependencyHandler {
 
     List<String> dependentClassPaths(String jarPath,String dependencyRootPath);
 
-    String filter(String filePath,String packageName);
+    String replacePackage(String filePath,String packageName);
 }

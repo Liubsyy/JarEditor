@@ -12,6 +12,8 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.PathUtil;
 import com.liubs.jareditor.compile.*;
 import com.liubs.jareditor.dependency.ExtraDependencyManager;
+import com.liubs.jareditor.dependency.NestedJarDependency;
+import com.liubs.jareditor.filetree.NestedJar;
 import com.liubs.jareditor.jarbuild.JarBuildResult;
 import com.liubs.jareditor.jarbuild.JarBuilder;
 import com.liubs.jareditor.sdk.ProjectDependency;
@@ -40,11 +42,13 @@ public class JarEditorCore {
     private final Project project;
     private final VirtualFile file;
     private final Editor editor;
+    private NestedJar nestedJar;
 
     public JarEditorCore(Project project, VirtualFile file, Editor editor) {
         this.project = project;
         this.file = file;
         this.editor = editor;
+        this.nestedJar = new NestedJar(file.getPath());
     }
 
 
@@ -103,33 +107,28 @@ public class JarEditorCore {
 
     public void compileCode(String sdkHome, String targetVersion) {
 
+        String srcCode = editor.getDocument().getText();
+
         // 存储类路径依赖的集合
         Set<String> classpaths = new HashSet<>();
 
-        ExtraDependencyManager extraDependency = new ExtraDependencyManager();
 
-        String srcCode = editor.getDocument().getText();
-        String packageName = JavaFileUtil.extractPackageName(srcCode);
+        //非标准jar的classpath，比如SpringBoot
+        ExtraDependencyManager extraDependency = new ExtraDependencyManager();
         String externalPrefix = "";
-        if(StringUtils.isNotEmpty(packageName)) {
-            String entryPathFromJar = MyPathUtil.getEntryPathFromJar(file.getPath());
-            String packagePath = packageName.replace(".", "/");
-            if(null != entryPathFromJar && !entryPathFromJar.startsWith(packagePath) ) {
-                // /opt/TestDemo.jar!/BOOT-INF/classes/com/liubs/web/Test.class
-                int i = entryPathFromJar.indexOf(packagePath);
-                if(i > -1) {
-                    externalPrefix = entryPathFromJar.substring(0,i);
-                    if(!externalPrefix.startsWith("/")) {
-                        externalPrefix  = "/"+externalPrefix;
-                    }
-                    extraDependency.registryNotStandardJarHandlers();
-                }
-            }
+        if(nestedJar.isNested()) {
+            extraDependency.registryNotStandardJarHandler(new NestedJarDependency(nestedJar));
+        }else {
+            externalPrefix = extraDependency.registryNotStandardJarHandlersWithPath(
+                    JavaFileUtil.extractPackageName(srcCode), file.getPath());
         }
         List<String> extraPaths = extraDependency.handleAndGetDependencyPaths( MyPathUtil.getJarPathFromJar(file.getPath()), MyPathUtil.getJarEditTemp(file.getPath()));
         classpaths.addAll(extraPaths);
 
-        ProjectDependency.getDependentLib(project).forEach(c-> classpaths.add(PathUtil.getLocalPath(c.getPath())));
+
+        //工程依赖库添加为classpath
+        ProjectDependency.getDependentLib(project)
+                .forEach(c-> classpaths.add(PathUtil.getLocalPath(c.getPath())));
 
 
         //编译器
