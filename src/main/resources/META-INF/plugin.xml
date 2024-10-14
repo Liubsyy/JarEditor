@@ -124,7 +124,7 @@
           </group>
 
           <group id="Structure"  text="Structure" description="Structure" popup="true">
-              <action id="ExpandNestedJarAction" class="com.liubs.jareditor.action.ExpandNestedJarAction" text="Expand Nested Jar" description="Nested Nested Jar" />
+              <action id="ExpandNestedJarAction" class="com.liubs.jareditor.action.ExpandNestedJarAction" text="Expand Nested Jar" description="Expand Nested Jar" />
               <action id="RefreshFileTree" class="com.liubs.jareditor.action.RefreshFileTree" text="Refresh File Tree" description="Refresh File Tree" />
               <action id="CompressionMethod" class="com.liubs.jareditor.action.CompressionMethod" text="Compression Method" description="Compression Method"/>
           </group>
