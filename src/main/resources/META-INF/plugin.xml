@@ -121,9 +121,10 @@
               <action id="jarEditorExportSourceJar" class="com.liubs.jareditor.action.JarEditorExportSourceJar" text="Source Jar" description="Source jar"/>
           </group>
 
-          <group id="fileTree"  text="FileTree" description="FileTree" popup="true">
-              <action id="ExpandNestedJarAction" class="com.liubs.jareditor.action.ExpandNestedJarAction" text="Expand Nested Jar" description="Nested Nested Jar" icon="AllIcons.Actions.Expandall"/>
-              <action id="RefreshFileTree" class="com.liubs.jareditor.action.RefreshFileTree" text="Refresh" description="Refresh" icon="AllIcons.Actions.Refresh"/>
+          <group id="Structure"  text="Structure" description="Structure" popup="true">
+              <action id="ExpandNestedJarAction" class="com.liubs.jareditor.action.ExpandNestedJarAction" text="Expand Nested Jar" description="Nested Nested Jar" />
+              <action id="RefreshFileTree" class="com.liubs.jareditor.action.RefreshFileTree" text="Refresh File Tree" description="Refresh File Tree" />
+              <action id="CompressionMethod" class="com.liubs.jareditor.action.CompressionMethod" text="Compression Method" description="Compression Method"/>
           </group>
 
           <action id="jarEditorSearch" class="com.liubs.jareditor.action.JarEditorSearch" text="Search" description="Search" icon="AllIcons.Actions.Search"/>

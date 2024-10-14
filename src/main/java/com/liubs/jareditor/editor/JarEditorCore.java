@@ -275,10 +275,7 @@ public class JarEditorCore {
                                 });
 
                                 if(jarBuildResult.isSuccess()) {
-                                    if(i == selectedIndex) {
-                                        NoticeInfo.info("Build jar successfully!");
-                                    }
-                                    if(selectedIndex == nestedJars.size()-1){
+                                    if(i == selectedIndex && selectedIndex == nestedJars.size()-1){
                                         //删除临时保存的目录
                                         MyFileUtil.deleteDir(MyPathUtil.getJarEditTemp(jarPath));
                                     }else {
@@ -297,6 +294,9 @@ public class JarEditorCore {
                                         file.refresh(false,true);
                                         VirtualFileManager.getInstance().refreshWithoutFileWatcher(true);
                                     });
+                                    if(i == selectedIndex) {
+                                        NoticeInfo.info("Build jar successfully!");
+                                    }
                                 }else {
                                     NoticeInfo.error("Build jar err: \n%s",jarBuildResult.getErr());
                                     break;

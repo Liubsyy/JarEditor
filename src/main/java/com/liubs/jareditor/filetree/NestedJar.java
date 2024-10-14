@@ -20,7 +20,7 @@ import java.util.List;
  * @date 2024/10/13
  */
 public class NestedJar {
-    private static final String KEY = PathConstant.TEMP_SUFFIX+"/"+PathConstant.NESTED_JAR_DIR;
+    public static final String KEY = PathConstant.TEMP_SUFFIX+"/"+PathConstant.NESTED_JAR_DIR;
 
     /**
      * 父节点路径
