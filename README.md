@@ -41,7 +41,8 @@ First install the plugin JarEditor from marketplace, IDEA at least version **202
 ### 2. Edit and Build Jar
 After installation , you can see a tab page to switch to Jar Editor in the .class decompiled file.
 
-> External jars: File->Project Structure->Libraries->Add Library , then you can see the decompiled jar.
+> **External jar** : File->Project Structure->Libraries->Add Library , then you can see the decompiled jar.<br>
+> **Nested jar** : Right click on nested jar->JarEditor->Structure->Expand Nested Jar
 
 <img src="./img/JarEditor_main.png" width="800" height="506" />
 
@@ -77,7 +78,7 @@ Click the **Search** icon to search the contents of the jar package. If it is a 
 
 ## Some mechanisms
 - The JDK that the compilation depends on is the JDK of your SDK list. You can choose SDK and target version of the compiled class.
-- The classpath you depend on when compiling java is the dependency of the project. If the dependency package cannot be found, you can add the dependency.
+- The classpath you depend on when compiling java is the project's Libraries dependency. If the dependency package cannot be found, you can add Libraries(File->Project Structure->Libraries).
 - Save(Compile) will save the modified files to the subdirectory **jar_edit_out** of the directory where the jar package is located. Build Jar will incrementally write the modified files to jar, and finally delete this directory.
 
 

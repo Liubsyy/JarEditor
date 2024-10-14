@@ -39,7 +39,8 @@
 ### 2. 编辑并构建 Jar
 安装完成后，在.class反编译文件中可以看到切换到Jar Editor的tab页。
 
->外部jar：File->Project Structure->Libraries->Add Library，然后就可以看到反编译的jar了。
+> **外部jar** ：File->Project Structure->Libraries->Add Library，然后就可以看到反编译的jar了。\n
+> **嵌套jar** : 嵌套jar上右键->JarEditor->Structure->Expand Nested Jar
 
 <img src="./img/JarEditor_main.png" width="800" height="506" />
 
@@ -75,7 +76,7 @@
 
 ## 一些机制
 - 编译依赖的JDK是你的SDK列表中的JDK。您可以选择SDK和编译类的目标版本。
-- 编译java时所依赖的classpath就是项目的Libraries依赖。如果找不到依赖包，可以添加依赖。
+- 编译java时所依赖的classpath就是项目的Libraries依赖。如果找不到依赖包，可以添加Libraries(File->Project Structure->Libraries)。
 - Save(Compile)会将修改后的文件保存到jar包所在目录的子目录**jar_edit_out**中，Build Jar会将修改的文件增量写入jar中，最后删除这个临时目录。
 
 ### SDK Default对应JDK版本
