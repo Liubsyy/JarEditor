@@ -1,4 +1,4 @@
-package com.liubs.jareditor.filetree;
+package com.liubs.jareditor.structure;
 
 import com.liubs.jareditor.constant.PathConstant;
 import com.liubs.jareditor.util.MyPathUtil;

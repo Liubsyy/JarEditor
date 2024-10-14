@@ -1,6 +1,6 @@
 package com.liubs.jareditor.dependency;
 
-import com.liubs.jareditor.filetree.NestedJar;
+import com.liubs.jareditor.structure.NestedJar;
 import com.liubs.jareditor.util.JarUtil;
 
 import java.io.IOException;

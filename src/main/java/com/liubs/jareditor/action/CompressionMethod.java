@@ -12,7 +12,8 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.PathUtil;
-import com.liubs.jareditor.filetree.NestedJar;
+import com.liubs.jareditor.structure.CompressionMethodDialog;
+import com.liubs.jareditor.structure.NestedJar;
 import com.liubs.jareditor.jarbuild.JarBuildResult;
 import com.liubs.jareditor.jarbuild.JarBuilder;
 import com.liubs.jareditor.sdk.NoticeInfo;
@@ -66,7 +67,7 @@ public class CompressionMethod extends AnAction {
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
-        Dialog dialog = new Dialog(entryPathFromJar,method);
+        CompressionMethodDialog dialog = new CompressionMethodDialog(entryPathFromJar,method);
         if(dialog.showAndGet()){
             int selectedMethod = dialog.getSelectedMethod();
             if(selectedMethod == method) {
@@ -93,67 +94,6 @@ public class CompressionMethod extends AnAction {
         }
     }
 
-
-    public class Dialog extends DialogWrapper {
-
-        private ComboBox<String> methodComboBox;
-        private String entryName;
-        private int method;
-        private String[] methods = {"STORED", "DEFLATED"};  // Method options
-
-        public Dialog(String entryName,int method) {
-            super(true);
-            this.entryName = entryName;
-            this.method = method;
-            setTitle("Entry Compression Method");
-            init();
-        }
-
-        @Nullable
-        @Override
-        protected JComponent createCenterPanel() {
-            // Create main panel with a BoxLayout for vertical alignment
-            JPanel panel = new JPanel();
-            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-
-            panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-
-            JPanel jarPanel = new JPanel();
-            jarPanel.setLayout(new BoxLayout(jarPanel, BoxLayout.X_AXIS));  // Horizontal alignment
-            JLabel jarLabel = new JLabel("Jar Entry : ");
-            JLabel jarEntry = new JLabel(entryName);
-            jarPanel.add(jarLabel);
-            jarPanel.add(Box.createRigidArea(new Dimension(10, 0)));  // Add horizontal spacing
-            jarPanel.add(jarEntry);
-
-            jarEntry.setPreferredSize(new Dimension(200, 30));
-            panel.add(jarPanel);
-
-            panel.add(Box.createRigidArea(new Dimension(0, 10)));  // 10px vertical space
-
-            JPanel methodPanel = new JPanel();
-            methodPanel.setLayout(new BoxLayout(methodPanel, BoxLayout.X_AXIS));  // Horizontal alignment
-            JLabel methodLabel = new JLabel("Compression Method : ");
-            methodComboBox = new ComboBox<>(methods);
-            methodPanel.add(methodLabel);
-            methodPanel.add(Box.createRigidArea(new Dimension(10, 0)));  // Add horizontal spacing
-            methodPanel.add(methodComboBox);
-            methodComboBox.setPreferredSize(new Dimension(200, 30));
-            if(method == JarEntry.STORED) {
-                methodComboBox.setSelectedIndex(0);
-            }else {
-                methodComboBox.setSelectedIndex(1);
-            }
-
-            panel.add(methodPanel);
-
-            return panel;
-        }
-
-        public int getSelectedMethod() {
-            return methodComboBox.getSelectedIndex() == 0 ? JarEntry.STORED : JarEntry.DEFLATED;
-        }
-    }
 
 
 }

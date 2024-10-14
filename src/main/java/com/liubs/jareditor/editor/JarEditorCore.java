@@ -14,7 +14,7 @@ import com.liubs.jareditor.compile.*;
 import com.liubs.jareditor.constant.PathConstant;
 import com.liubs.jareditor.dependency.ExtraDependencyManager;
 import com.liubs.jareditor.dependency.NestedJarDependency;
-import com.liubs.jareditor.filetree.NestedJar;
+import com.liubs.jareditor.structure.NestedJar;
 import com.liubs.jareditor.jarbuild.JarBuildResult;
 import com.liubs.jareditor.jarbuild.JarBuilder;
 import com.liubs.jareditor.sdk.ProjectDependency;

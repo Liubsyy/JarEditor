@@ -1,4 +1,4 @@
-package com.liubs.jareditor.filetree;
+package com.liubs.jareditor.structure;
 
 import com.intellij.ide.projectView.ViewSettings;
 import com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode;

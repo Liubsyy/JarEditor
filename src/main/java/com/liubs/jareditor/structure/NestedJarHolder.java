@@ -1,4 +1,4 @@
-package com.liubs.jareditor.filetree;
+package com.liubs.jareditor.structure;
 
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
