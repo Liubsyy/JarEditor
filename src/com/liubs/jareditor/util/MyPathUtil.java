@@ -85,7 +85,10 @@ public class MyPathUtil {
      */
     public static String getJarEditOutput(String classNameInJar){
         String[] split = classNameInJar.split(".jar!/");
-        if(split.length!=2) {
+        if(split.length<2) {
+            if(classNameInJar.endsWith(".jar")){
+                return classNameInJar.substring(0,classNameInJar.length()-4)+PathConstant.TEMP_SUFFIX+"/"+ PathConstant.JAR_EDIT_CLASS_PATH;
+            }
             return null;
         }
 
@@ -122,10 +125,14 @@ public class MyPathUtil {
 
 
     public static String getJarEditTemp(String classNameInJar){
+
         String[] split = classNameInJar.split(".jar!/");
-        if(split.length!=2) {
+        if(split.length<2) {
+            if(classNameInJar.endsWith(".jar")){
+                return classNameInJar.substring(0,classNameInJar.length()-4)+PathConstant.TEMP_SUFFIX;
+            }
             if(classNameInJar.endsWith(".jar!/")) {
-                return classNameInJar.replace(".jar!/",PathConstant.TEMP_SUFFIX);
+                return classNameInJar.substring(0,classNameInJar.length()-6)+PathConstant.TEMP_SUFFIX;
             }
             return null;
         }
@@ -147,7 +154,7 @@ public class MyPathUtil {
             return classNameInJar.substring(0,classNameInJar.length()-2);
         }
         String[] split = classNameInJar.split(".jar!/");
-        if(split.length!=2) {
+        if(split.length<2) {
             return null;
         }
         return split[0]+".jar";
@@ -166,6 +173,12 @@ public class MyPathUtil {
             return path.substring(lastIndex+1);
         }
         return path;
+    }
+
+
+    public static String getNestedJarPath(String filePath){
+        String jarEditTemp = getJarEditTemp(filePath);
+        return null == jarEditTemp ? null : jarEditTemp+"/"+PathConstant.NESTED_JAR_DIR;
     }
 
 

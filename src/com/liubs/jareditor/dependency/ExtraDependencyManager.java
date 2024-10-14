@@ -1,6 +1,8 @@
 package com.liubs.jareditor.dependency;
 
 import com.liubs.jareditor.constant.PathConstant;
+import com.liubs.jareditor.util.MyPathUtil;
+import com.liubs.jareditor.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,8 +15,32 @@ public class ExtraDependencyManager {
 
     private List<IDependencyHandler> dependencyHandlerList = new ArrayList<>();
 
-    public void registryNotStandardJarHandlers(){
-        dependencyHandlerList.add(new SpringBootDependency());
+
+    public String registryNotStandardJarHandlersWithPath(String packageName,String path){
+        String externalPrefix = "";
+        if(StringUtils.isNotEmpty(packageName)) {
+            String entryPathFromJar = MyPathUtil.getEntryPathFromJar(path);
+            String packagePath = packageName.replace(".", "/");
+            if(null != entryPathFromJar && !entryPathFromJar.startsWith(packagePath) ) {
+                // 形如 /opt/TestDemo.jar!/BOOT-INF/classes/com/liubs/web/Test.class
+                int i = entryPathFromJar.indexOf(packagePath);
+                if(i > -1) {
+                    externalPrefix = entryPathFromJar.substring(0,i);
+                    if(!externalPrefix.startsWith("/")) {
+                        externalPrefix  = "/"+externalPrefix;
+                    }
+                    registryNotStandardJarHandlersDefault();
+                }
+            }
+        }
+        return externalPrefix;
+    }
+
+    public void registryNotStandardJarHandlersDefault(){
+        this.registryNotStandardJarHandler(new SpringBootDependency());
+    }
+    public void registryNotStandardJarHandler(IDependencyHandler dependencyHandler){
+        dependencyHandlerList.add(dependencyHandler);
     }
 
     public List<String> handleAndGetDependencyPaths(String jarPath, String tempPath){
@@ -27,12 +53,15 @@ public class ExtraDependencyManager {
         return result;
     }
 
-    public String filterPackage(String filePath, String packageName){
+    public String replacePackage(String filePath, String packageName){
         for(IDependencyHandler c: dependencyHandlerList) {
-            packageName = c.filter(filePath,packageName);
+            packageName = c.replacePackage(filePath,packageName);
         }
 
         return packageName;
     }
+
+
+
 
 }

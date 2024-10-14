@@ -11,7 +11,10 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.PathUtil;
 import com.liubs.jareditor.compile.*;
+import com.liubs.jareditor.constant.PathConstant;
 import com.liubs.jareditor.dependency.ExtraDependencyManager;
+import com.liubs.jareditor.dependency.NestedJarDependency;
+import com.liubs.jareditor.structure.NestedJar;
 import com.liubs.jareditor.jarbuild.JarBuildResult;
 import com.liubs.jareditor.jarbuild.JarBuilder;
 import com.liubs.jareditor.sdk.ProjectDependency;
@@ -24,12 +27,14 @@ import com.liubs.jareditor.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.jar.JarEntry;
 
 /**
  * 核心功能
@@ -40,11 +45,13 @@ public class JarEditorCore {
     private final Project project;
     private final VirtualFile file;
     private final Editor editor;
+    private NestedJar nestedJar;
 
     public JarEditorCore(Project project, VirtualFile file, Editor editor) {
         this.project = project;
         this.file = file;
         this.editor = editor;
+        this.nestedJar = new NestedJar(file.getPath());
     }
 
 
@@ -103,33 +110,28 @@ public class JarEditorCore {
 
     public void compileCode(String sdkHome, String targetVersion) {
 
+        String srcCode = editor.getDocument().getText();
+
         // 存储类路径依赖的集合
         Set<String> classpaths = new HashSet<>();
 
-        ExtraDependencyManager extraDependency = new ExtraDependencyManager();
 
-        String srcCode = editor.getDocument().getText();
-        String packageName = JavaFileUtil.extractPackageName(srcCode);
+        //非标准jar的classpath，比如SpringBoot
+        ExtraDependencyManager extraDependency = new ExtraDependencyManager();
         String externalPrefix = "";
-        if(StringUtils.isNotEmpty(packageName)) {
-            String entryPathFromJar = MyPathUtil.getEntryPathFromJar(file.getPath());
-            String packagePath = packageName.replace(".", "/");
-            if(null != entryPathFromJar && !entryPathFromJar.startsWith(packagePath) ) {
-                // /opt/TestDemo.jar!/BOOT-INF/classes/com/liubs/web/Test.class
-                int i = entryPathFromJar.indexOf(packagePath);
-                if(i > -1) {
-                    externalPrefix = entryPathFromJar.substring(0,i);
-                    if(!externalPrefix.startsWith("/")) {
-                        externalPrefix  = "/"+externalPrefix;
-                    }
-                    extraDependency.registryNotStandardJarHandlers();
-                }
-            }
+        if(nestedJar.isNested()) {
+            extraDependency.registryNotStandardJarHandler(new NestedJarDependency(nestedJar));
+        }else {
+            externalPrefix = extraDependency.registryNotStandardJarHandlersWithPath(
+                    JavaFileUtil.extractPackageName(srcCode), file.getPath());
         }
         List<String> extraPaths = extraDependency.handleAndGetDependencyPaths( MyPathUtil.getJarPathFromJar(file.getPath()), MyPathUtil.getJarEditTemp(file.getPath()));
         classpaths.addAll(extraPaths);
 
-        ProjectDependency.getDependentLib(project).forEach(c-> classpaths.add(PathUtil.getLocalPath(c.getPath())));
+
+        //工程依赖库添加为classpath
+        ProjectDependency.getDependentLib(project)
+                .forEach(c-> classpaths.add(PathUtil.getLocalPath(c.getPath())));
 
 
         //编译器
@@ -212,7 +214,109 @@ public class JarEditorCore {
             return;
         }
 
-        buildJar0(callBack);
+        if(nestedJar.isNested()) {
+            List<NestedJar> nestedJars = nestedJar.listDepthJars();
+            String[] comboOptions = nestedJars.stream().map(c->{
+                int i = c.getCurrentPath().lastIndexOf("/");
+                if(i<=0){
+                    return c.getCurrentPath();
+                }
+                return c.getCurrentPath().substring(i+1);
+            }).toArray(String[]::new);
+            BuildJarSelection dialog = new BuildJarSelection(comboOptions);
+            if(dialog.showAndGet()){
+                int selectedIndex = dialog.getSelectedJar();
+
+                /**
+                 * 嵌套jar压缩方式
+                 * 嵌套jar往往是STORED方式（非压缩方式），可参考SpringBoot中的org.springframework.boot.loader.jar.JarFile#createJarFileFromFileEntry
+                 * 亲测修改过的SpringBoot嵌套jar可以正常启动并且已生效
+                 */
+                int nestedJarEntryMethod = dialog.getSelectedMethod();
+
+                ProgressManager.getInstance().run(new Task.Backgroundable(null, "Jar building...", true) {
+                    @Override
+                    public void run(@NotNull ProgressIndicator progressIndicator) {
+
+                        try {
+                            JarBuildResult jarBuildResult = null;
+                            for(int i = 0; i <= selectedIndex ;i++) {
+                                //一层一层构建jar
+                                String jarPath = nestedJars.get(i).getCurrentPath();
+                                String jarEditOutput = MyPathUtil.getJarEditOutput(jarPath);
+                                JarBuilder jarBuilder = new JarBuilder(jarEditOutput , jarPath);
+
+                                jarBuildResult = jarBuilder.writeJar(false, (jarEditOutDir, tempJarOutputStream) -> {
+                                    try {
+                                        Files.walk(jarEditOutDir)
+                                                .filter(Files::isRegularFile)
+                                                .forEach(path -> {
+                                                    String jarEntryName = jarEditOutDir.relativize(path).toString().replace("\\", "/");
+                                                    try {
+                                                        if(path.toString().endsWith(".jar") && nestedJarEntryMethod == JarEntry.STORED) {
+                                                            byte[] fileBytes = Files.readAllBytes(path);
+                                                            JarEntry newEntry = JarBuilder.createStoredEntry(jarEntryName,fileBytes);
+                                                            tempJarOutputStream.putNextEntry(newEntry);
+                                                            tempJarOutputStream.write(fileBytes);
+                                                            tempJarOutputStream.closeEntry();
+                                                        }else {
+                                                            tempJarOutputStream.putNextEntry(new JarEntry(jarEntryName));
+                                                            Files.copy(path, tempJarOutputStream);
+                                                            tempJarOutputStream.closeEntry();
+                                                        }
+                                                    } catch (IOException e) {
+                                                        System.err.println("Error adding/updating class: " + jarEntryName);
+                                                        e.printStackTrace();
+                                                    }
+                                                });
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                });
+
+                                if(jarBuildResult.isSuccess()) {
+                                    if(i == selectedIndex && selectedIndex == nestedJars.size()-1){
+                                        //删除临时保存的目录
+                                        MyFileUtil.deleteDir(MyPathUtil.getJarEditTemp(jarPath));
+                                    }else {
+                                        //拷贝生成的jar到父层的jar_edit_out目录
+                                        String parentJarTemp = MyPathUtil.getJarEditTemp(nestedJar.getParentPath());
+                                        String relaPath = jarPath.replace(parentJarTemp, "")
+                                                .replaceFirst(PathConstant.NESTED_JAR_DIR, PathConstant.JAR_EDIT_CLASS_PATH);
+                                        String parentDestinationPath = Paths.get(parentJarTemp, relaPath).toString();
+                                        File destinationFile = new File(parentDestinationPath);
+                                        destinationFile.getParentFile().mkdirs();
+
+                                        Files.copy(Paths.get(jarPath) ,Paths.get(parentDestinationPath), StandardCopyOption.REPLACE_EXISTING);
+                                    }
+
+                                    ApplicationManager.getApplication().invokeLater(() -> {
+                                        file.refresh(false,true);
+                                        VirtualFileManager.getInstance().refreshWithoutFileWatcher(true);
+                                    });
+                                    if(i == selectedIndex) {
+                                        NoticeInfo.info("Build jar successfully!");
+                                    }
+                                }else {
+                                    NoticeInfo.error("Build jar err: \n%s",jarBuildResult.getErr());
+                                    break;
+                                }
+                            }
+
+                            if(null != callBack && null != jarBuildResult) {
+                                callBack.accept(jarBuildResult);
+                            }
+                        } catch (Exception e) {
+                            NoticeInfo.error("Build jar err:%s",e.getMessage());
+                        }
+
+                    }
+                });
+            }
+        }else {
+            buildJar0(callBack);
+        }
+
     }
 
     private void buildJar0(Consumer<JarBuildResult> callBack){

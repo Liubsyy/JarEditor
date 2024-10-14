@@ -181,7 +181,7 @@ public class JarUtil {
         }
     }
 
-    private static void createFile(JarFile jarFile,JarEntry entry, Path destinationPath) throws IOException {
+    public static void createFile(JarFile jarFile,JarEntry entry, Path destinationPath) throws IOException {
         if (entry.isDirectory()) {
             Files.createDirectories(destinationPath);
         } else {

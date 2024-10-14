@@ -21,7 +21,6 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.testFramework.LightVirtualFile;
-import com.intellij.util.PsiErrorElementUtil;
 import com.liubs.jareditor.decompile.MyDecompiler;
 import com.liubs.jareditor.jarbuild.JarBuildResult;
 import com.liubs.jareditor.persistent.SDKSettingStorage;
@@ -30,7 +29,6 @@ import com.liubs.jareditor.sdk.NoticeInfo;
 import com.liubs.jareditor.sdk.SDKSettingDialog;
 import com.liubs.jareditor.template.TemplateManager;
 import com.liubs.jareditor.constant.ClassVersion;
-import com.liubs.jareditor.util.CommandTools;
 import com.liubs.jareditor.util.MyPathUtil;
 import com.liubs.jareditor.util.StringUtils;
 import org.jetbrains.annotations.NonNls;
@@ -51,7 +49,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -261,25 +258,10 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
             public void mouseClicked(MouseEvent e) {
                 SDKSettingDialog dialog = new SDKSettingDialog();
                 if(dialog.showAndGet()){
-                    //持久化
-                    SDKSettingStorage.getInstance().setMySdks(dialog.getAllItems());
-                    SDKSettingStorage.getInstance().setGenDebugInfos(dialog.getGenDebugInfo());
-
-                    //刷新最高jdk版本
-                    int maxJavaVersion = SDKSettingStorage.getInstance().getMySdks().parallelStream().map(sdk->{
-                        try{
-                            String javacVersion = CommandTools.exec(sdk.getPath()+"/bin/javac","-version");
-                            if(null != javacVersion) {
-                                return JavacToolProvider.parseJavaVersion(javacVersion);
-                            }
-                        }catch (Throwable ex){}
-                        return 8;
-                    }).max(Integer::compareTo).orElse(8);
-                    maxJavaVersion = Math.max(maxJavaVersion,JavacToolProvider.parseJavaVersion(System.getProperty("java.version"))); //当前IDEA运行的java版本
-
-                    SDKSettingStorage.getInstance().setMaxJavaVersion(maxJavaVersion);
-
                     initSDKComboBox();
+                    if(dialog.isDecompiledChanged()) {
+                        resetEditorContent();
+                    }
                 }
             }
         });
@@ -363,16 +345,7 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
     }
 
     public static String getDecompiledText(Project project, VirtualFile file) {
-        PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
-        if (psiFile != null && !PsiErrorElementUtil.hasErrors(project, file)) {
-            if(Objects.equals(file.getExtension(), "class")
-                    && !"java".equalsIgnoreCase(psiFile.getLanguage().getDisplayName())) {
-                String decompileText = MyDecompiler.decompileText(file);
-                return StringUtils.isEmpty(decompileText) ? psiFile.getText() : decompileText;
-            }
-            return psiFile.getText(); //default decompiled text;
-        }
-        return "";
+        return MyDecompiler.getDecompiledText(project,file);
     }
 
 
@@ -392,7 +365,7 @@ public class MyJarEditor extends UserDataHolderBase implements FileEditor {
         jarEditorCore.buildJar(callBack);
     }
 
-    public void cancelChanges() {
+    public void resetEditorContent() {
         String decompiledText = getDecompiledText(project, file);
         Document document = editor.getDocument();
 

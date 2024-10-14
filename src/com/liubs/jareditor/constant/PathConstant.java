@@ -31,4 +31,7 @@ public interface PathConstant {
     //导出source jar默认后缀
     String EXPORT_SOURCE_NAME_SUFFIX = "-sources-export.jar";
 
+    //嵌套jar临时目录
+    String NESTED_JAR_DIR = "jar_nested";
+
 }

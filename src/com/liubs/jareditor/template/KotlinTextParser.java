@@ -20,8 +20,8 @@ public class KotlinTextParser implements ITextParser{
         String packageName = lastPoint>0 ? classNameFromJar.substring(0,lastPoint) : "";
 
         ExtraDependencyManager extraDependencyManager = new ExtraDependencyManager();
-        extraDependencyManager.registryNotStandardJarHandlers();
-        packageName = extraDependencyManager.filterPackage(filePath,packageName);
+        extraDependencyManager.registryNotStandardJarHandlersDefault();
+        packageName = extraDependencyManager.replacePackage(filePath,packageName);
 
         packageName = packageName.isEmpty() ? packageName : ("package "+packageName);
         return new String[]{packageName};

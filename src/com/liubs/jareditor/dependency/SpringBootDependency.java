@@ -29,7 +29,6 @@ import java.util.jar.JarFile;
  */
 public class SpringBootDependency implements IDependencyHandler{
 
-
     @Override
     public List<String> dependentClassPaths(String jarPath, String dependencyRootPath) {
         List<String> copiedFiles = new ArrayList<>();
@@ -68,7 +67,7 @@ public class SpringBootDependency implements IDependencyHandler{
     }
 
     @Override
-    public String filter(String filePath, String packageName) {
+    public String replacePackage(String filePath, String packageName) {
         if(filePath.contains("BOOT-INF/classes/")) {
             return packageName.replace("BOOT-INF.classes.", "");
         }

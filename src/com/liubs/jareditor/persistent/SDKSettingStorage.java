@@ -33,6 +33,12 @@ public class SDKSettingStorage implements PersistentStateComponent<SDKSettingSto
     //最大的jdk版本，1，2，3，4...21，对应1.1, 1.2, 1.3 ... 21
     private int maxJavaVersion;
 
+    /**
+     *  反编译工具
+     *  @see com.liubs.jareditor.decompile.DecompiledEnum
+     */
+    private int decompiledTool;
+
     @Nullable
     @Override
     public SDKSettingStorage getState() {
@@ -88,6 +94,15 @@ public class SDKSettingStorage implements PersistentStateComponent<SDKSettingSto
 
     public void setMaxJavaVersion(int maxJavaVersion) {
         this.maxJavaVersion = maxJavaVersion;
+    }
+
+
+    public int getDecompiledTool() {
+        return decompiledTool;
+    }
+
+    public void setDecompiledTool(int decompiledTool) {
+        this.decompiledTool = decompiledTool;
     }
 
     @Tag("item")

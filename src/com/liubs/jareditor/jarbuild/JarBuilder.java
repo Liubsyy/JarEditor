@@ -36,6 +36,9 @@ public class JarBuilder {
     }
 
     public JarBuildResult writeJar(boolean compareEntry) {
+        return writeJar(compareEntry,null);
+    }
+    public JarBuildResult writeJar(boolean compareEntry,ChangedItemCallBack changedItemCallBack) {
 
         JarBuildResult jarBuildResult;
         File tempJarFile = null;
@@ -64,7 +67,12 @@ public class JarBuilder {
                  JarOutputStream tempJarOutputStream = new JarOutputStream(new FileOutputStream(tempJarFile))) {
 
                 copyExistingEntries(originalJar, tempJarOutputStream, classDirPath);
-                addOrUpdateClasses(classDirPath, tempJarOutputStream);
+                if(null == changedItemCallBack) {
+                    addOrUpdateClasses(classDirPath, tempJarOutputStream);
+                }else {
+                    changedItemCallBack.writeStream(classDirPath,tempJarOutputStream);
+                }
+
             }
 
             // 将临时 JAR 文件内容写回目标 JAR 文件
@@ -292,6 +300,19 @@ public class JarBuilder {
 
     }
 
+    public static JarEntry createStoredEntry(String newEntryName,byte[] fileBytes) throws IOException {
+        JarEntry newEntry = new JarEntry(newEntryName);
+        newEntry.setMethod(JarEntry.STORED);
+        newEntry.setSize(fileBytes.length);
+        newEntry.setCompressedSize(fileBytes.length);
+
+        // Calculate CRC32 and size for the entry (required for STORE method)
+        CRC32 crc = new CRC32();
+        crc.update(fileBytes);
+        newEntry.setCrc(crc.getValue());
+        return newEntry;
+    }
+
     public JarEntry copyNewEntry(JarFile originalJar,JarEntry entry, String newEntryName) throws IOException {
 
         JarEntry newEntry = new JarEntry(newEntryName);
@@ -442,6 +463,68 @@ public class JarBuilder {
             jarBuildResult = new JarBuildResult(true, null);
         } catch (IOException e) {
             jarBuildResult = new JarBuildResult(false, "Write jar failed: " + ExceptionUtil.getExceptionTracing(e));
+        }
+        return jarBuildResult;
+    }
+
+    public JarBuildResult setCompressionMethod(String entryName, int method) {
+        JarBuildResult jarBuildResult;
+        File tempJarFile = null;
+        try {
+            tempJarFile = Files.createTempFile("tempJar", ".jar").toFile();
+            try (JarFile originalJar = new JarFile(jarFile);
+                JarOutputStream tempJarOutputStream = new JarOutputStream(new FileOutputStream(tempJarFile))) {
+
+                Enumeration<JarEntry> entries = originalJar.entries();
+                while (entries.hasMoreElements()) {
+                    JarEntry entry = entries.nextElement();
+                    if(entryName.equals(entry.getName())){
+                        if(method == JarEntry.STORED){
+                            ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+                            try (InputStream entryInputStream = originalJar.getInputStream(entry)) {
+                                byte[] buffer = new byte[1024];
+                                int bytesRead;
+                                while ((bytesRead = entryInputStream.read(buffer)) != -1) {
+                                    byteStream.write(buffer, 0, bytesRead);
+                                }
+                            }
+                            byte[] entryBytes = byteStream.toByteArray();
+                            JarEntry newEntry = createStoredEntry(entryName,entryBytes);
+                            tempJarOutputStream.putNextEntry(newEntry);
+                            tempJarOutputStream.write(entryBytes);
+                        }else {
+                            // 直接用DEFLATED方式复制数据
+                            tempJarOutputStream.putNextEntry(new JarEntry(entryName));
+                            try (InputStream entryInputStream = originalJar.getInputStream(entry)) {
+                                byte[] buffer = new byte[1024];
+                                int bytesRead;
+                                while ((bytesRead = entryInputStream.read(buffer)) != -1) {
+                                    tempJarOutputStream.write(buffer, 0, bytesRead);
+                                }
+                            }
+                        }
+                    }else {
+                        JarEntry newEntry = copyNewEntry(originalJar,entry);
+                        tempJarOutputStream.putNextEntry(newEntry);
+                        try (InputStream entryInputStream = originalJar.getInputStream(entry)) {
+                            byte[] buffer = new byte[1024];
+                            int bytesRead;
+                            while ((bytesRead = entryInputStream.read(buffer)) != -1) {
+                                tempJarOutputStream.write(buffer, 0, bytesRead);
+                            }
+                        }
+                    }
+                    tempJarOutputStream.closeEntry();
+                }
+            }
+            writeTargetJar(tempJarFile);
+            jarBuildResult = new JarBuildResult(true, null);
+        } catch (IOException e) {
+            jarBuildResult = new JarBuildResult(false, "Build jar failed: " + ExceptionUtil.getExceptionTracing(e));
+        } finally {
+            if (tempJarFile != null && tempJarFile.exists()) {
+                tempJarFile.delete(); // 删除临时文件
+            }
         }
         return jarBuildResult;
     }

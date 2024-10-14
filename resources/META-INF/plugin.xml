@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.liubs.jaredit</id>
   <name>JarEditor</name>
-  <version>2.1.3</version>
+  <version>2.1.5</version>
   <vendor email="Liubsyy@gmail.com" url="https://github.com/Liubsyy/JarEditor">Liubsyy</vendor>
 
   <description><![CDATA[
@@ -14,10 +14,11 @@
         <li>Add/Delete/Rename file/directory in jar</li>
         <li>Search the contents of the jar package</li>
         <li>Copy/Paste file/directory to/from clipboard</li>
-        <li>Support SpringBoot jar</li>
+        <li>Support SpringBoot jar/Nested jar</li>
         <li>Support kotlin</li>
         <li>Export source jar</li>
         <li>Support class bytes tool : javassist</li>
+        <li>Decompilers : Fernflower/CFR/Procyon </li>
     </ul>
 
     ]]></description>
@@ -30,6 +31,9 @@
         <li>Rename: Refactor package/class</li>
         <li>Added search options within jar: Match Case/Words/Regex</li>
         <li>Javassist Tool: support static code and inner classes</li>
+        <li>Decompilers : Fernflower/CFR/Procyon</li>
+        <li>Support nested jar</li>
+        <li>Compression method can be changed</li>
 
 
       </ul>
@@ -79,19 +83,21 @@
 
 
   <extensions defaultExtensionNs="com.intellij">
-    <fileEditorProvider implementation="com.liubs.jareditor.editor.MyFileEditorProvider"/>
+      <fileEditorProvider implementation="com.liubs.jareditor.editor.MyFileEditorProvider"/>
+      <treeStructureProvider implementation="com.liubs.jareditor.structure.JarTreeStructureProvider"/>
 
-    <notificationGroup id="JarEditorNotice"
+      <notificationGroup id="JarEditorNotice"
                        isLogByDefault="true"
                        displayType="BALLOON"/>
 
-    <applicationService serviceImplementation="com.liubs.jareditor.persistent.SDKSettingStorage"/>
-
-    <!-- EditorNotifications.Provider 2022.1 废弃API
-    <editorNotificationProvider implementation="com.liubs.jareditor.editor.MyEditorNotification"/>
-    -->
+      <projectService serviceImplementation="com.liubs.jareditor.structure.NestedJarHolder"/>
+      <applicationService serviceImplementation="com.liubs.jareditor.persistent.SDKSettingStorage"/>
 
   </extensions>
+
+    <projectListeners>
+        <listener class="com.liubs.jareditor.structure.NestedJarChangedListener" topic="com.intellij.openapi.vfs.newvfs.BulkFileListener"/>
+    </projectListeners>
 
   <actions>
 
@@ -115,6 +121,12 @@
 
           <group id="jarEditorExport"  text="Export" description="Export" popup="true">
               <action id="jarEditorExportSourceJar" class="com.liubs.jareditor.action.JarEditorExportSourceJar" text="Source Jar" description="Source jar"/>
+          </group>
+
+          <group id="Structure"  text="Structure" description="Structure" popup="true">
+              <action id="ExpandNestedJarAction" class="com.liubs.jareditor.action.ExpandNestedJarAction" text="Expand Nested Jar" description="Nested Nested Jar" />
+              <action id="RefreshFileTree" class="com.liubs.jareditor.action.RefreshFileTree" text="Refresh File Tree" description="Refresh File Tree" />
+              <action id="CompressionMethod" class="com.liubs.jareditor.action.CompressionMethod" text="Compression Method" description="Compression Method"/>
           </group>
 
           <action id="jarEditorSearch" class="com.liubs.jareditor.action.JarEditorSearch" text="Search" description="Search" icon="AllIcons.Actions.Search"/>
