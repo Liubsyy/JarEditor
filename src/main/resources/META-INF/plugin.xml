@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.liubs.jaredit</id>
   <name>JarEditor</name>
-  <version>2.1.4</version>
+  <version>2.1.5</version>
   <vendor email="Liubsyy@gmail.com" url="https://github.com/Liubsyy/JarEditor">Liubsyy</vendor>
 
   <description><![CDATA[
@@ -14,7 +14,7 @@
         <li>Add/Delete/Rename file/directory in jar</li>
         <li>Search the contents of the jar package</li>
         <li>Copy/Paste file/directory to/from clipboard</li>
-        <li>Support SpringBoot jar</li>
+        <li>Support SpringBoot jar/Nested jar</li>
         <li>Support kotlin</li>
         <li>Export source jar</li>
         <li>Support class bytes tool : javassist</li>
@@ -32,6 +32,8 @@
         <li>Added search options within jar: Match Case/Words/Regex</li>
         <li>Javassist Tool: support static code and inner classes</li>
         <li>Decompilers : Fernflower/CFR/Procyon</li>
+        <li>Support nested jar</li>
+        <li>Compression method can be changed</li>
 
 
       </ul>
