@@ -280,7 +280,7 @@ public class JarEditorCore {
                                         MyFileUtil.deleteDir(MyPathUtil.getJarEditTemp(jarPath));
                                     }else {
                                         //拷贝生成的jar到父层的jar_edit_out目录
-                                        String parentJarTemp = MyPathUtil.getJarEditTemp(nestedJar.getParentPath());
+                                        String parentJarTemp = MyPathUtil.getJarEditTemp(nestedJars.get(i).getParentPath());
                                         String relaPath = jarPath.replace(parentJarTemp, "")
                                                 .replaceFirst(PathConstant.NESTED_JAR_DIR, PathConstant.JAR_EDIT_CLASS_PATH);
                                         String parentDestinationPath = Paths.get(parentJarTemp, relaPath).toString();
