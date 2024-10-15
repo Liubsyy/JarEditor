@@ -109,6 +109,7 @@
               <action id="jarEditorAddKotlinFile" class="com.liubs.jareditor.action.JarEditorAddKotlinFile" text="Kotlin" description="NewKotlin" icon="MyIcons.KOTLIN_CLASS" />
               <action id="jarEditorAddResourceFile" class="com.liubs.jareditor.action.JarEditorAddResourceFile" text="File" description="NewFile" icon="AllIcons.FileTypes.Any_type" />
               <action id="jarEditorAddDirectory" class="com.liubs.jareditor.action.JarEditorAddDirectory" text="Directory" description="NewDirectory" icon="AllIcons.Nodes.Folder" />
+              <action id="jarEditorAddManifest" class="com.liubs.jareditor.action.JarEditorAddManifest" text="MANIFEST.MF" description="MANIFEST.MF" icon="AllIcons.FileTypes.Manifest" />
           </group>
 
           <action id="jarEditorDeleteFiles" class="com.liubs.jareditor.action.JarEditorDeleteFiles" text="Delete" description="Delete"/>
@@ -125,8 +126,8 @@
 
           <group id="Structure"  text="Structure" description="Structure" popup="true">
               <action id="ExpandNestedJarAction" class="com.liubs.jareditor.action.ExpandNestedJarAction" text="Expand Nested Jar" description="Expand Nested Jar" />
-              <action id="RefreshFileTree" class="com.liubs.jareditor.action.RefreshFileTree" text="Refresh File Tree" description="Refresh File Tree" />
               <action id="CompressionMethod" class="com.liubs.jareditor.action.CompressionMethod" text="Compression Method" description="Compression Method"/>
+              <action id="RefreshFileTree" class="com.liubs.jareditor.action.RefreshFileTree" text="Refresh File Tree" description="Refresh File Tree" />
           </group>
 
           <action id="jarEditorSearch" class="com.liubs.jareditor.action.JarEditorSearch" text="Search" description="Search" icon="AllIcons.Actions.Search"/>
