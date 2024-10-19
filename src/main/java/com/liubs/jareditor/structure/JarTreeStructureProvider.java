@@ -10,6 +10,7 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiManager;
+import com.liubs.jareditor.bean.OpenedNestedJars;
 import com.liubs.jareditor.util.MyPathUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,7 +38,7 @@ public class JarTreeStructureProvider implements TreeStructureProvider {
             return children;
         }
 
-        NestedJarHolder nestedJarHolder = NestedJarHolder.getInstance(project);
+        OpenedNestedJars openedNestedJars = OpenedNestedJars.getInstance(project);
 
 
         List<AbstractTreeNode<?>> newChildren = new ArrayList<>();
@@ -62,7 +63,7 @@ public class JarTreeStructureProvider implements TreeStructureProvider {
                                 final PsiDirectory psiDir = psiManager.findDirectory(nestedJarVirtualFile);
                                 if(null != psiDir) {
                                     newChildren.add(new NestedJarDirNode(nestedJarVirtualFile,project,psiDir,settings));
-                                    nestedJarHolder.addExpandPath(destinationPath.toString());
+                                    openedNestedJars.addExpandPath(destinationPath.toString());
 
                                     isEffectNestedJar = true;
                                 }

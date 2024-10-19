@@ -6,6 +6,7 @@ import com.intellij.openapi.vfs.newvfs.BulkFileListener;
 import com.intellij.openapi.vfs.newvfs.events.VFileDeleteEvent;
 import com.intellij.openapi.vfs.newvfs.events.VFileEvent;
 import com.intellij.util.PathUtil;
+import com.liubs.jareditor.bean.OpenedNestedJars;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -25,8 +26,8 @@ public class NestedJarChangedListener implements BulkFileListener {
     @Override
     public void after(@NotNull List<? extends VFileEvent> events) {
 
-        NestedJarHolder nestedJarHolder = NestedJarHolder.getInstance(project);
-        if(null == nestedJarHolder) {
+        OpenedNestedJars openedNestedJars = OpenedNestedJars.getInstance(project);
+        if(null == openedNestedJars) {
             return;
         }
         boolean refreshFileTree = false;
@@ -35,8 +36,8 @@ public class NestedJarChangedListener implements BulkFileListener {
             //如果删除了嵌套jar的目标路径，重新刷新一下文件树
             if(vFileEvent instanceof VFileDeleteEvent) {
                 String localPath = PathUtil.getLocalPath(vFileEvent.getPath());
-                if(nestedJarHolder.containsPath(localPath)){
-                    nestedJarHolder.removeExpandPath(localPath);
+                if(openedNestedJars.containsPath(localPath)){
+                    openedNestedJars.removeExpandPath(localPath);
                     refreshFileTree = true;
                     break;
                 }
