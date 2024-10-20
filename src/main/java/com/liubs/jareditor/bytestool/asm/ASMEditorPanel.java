@@ -150,9 +150,13 @@ public class ASMEditorPanel extends JPanel {
                             InsnNode insn = (InsnNode) currentInsn;
                             stringBuilder.append(Printer.OPCODES[insn.getOpcode()].toLowerCase());
                         } else if (currentInsn instanceof FrameNode) {
-                            FrameNode frame = (FrameNode) currentInsn;
-                            stringBuilder.append("FrameNode后面待定...");
+//                            FrameNode frame = (FrameNode) currentInsn;
+//                            stringBuilder.append("FrameNode后面待定...");
+                            continue;
                         } else if (currentInsn instanceof LabelNode) {
+                            if(!instructions.hasNext()){
+                                continue;
+                            }
                             LabelNode label = (LabelNode) currentInsn;
                             labelCount.computeIfAbsent(label, key -> labelCount.size());
                             markLines.add(new int[]{lineCount,markLines.size(),0 });
