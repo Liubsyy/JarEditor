@@ -1,4 +1,4 @@
-package com.liubs.jareditor.bytestool.asm.instn;
+package com.liubs.jareditor.bytestool.asm.ui;
 
 import com.intellij.ui.JBColor;
 
@@ -19,10 +19,10 @@ public class TextIcon implements Icon {
     public TextIcon(String text) {
         this.text = text;
         this.font = new Font("Arial", Font.BOLD, 12); // 您可以根据需要调整字体
-        this.textColor = JBColor.foreground(); // 使用当前主题的前景色
+        this.textColor = JBColor.GREEN;
 
         // 计算图标的宽度和高度
-        FontMetrics metrics = Toolkit.getDefaultToolkit().getFontMetrics(font);
+        FontMetrics metrics = new JLabel().getFontMetrics(font);
         this.width = metrics.stringWidth(text);
         this.height = metrics.getHeight();
     }

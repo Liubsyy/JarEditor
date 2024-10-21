@@ -1,22 +1,22 @@
-package com.liubs.jareditor.bytestool.asm;
+package com.liubs.jareditor.bytestool.asm.service;
 
 import com.intellij.openapi.project.Project;
 
+import com.liubs.jareditor.bytestool.asm.tree.InterfaceTreeNode;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 
 import java.io.ByteArrayInputStream;
+import java.util.List;
 
 /**
  * @author Liubsyy
  * @date 2024/10/19
  */
-public class ASMClassModel {
-    private Project project;
+public class ASMClassService {
     private ClassNode classNode;
 
-    public ASMClassModel(Project project, byte[] bytes) {
-        this.project = project;
+    public ASMClassService(byte[] bytes) {
 
         try ( ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes)) {
             ClassReader reader = new ClassReader(inputStream);
@@ -30,4 +30,5 @@ public class ASMClassModel {
     public ClassNode getClassNode() {
         return classNode;
     }
+
 }

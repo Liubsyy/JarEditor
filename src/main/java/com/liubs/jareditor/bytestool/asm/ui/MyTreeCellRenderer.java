@@ -1,6 +1,7 @@
-package com.liubs.jareditor.bytestool.asm.tree;
+package com.liubs.jareditor.bytestool.asm.ui;
 
 import com.intellij.icons.AllIcons;
+import com.liubs.jareditor.bytestool.asm.tree.BaseTreeNode;
 
 import javax.swing.*;
 import java.awt.*;

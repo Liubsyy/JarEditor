@@ -95,8 +95,6 @@
 
       <applicationService serviceImplementation="com.liubs.jareditor.persistent.SDKSettingStorage"/>
 
-      <annotator language="MyLanguageID" implementationClass="com.liubs.jareditor.bytestool.asm.MyASMAnnotator"/>
-
   </extensions>
 
     <projectListeners>
