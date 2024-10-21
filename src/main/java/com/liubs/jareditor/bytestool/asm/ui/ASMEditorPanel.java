@@ -5,7 +5,7 @@ import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBScrollPane;
-import com.liubs.jareditor.bytestool.asm.service.ASMClassService;
+import com.liubs.jareditor.bytestool.asm.aggregate.MyAssemblyClass;
 import com.liubs.jareditor.bytestool.asm.tree.*;
 
 import javax.swing.*;
@@ -25,7 +25,7 @@ public class ASMEditorPanel extends JPanel implements TreeSelectionListener{
     private Project project;
     private VirtualFile virtualFile;
 
-    private ASMClassService asmClassService;
+    private MyAssemblyClass asmClassService;
 
     private MyTree leftTree;
     private ContentPanel rightPanel;
@@ -36,7 +36,7 @@ public class ASMEditorPanel extends JPanel implements TreeSelectionListener{
 
         try {
             byte[] classBytes = VfsUtilCore.loadBytes(virtualFile);
-            asmClassService = new ASMClassService(classBytes);
+            asmClassService = new MyAssemblyClass(classBytes);
         } catch (IOException e) {
             e.printStackTrace();
         }

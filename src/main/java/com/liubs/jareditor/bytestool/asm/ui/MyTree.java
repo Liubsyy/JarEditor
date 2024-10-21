@@ -1,7 +1,8 @@
 package com.liubs.jareditor.bytestool.asm.ui;
 
 import com.intellij.ui.treeStructure.SimpleTree;
-import com.liubs.jareditor.bytestool.asm.service.ASMClassService;
+import com.liubs.jareditor.bytestool.asm.aggregate.MyAssemblyClass;
+import com.liubs.jareditor.bytestool.asm.aggregate.MyAssemblyMethod;
 import com.liubs.jareditor.bytestool.asm.tree.*;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -15,7 +16,7 @@ import java.util.List;
  */
 public class MyTree extends SimpleTree {
 
-    public void initNodes(ASMClassService asmClassService) {
+    public void initNodes(MyAssemblyClass asmClassService) {
         BaseTreeNode rootNode = new BaseTreeNode("Root");
 
         InterfaceTreeCategory interfacesNode = new InterfaceTreeCategory();
@@ -33,7 +34,7 @@ public class MyTree extends SimpleTree {
         MethodTreeCategory methodsNode = new MethodTreeCategory();
         List<MethodNode> methods = asmClassService.getClassNode().methods;
         for(MethodNode method : methods) {
-            methodsNode.add(new MethodTreeNode(method));
+            methodsNode.add(new MethodTreeNode(new MyAssemblyMethod(method)));
         }
 
         rootNode.add(interfacesNode);

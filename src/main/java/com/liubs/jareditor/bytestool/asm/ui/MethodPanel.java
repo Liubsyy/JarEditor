@@ -6,7 +6,7 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiDocumentManager;
-import com.liubs.jareditor.bytestool.asm.instn.MyInstructionInfo;
+import com.liubs.jareditor.bytestool.asm.entity.MyInstructionInfo;
 import com.liubs.jareditor.bytestool.asm.tree.MethodTreeNode;
 
 import javax.swing.*;

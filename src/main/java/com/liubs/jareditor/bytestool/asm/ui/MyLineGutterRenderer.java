@@ -7,7 +7,7 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.markup.*;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.Key;
-import com.liubs.jareditor.bytestool.asm.instn.MyInstructionInfo;
+import com.liubs.jareditor.bytestool.asm.entity.MyLineNumber;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -80,7 +80,7 @@ public class MyLineGutterRenderer extends GutterIconRenderer {
     }
 
 
-    public static void markLineLighter(Editor editor, List<MyInstructionInfo.LineNumber> lineNumberList){
+    public static void markLineLighter(Editor editor, List<MyLineNumber> lineNumberList){
 
         MarkupModel markupModel = editor.getMarkupModel();
         Document document = editor.getDocument();
@@ -97,7 +97,7 @@ public class MyLineGutterRenderer extends GutterIconRenderer {
             markupModel.removeHighlighter(highlighter);
         }
 
-        for(MyInstructionInfo.LineNumber eachLine : lineNumberList) {
+        for(MyLineNumber eachLine : lineNumberList) {
             int lineNumber = eachLine.getLineEditor();
             int lineStartOffset = document.getLineStartOffset(lineNumber);
             int lineEndOffset = document.getLineEndOffset(lineNumber);
