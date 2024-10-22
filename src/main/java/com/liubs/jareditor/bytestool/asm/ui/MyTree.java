@@ -8,6 +8,7 @@ import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
 
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 import java.util.List;
 
 /**
@@ -43,7 +44,25 @@ public class MyTree extends SimpleTree {
 
         this.setModel(new DefaultTreeModel(rootNode));
         this.setRootVisible(false);
-        // 4. 设置自定义渲染器
+        // 设置自定义渲染器
         this.setCellRenderer(new MyTreeCellRenderer());
+
+        //展开方法节点
+        expandNode(methodsNode);
+    }
+
+    // 递归展开指定的节点
+    private void expandNode(BaseTreeNode node) {
+        // 获取节点路径
+        TreePath path = new TreePath(node.getPath());
+
+        // 展开该路径
+        this.expandPath(path);
+
+        // 如果需要，可以递归展开子节点
+        for (int i = 0; i < node.getChildCount(); i++) {
+            BaseTreeNode childNode = (BaseTreeNode) node.getChildAt(i);
+            expandNode(childNode);  // 递归展开子节点
+        }
     }
 }

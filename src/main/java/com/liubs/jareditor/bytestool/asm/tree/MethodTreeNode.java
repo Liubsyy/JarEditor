@@ -3,6 +3,7 @@ package com.liubs.jareditor.bytestool.asm.tree;
 import com.intellij.icons.AllIcons;
 import com.liubs.jareditor.bytestool.asm.aggregate.MyAssemblyMethod;
 import com.liubs.jareditor.bytestool.asm.entity.MyInstructionInfo;
+import org.objectweb.asm.tree.MethodNode;
 
 import javax.swing.*;
 
@@ -25,5 +26,9 @@ public class MethodTreeNode extends BaseTreeNode{
 
     public MyInstructionInfo getInstructionInfo(){
         return assemblyMethod.buildInstructionInfo();
+    }
+
+    public MethodNode getMethodNode() {
+        return assemblyMethod.getMethodNode();
     }
 }

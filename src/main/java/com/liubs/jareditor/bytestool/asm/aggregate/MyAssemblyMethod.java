@@ -34,6 +34,9 @@ public class MyAssemblyMethod {
         return labelIndexMap;
     }
 
+    public MethodNode getMethodNode() {
+        return methodNode;
+    }
 
     public MyInstructionInfo buildInstructionInfo(){
         int lineCounter = 0;
@@ -146,6 +149,7 @@ public class MyAssemblyMethod {
         myInstructionInfo.setAssemblyCode(assmblyBuild.toString());
         myInstructionInfo.setMarkLines(markLines);
         myInstructionInfo.setFrameNodes(frameNodes);
+        myInstructionInfo.setLabelIndexMap(labelIndexMap);
 
         return myInstructionInfo;
     }

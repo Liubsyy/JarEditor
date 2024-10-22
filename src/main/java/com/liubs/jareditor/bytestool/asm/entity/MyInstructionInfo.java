@@ -1,8 +1,10 @@
 package com.liubs.jareditor.bytestool.asm.entity;
 
 import org.objectweb.asm.tree.FrameNode;
+import org.objectweb.asm.tree.LabelNode;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Liubsyy
@@ -17,6 +19,9 @@ public class MyInstructionInfo {
     private List<MyLineNumber> markLines ;
 
     private List<FrameNode> frameNodes ;
+
+    //label编号索引
+    Map<LabelNode,Integer> labelIndexMap;
 
     public String getAssemblyCode() {
         return assemblyCode;
@@ -42,5 +47,11 @@ public class MyInstructionInfo {
         this.frameNodes = frameNodes;
     }
 
+    public Map<LabelNode, Integer> getLabelIndexMap() {
+        return labelIndexMap;
+    }
 
+    public void setLabelIndexMap(Map<LabelNode, Integer> labelIndexMap) {
+        this.labelIndexMap = labelIndexMap;
+    }
 }
