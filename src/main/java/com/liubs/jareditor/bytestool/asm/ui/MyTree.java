@@ -19,9 +19,9 @@ import java.util.List;
  */
 public class MyTree extends SimpleTree {
 
-    public void initNodes(MyAssemblyClass asmClassService) {
-        BaseTreeNode rootNode = new BaseTreeNode("Root");
 
+    public BaseTreeNode initNodes(MyAssemblyClass asmClassService) {
+        BaseTreeNode rootNode = new BaseTreeNode("Root");
 
         ClassInfoTreeNode classInfoTreeNode = new ClassInfoTreeNode(asmClassService);
 
@@ -57,12 +57,16 @@ public class MyTree extends SimpleTree {
 
         this.setModel(new DefaultTreeModel(rootNode));
         this.setRootVisible(false);
+
         // 设置自定义渲染器
         this.setCellRenderer(new MyTreeCellRenderer());
 
         //展开方法节点
-        expandNode(methodsNode);
+        this.expandNode(methodsNode);
+
+        return rootNode;
     }
+
 
     // 递归展开指定的节点
     private void expandNode(BaseTreeNode node) {
@@ -77,5 +81,17 @@ public class MyTree extends SimpleTree {
             BaseTreeNode childNode = (BaseTreeNode) node.getChildAt(i);
             expandNode(childNode);  // 递归展开子节点
         }
+    }
+
+    // 选中指定的节点
+    public void selectNode(BaseTreeNode node) {
+        // 获取节点的路径
+        TreePath path = new TreePath(node.getPath());
+
+        // 设置选中路径
+        this.setSelectionPath(path);
+
+        // 确保选中的节点可见
+        this.scrollPathToVisible(path);
     }
 }

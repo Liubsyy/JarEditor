@@ -81,7 +81,7 @@ public class ASMEditor extends UserDataHolderBase implements FileEditor {
     @Override
     public void dispose() {
         try{
-
+            mainPanel.dispose();
         }catch (Throwable e) {}
 
     }

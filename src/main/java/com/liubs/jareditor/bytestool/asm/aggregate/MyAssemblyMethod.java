@@ -2,6 +2,7 @@ package com.liubs.jareditor.bytestool.asm.aggregate;
 
 import com.liubs.jareditor.bytestool.asm.entity.MyInstructionInfo;
 import com.liubs.jareditor.bytestool.asm.entity.MyLineNumber;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 import org.objectweb.asm.util.Printer;
 
@@ -75,7 +76,15 @@ public class MyAssemblyMethod {
                 assmblyBuild.append(Printer.OPCODES[intInsn.getOpcode()].toLowerCase()+" "+intInsn.operand);
             } else if (currentInsn instanceof LdcInsnNode) {
                 LdcInsnNode ldcInsn = (LdcInsnNode) currentInsn;
-                assmblyBuild.append(Printer.OPCODES[ldcInsn.getOpcode()].toLowerCase()+" "+ldcInsn.cst);
+                assmblyBuild.append(Printer.OPCODES[ldcInsn.getOpcode()].toLowerCase()).append(" ");
+                if (ldcInsn.cst instanceof String) {
+                    Printer.appendString(assmblyBuild, (String) ldcInsn.cst);
+                } else if (ldcInsn.cst instanceof Type) {
+                    assmblyBuild.append(((Type) ldcInsn.cst).getDescriptor()).append(".class");
+                } else {
+                    assmblyBuild.append(ldcInsn.cst);
+                }
+
             } else if (currentInsn instanceof VarInsnNode) {
                 VarInsnNode varInsn = (VarInsnNode) currentInsn;
                 assmblyBuild.append(Printer.OPCODES[varInsn.getOpcode()].toLowerCase()+" "+varInsn.var);

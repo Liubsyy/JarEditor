@@ -27,7 +27,7 @@ public class ASMEditorPanel extends JPanel implements TreeSelectionListener{
 
     private MyAssemblyClass asmClassService;
 
-    private MyTree leftTree;
+    private MyTree myTree;
     private ContentPanel rightPanel;
 
     public ASMEditorPanel(Project project,VirtualFile virtualFile){
@@ -45,10 +45,10 @@ public class ASMEditorPanel extends JPanel implements TreeSelectionListener{
 
 
         // 创建树
-        leftTree = new MyTree();
-        leftTree.initNodes(asmClassService);
-        leftTree.addTreeSelectionListener(this);
-        JBScrollPane treeScrollPane = new JBScrollPane(leftTree);
+        myTree = new MyTree();
+        BaseTreeNode rootNode = myTree.initNodes(asmClassService);
+        myTree.addTreeSelectionListener(this);
+        JBScrollPane treeScrollPane = new JBScrollPane(myTree);
 
         rightPanel = new ContentPanel(project);
 
@@ -77,6 +77,11 @@ public class ASMEditorPanel extends JPanel implements TreeSelectionListener{
 
         this.add(splitPane, BorderLayout.CENTER);
 
+
+        //选中ClassInfo
+        try{
+            myTree.selectNode((BaseTreeNode)rootNode.getFirstChild());
+        }catch (Throwable ex){}
     }
 
 
@@ -85,12 +90,19 @@ public class ASMEditorPanel extends JPanel implements TreeSelectionListener{
     @Override
     public void valueChanged(TreeSelectionEvent e) {
         // 获取选中的节点
-        BaseTreeNode selectedNode = (BaseTreeNode) leftTree.getLastSelectedPathComponent();
+        BaseTreeNode selectedNode = (BaseTreeNode) myTree.getLastSelectedPathComponent();
         if (selectedNode == null) return;
 
         // 获取选中的节点名称
         //String nodeName = selectedNode.getUserObject().toString();
 
         rightPanel.refresh(selectedNode);
+    }
+
+    public void dispose() {
+        if(null != rightPanel) {
+            rightPanel.dispose();
+        }
+
     }
 }

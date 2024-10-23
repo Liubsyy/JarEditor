@@ -1,5 +1,6 @@
 package com.liubs.jareditor.bytestool.asm.ui;
 
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -9,8 +10,6 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTabbedPane;
 import com.intellij.ui.table.JBTable;
-import com.intellij.util.Consumer;
-import com.intellij.util.Function;
 import com.intellij.util.ui.FormBuilder;
 import com.intellij.util.ui.JBUI;
 import com.liubs.jareditor.bytestool.asm.entity.MyInstructionInfo;
@@ -21,7 +20,6 @@ import org.objectweb.asm.tree.*;
 
 import javax.swing.*;
 import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -35,7 +33,7 @@ import java.util.stream.Collectors;
  * @author Liubsyy
  * @date 2024/10/21
  */
-public class MethodPanel extends JPanel implements IPanelRefresh<MethodTreeNode> {
+public class MethodPanel extends JPanel implements IPanelRefresh<MethodTreeNode>, Disposable {
 
     private Project project;
     private Editor editor;
@@ -246,4 +244,11 @@ public class MethodPanel extends JPanel implements IPanelRefresh<MethodTreeNode>
     }
 
 
+    @Override
+    public void dispose() {
+        try{
+            EditorFactory.getInstance().releaseEditor(editor);
+        }catch (Throwable e) {}
+
+    }
 }

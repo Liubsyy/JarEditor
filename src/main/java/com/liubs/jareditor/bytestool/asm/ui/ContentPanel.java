@@ -1,5 +1,6 @@
 package com.liubs.jareditor.bytestool.asm.ui;
 
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.liubs.jareditor.bytestool.asm.tree.*;
 
@@ -48,6 +49,14 @@ public class ContentPanel extends JPanel {
 
     }
 
+
+    public void dispose() {
+        panels.values().forEach(c->{
+            if(c instanceof Disposable) {
+                ((Disposable)c).dispose();
+            }
+        });
+    }
 
 
 
