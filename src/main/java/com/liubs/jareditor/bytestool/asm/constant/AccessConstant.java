@@ -24,7 +24,7 @@ public class AccessConstant {
     static {
         CLASS_FLAGS.put(0x0001, "public");
         CLASS_FLAGS.put(0x0010, "final");
-        CLASS_FLAGS.put(0x0020, "super");
+//        CLASS_FLAGS.put(0x0020, "super");
         CLASS_FLAGS.put(0x0200, "interface");
         CLASS_FLAGS.put(0x0400, "abstract");
         CLASS_FLAGS.put(0x1000, "synthetic");
@@ -71,5 +71,28 @@ public class AccessConstant {
         }
         return flagNames;
     }
+
+    public static List<String> getFieldsFlagNames(int accessFlag) {
+        List<String> flagNames = new ArrayList<>();
+        for (Map.Entry<Integer, String> entry : FIELD_FLAGS.entrySet()) {
+            int flag = entry.getKey();
+            if ((accessFlag & flag) != 0) {
+                flagNames.add(entry.getValue());
+            }
+        }
+        return flagNames;
+    }
+
+    public static List<String> getClassFlagNames(int accessFlag) {
+        List<String> flagNames = new ArrayList<>();
+        for (Map.Entry<Integer, String> entry : CLASS_FLAGS.entrySet()) {
+            int flag = entry.getKey();
+            if ((accessFlag & flag) != 0) {
+                flagNames.add(entry.getValue());
+            }
+        }
+        return flagNames;
+    }
+
 
 }

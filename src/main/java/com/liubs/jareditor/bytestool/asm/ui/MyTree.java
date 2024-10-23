@@ -2,9 +2,11 @@ package com.liubs.jareditor.bytestool.asm.ui;
 
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.liubs.jareditor.bytestool.asm.aggregate.MyAssemblyClass;
+import com.liubs.jareditor.bytestool.asm.aggregate.MyAssemblyField;
 import com.liubs.jareditor.bytestool.asm.aggregate.MyAssemblyMethod;
 import com.liubs.jareditor.bytestool.asm.tree.*;
 import org.objectweb.asm.tree.FieldNode;
+import org.objectweb.asm.tree.InnerClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
 import javax.swing.tree.DefaultTreeModel;
@@ -20,16 +22,25 @@ public class MyTree extends SimpleTree {
     public void initNodes(MyAssemblyClass asmClassService) {
         BaseTreeNode rootNode = new BaseTreeNode("Root");
 
+
+        ClassInfoTreeNode classInfoTreeNode = new ClassInfoTreeNode(asmClassService);
+
         InterfaceTreeCategory interfacesNode = new InterfaceTreeCategory();
         List<String> interfaces = asmClassService.getClassNode().interfaces;
         for(String e : interfaces) {
             interfacesNode.add(new InterfaceTreeNode(e));
         }
 
+        InnerClassTreeCategory innerClassTreeCategory = new InnerClassTreeCategory();
+        List<InnerClassNode> innerClasses = asmClassService.getClassNode().innerClasses;
+        for(InnerClassNode e : innerClasses) {
+            innerClassTreeCategory.add(new InnerClassTreeNode(e));
+        }
+
         FieldTreeCategory fieldsNode = new FieldTreeCategory();
         List<FieldNode> fields = asmClassService.getClassNode().fields;
         for(FieldNode fieldNode : fields) {
-            fieldsNode.add(new FieldTreeNode(fieldNode));
+            fieldsNode.add(new FieldTreeNode(new MyAssemblyField(fieldNode)));
         }
 
         MethodTreeCategory methodsNode = new MethodTreeCategory();
@@ -38,7 +49,9 @@ public class MyTree extends SimpleTree {
             methodsNode.add(new MethodTreeNode(new MyAssemblyMethod(method)));
         }
 
+        rootNode.add(classInfoTreeNode);
         rootNode.add(interfacesNode);
+        rootNode.add(innerClassTreeCategory);
         rootNode.add(fieldsNode);
         rootNode.add(methodsNode);
 

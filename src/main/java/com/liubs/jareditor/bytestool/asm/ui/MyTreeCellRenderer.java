@@ -23,7 +23,7 @@ public class MyTreeCellRenderer extends JLabel implements javax.swing.tree.TreeC
         //设置图标
         Icon icon = node.icon();
         if(icon == null){
-            icon = leaf ? AllIcons.Nodes.Folder : AllIcons.FileTypes.Any_type;
+            icon = leaf ? AllIcons.FileTypes.Any_type : AllIcons.Nodes.Folder ;
         }
         setIcon(icon);
 

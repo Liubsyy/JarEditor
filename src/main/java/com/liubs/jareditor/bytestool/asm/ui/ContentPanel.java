@@ -1,8 +1,7 @@
 package com.liubs.jareditor.bytestool.asm.ui;
 
 import com.intellij.openapi.project.Project;
-import com.liubs.jareditor.bytestool.asm.tree.BaseTreeNode;
-import com.liubs.jareditor.bytestool.asm.tree.MethodTreeNode;
+import com.liubs.jareditor.bytestool.asm.tree.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,23 +20,32 @@ public class ContentPanel extends JPanel {
     public ContentPanel(Project project) {
         setLayout(new BorderLayout());
 
+        ClassInfoPanel classInfoPanel = new ClassInfoPanel(project);
         MethodPanel methodPanel = new MethodPanel(project);
+        FieldPanel fieldPanel = new FieldPanel(project);
+        InnerClassPanel innerClassInfoPanel = new InnerClassPanel(project);
+
+        panels.put(ClassInfoTreeNode.class, classInfoPanel);
+        panels.put(FieldTreeNode.class, fieldPanel);
         panels.put(MethodTreeNode.class, methodPanel);
+        panels.put(InnerClassTreeNode.class, innerClassInfoPanel);
+
     }
 
     public void refresh(BaseTreeNode selectedNode){
         this.removeAll();
         JPanel panel = panels.get(selectedNode.getClass());
-        if(null == panel) {
-            return;
+        if(null != panel) {
+            if(panel instanceof IPanelRefresh) {
+                IPanelRefresh panelRefresh = (IPanelRefresh)panel;
+                panelRefresh.refresh(selectedNode);
+                this.add(panel);
+
+            }
         }
-        if(panel instanceof IPanelRefresh) {
-            IPanelRefresh panelRefresh = (IPanelRefresh)panel;
-            panelRefresh.refresh(selectedNode);
-            this.add(panel);
-            this.revalidate();
-            this.repaint();
-        }
+        this.revalidate();
+        this.repaint();
+
     }
 
 

@@ -17,7 +17,7 @@ public class MyAssemblyClass {
         try ( ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes)) {
             ClassReader reader = new ClassReader(inputStream);
             classNode = new ClassNode();
-            reader.accept(classNode, ClassReader.EXPAND_FRAMES);
+            reader.accept(classNode, 0);
         } catch (Exception e) {
             e.printStackTrace();
         }

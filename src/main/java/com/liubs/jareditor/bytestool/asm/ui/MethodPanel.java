@@ -9,9 +9,12 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTabbedPane;
 import com.intellij.ui.table.JBTable;
+import com.intellij.util.Consumer;
+import com.intellij.util.Function;
 import com.intellij.util.ui.FormBuilder;
 import com.intellij.util.ui.JBUI;
 import com.liubs.jareditor.bytestool.asm.entity.MyInstructionInfo;
+import com.liubs.jareditor.bytestool.asm.entity.MyLineNumber;
 import com.liubs.jareditor.bytestool.asm.tree.MethodTreeNode;
 import com.liubs.jareditor.bytestool.asm.constant.AccessConstant;
 import org.objectweb.asm.tree.*;
@@ -24,6 +27,8 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 
 /**
@@ -44,14 +49,27 @@ public class MethodPanel extends JPanel implements IPanelRefresh<MethodTreeNode>
     //desc
     private JLabel desc;
 
-    //Exception Table
-    private DefaultTableModel exceptionTable;
+    //exception declared
+    private JLabel exceptionDeclared;
+
+    private JLabel maxStack;
+    private JLabel maxLocals;
+
+    //LineNumber
+    private DefaultTableModel lineNumberTable;
 
     //LocalVariable
     private DefaultTableModel localVariableTable;
 
+    //Exception Table
+    private DefaultTableModel exceptionTable;
+
+
     //Params
     private DefaultTableModel paramsTable;
+
+    private DefaultTableModel visibleAnnotations;
+    private DefaultTableModel invisibleAnnotations;
 
 
 
@@ -67,12 +85,16 @@ public class MethodPanel extends JPanel implements IPanelRefresh<MethodTreeNode>
         access = new JLabel();
         name = new JLabel();
         desc = new JLabel();
+        exceptionDeclared = new JLabel();
+        maxStack = new JLabel();
+        maxLocals = new JLabel();
 
         JPanel baseInfo = FormBuilder.createFormBuilder()
                 .setVerticalGap(8)
                 .addLabeledComponent("Access : ", access)
                 .addLabeledComponent("Name : ", name)
                 .addLabeledComponent("Desc : ", desc)
+                .addLabeledComponent("throws : ", exceptionDeclared)
                 .getPanel();
 
         Border etchedBorder = BorderFactory.createEtchedBorder(EtchedBorder.RAISED);
@@ -82,20 +104,34 @@ public class MethodPanel extends JPanel implements IPanelRefresh<MethodTreeNode>
 
 
         exceptionTable = new DefaultTableModel(new Object[0][0],
-                new String[]{"Start", "End", "Handler","Type"});
+                new String[]{"Start", "End", "Jump(Exception)","Type"});
+
+        lineNumberTable = new DefaultTableModel(new Object[0][0],
+                new String[]{"Label", "Line Number"});
 
         localVariableTable = new DefaultTableModel(new Object[0][0],
                 new String[]{"Index", "Start", "End","Name","Desc"});
 
-        paramsTable = new DefaultTableModel(new Object[0][0],
-                new String[]{"Name", "Access"});
+        paramsTable = new DefaultTableModel(new Object[0][0], new String[]{"Name", "Access"});
+        visibleAnnotations = new DefaultTableModel(new Object[0][0], new String[]{"Desc", "Value"});
+        invisibleAnnotations = new DefaultTableModel(new Object[0][0], new String[]{"Desc", "Value"});
+
+        JPanel otherAttributePanel = FormBuilder.createFormBuilder()
+                .setVerticalGap(8)
+                .addLabeledComponent("Max Stack : ", maxStack)
+                .addLabeledComponent("Max Locals : ", maxLocals)
+                .addLabeledComponent("Parameters : ", new JBScrollPane(new JBTable(paramsTable)))
+                .addLabeledComponent("Visible Annotations : ", new JBScrollPane(new JBTable(visibleAnnotations)))
+                .addLabeledComponent("Invisible Annotations : ", new JBScrollPane(new JBTable(invisibleAnnotations)))
+                .getPanel();
 
         //tabbed pane
         JBTabbedPane tabbedPane = new JBTabbedPane();
         tabbedPane.add("Code",editor.getComponent());
-        tabbedPane.add("Exception",new JBScrollPane(new JBTable(exceptionTable)));
         tabbedPane.add("LocalVariable",new JBScrollPane(new JBTable(localVariableTable)));
-        tabbedPane.add("Params",new JBScrollPane(new JBTable(paramsTable)));
+        tabbedPane.add("Exception",new JBScrollPane(new JBTable(exceptionTable)));
+        tabbedPane.add("LineNumber",new JBScrollPane(new JBTable(lineNumberTable)));
+        tabbedPane.add("Others",otherAttributePanel);
 
         this.add(baseInfo,BorderLayout.NORTH);
         this.add(tabbedPane,BorderLayout.CENTER);
@@ -119,77 +155,90 @@ public class MethodPanel extends JPanel implements IPanelRefresh<MethodTreeNode>
 
         MethodNode methodNode = treeNode.getMethodNode();
 
-        /* 1.刷新基础信息 */
+        // 刷新基础信息和杂项信息
         access.setText(String.format("0x%04x(%s)", methodNode.access, String.join(" ",AccessConstant.getMethodFlagNames(methodNode.access))));
         name.setText(methodNode.name);
         desc.setText(methodNode.desc);
+        exceptionDeclared.setText(String.join(",",methodNode.exceptions));
+        maxStack.setText(String.valueOf(methodNode.maxStack));
+        maxLocals.setText(String.valueOf(methodNode.maxLocals));
 
-
-        /* 2.刷新Code编辑器 */
         //获取code指令信息
         MyInstructionInfo instructionInfo = treeNode.getInstructionInfo();
 
         //将字节码指令写入到编辑器
         writeEditorContent(instructionInfo.getAssemblyCode());
+        Map<LabelNode, Integer> labelIndexMap = instructionInfo.getLabelIndexMap();
+
+        //编辑器写入行号
+        List<MyLineNumber> markLines = instructionInfo.getMarkLines();
 
         //行号标示高亮
-        MyLineGutterRenderer.markLineLighter(editor,instructionInfo.getMarkLines());
+        MyLineGutterRenderer.markLineLighter(editor,markLines);
 
-        /* 3.刷新Exception Table */
-        Map<LabelNode, Integer> labelIndexMap = instructionInfo.getLabelIndexMap();
+        //行号表
+        markLines = markLines.stream().filter(c->c.getLineSource()>=0).collect(Collectors.toList());
+        fillTables(lineNumberTable,markLines,(n,dataRow)-> {
+            dataRow[0] = "L"+n.getLabelIndex();
+            dataRow[1] = n.getLineSource();
+        });
+
+
+        // 刷新LocalVariable
+        fillTables(localVariableTable,methodNode.localVariables,(n,dataRow)-> {
+            Integer start = labelIndexMap.get(n.start);
+            Integer end = labelIndexMap.get(n.end);
+
+            dataRow[0] = n.index;
+            dataRow[1] = "L"+start;
+            dataRow[2] = "L"+end;
+            dataRow[3] = n.name;
+            dataRow[4] = n.desc;
+        });
+
+        // 刷新Exception Table
         //TODO TryCatchBlockNode还有visibleTypeAnnotations和invisibleTypeAnnotations
-        List<TryCatchBlockNode> tryCatchBlockNodes = methodNode.tryCatchBlocks;
-        if(null != tryCatchBlockNodes){
-            Object[][] newTableData = new Object[tryCatchBlockNodes.size()][exceptionTable.getColumnCount()];
-            for(int i = 0,len=tryCatchBlockNodes.size() ; i<len ; i++){
-                TryCatchBlockNode n = tryCatchBlockNodes.get(i);
-                Integer start = labelIndexMap.get(n.start);
-                Integer end = labelIndexMap.get(n.end);
-                Integer handler = labelIndexMap.get(n.handler);
+        fillTables(exceptionTable,methodNode.tryCatchBlocks,(n,dataRow)-> {
+            Integer start = labelIndexMap.get(n.start);
+            Integer end = labelIndexMap.get(n.end);
+            Integer handler = labelIndexMap.get(n.handler);
 
-                newTableData[i][0] = "L"+start;
-                newTableData[i][1] = "L"+end;
-                newTableData[i][2] = "L"+handler;
-                newTableData[i][3] = n.type;
-            }
-            fillTable(exceptionTable,newTableData);
-        }
+            dataRow[0] = "L"+start;
+            dataRow[1] = "L"+end;
+            dataRow[2] = "L"+handler;
+            dataRow[3] = n.type;
+        });
 
-        /* 4.刷新LocalVariable */
-        List<LocalVariableNode> localVariables = methodNode.localVariables;
-        if(null != localVariables){
-            Object[][] newTableData = new Object[localVariables.size()][localVariableTable.getColumnCount()];
-            for(int i = 0,len=localVariables.size() ; i<len ; i++){
-                LocalVariableNode n = localVariables.get(i);
-                Integer start = labelIndexMap.get(n.start);
-                Integer end = labelIndexMap.get(n.end);
 
-                newTableData[i][0] = n.index;
-                newTableData[i][1] = "L"+start;
-                newTableData[i][2] = "L"+end;
-                newTableData[i][3] = n.name;
-                newTableData[i][4] = n.desc;
-            }
-            fillTable(localVariableTable,newTableData);
-        }
+        // 刷新Parameters
+        fillTables(paramsTable,methodNode.parameters,(n,dataRow)-> {
+            dataRow[0] = n.name;
+            dataRow[1] = n.access;
+        });
 
-        /* 5.刷新Params */
-        List<ParameterNode> parameters = methodNode.parameters;
-        if(null != parameters){
-            Object[][] newTableData = new Object[parameters.size()][paramsTable.getColumnCount()];
-            for(int i = 0,len=parameters.size() ; i<len ; i++){
-                ParameterNode n = parameters.get(i);
-                newTableData[i][0] = n.name;
-                newTableData[i][1] = n.access;
-            }
-            fillTable(paramsTable,newTableData);
-        }
+        //刷新 visibleAnnotations
+        fillTables(visibleAnnotations, methodNode.visibleAnnotations,(n,dataRow)->{
+            dataRow[0] = n.desc;
+            dataRow[1] = null == n.values ? null : n.values.stream().map(Object::toString).collect(Collectors.joining(","));
+        });
+        fillTables(invisibleAnnotations, methodNode.invisibleAnnotations,(n,dataRow)->{
+            dataRow[0] = n.desc;
+            dataRow[1] = null == n.values ? null : n.values.stream().map(Object::toString).collect(Collectors.joining(","));
+        });
 
 
     }
-
-
-    private static void fillTable(DefaultTableModel tableModel, Object[][] newTableData){
+    
+    
+    public static <T> void fillTables(DefaultTableModel tableModel, List<T> nodes, BiConsumer<T,Object[]> fillDataHandler) {
+        if(null == nodes) {
+            return;
+        }
+        Object[][] newTableData = new Object[nodes.size()][tableModel.getColumnCount()];
+        for(int i = 0,len=nodes.size() ; i<len ; i++){
+            T n = nodes.get(i);
+            fillDataHandler.accept(n,newTableData[i]);
+        }
         tableModel.setRowCount(0);
         for (Object[] row : newTableData) {
             tableModel.addRow(row);
