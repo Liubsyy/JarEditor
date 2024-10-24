@@ -8,6 +8,7 @@ import com.intellij.openapi.editor.markup.*;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.Key;
 import com.liubs.jareditor.bytestool.asm.entity.MyLineNumber;
+import com.liubs.jareditor.bytestool.asm.ui.common.TextIcon;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;

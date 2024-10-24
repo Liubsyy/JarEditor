@@ -1,4 +1,4 @@
-package com.liubs.jareditor.bytestool.asm.ui;
+package com.liubs.jareditor.bytestool.asm.ui.common;
 
 import com.intellij.ui.JBColor;
 
