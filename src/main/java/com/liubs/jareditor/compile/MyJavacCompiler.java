@@ -53,11 +53,16 @@ public class MyJavacCompiler extends ProcessCommandCompiler{
         commands.add(targetVersion);
         commands.add( "-Xlint:none");
 
-        String genDebugInfos = SDKSettingStorage.getInstance().getGenDebugInfos();
+        SDKSettingStorage sdkSetting = SDKSettingStorage.getInstance();
+        String genDebugInfos = sdkSetting.getGenDebugInfos();
         if(StringUtils.isEmpty(genDebugInfos)) {
             commands.add("-g");
         }else {
             commands.add("-g:"+genDebugInfos);
+        }
+
+        if(sdkSetting.isParameters() && Double.parseDouble(targetVersion)>=8) {
+            commands.add("-parameters");
         }
 
         if(!classPaths.isEmpty()) {

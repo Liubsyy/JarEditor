@@ -39,6 +39,9 @@ public class SDKSettingStorage implements PersistentStateComponent<SDKSettingSto
      */
     private int decompiledTool;
 
+    //-parameters;
+    private boolean parameters;
+
     @Nullable
     @Override
     public SDKSettingStorage getState() {
@@ -71,6 +74,14 @@ public class SDKSettingStorage implements PersistentStateComponent<SDKSettingSto
         this.mySdks = mySdks;
     }
 
+
+    public boolean isParameters() {
+        return parameters;
+    }
+
+    public void setParameters(boolean parameters) {
+        this.parameters = parameters;
+    }
 
     public static List<MyItem> getMySdksDefaultProjectSdks(){
         List<MyItem> mySdks = SDKSettingStorage.getInstance().getMySdks();

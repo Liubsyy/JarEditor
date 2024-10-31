@@ -7,6 +7,7 @@ import com.liubs.jareditor.util.StringUtils;
 
 import javax.tools.*;
 import java.io.File;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -77,13 +78,17 @@ public class MyRuntimeCompiler implements IMyCompiler {
 
         options.add("-Xlint:none");
 
-        String genDebugInfos = SDKSettingStorage.getInstance().getGenDebugInfos();
+        SDKSettingStorage sdkSetting = SDKSettingStorage.getInstance();
+        String genDebugInfos = sdkSetting.getGenDebugInfos();
         if(StringUtils.isEmpty(genDebugInfos)) {
             options.add("-g");
         }else {
             options.add("-g:"+genDebugInfos);
         }
 
+        if(sdkSetting.isParameters() && Double.parseDouble(targetVersion)>=8) {
+            options.add("-parameters");
+        }
 
         DiagnosticCollector<JavaFileObject> diagnostics  = new DiagnosticCollector<>();
         StandardJavaFileManager standardFileManager = compiler.getStandardFileManager(diagnostics, null, null);
