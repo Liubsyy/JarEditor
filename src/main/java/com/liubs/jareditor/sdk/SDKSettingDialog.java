@@ -68,7 +68,7 @@ public class SDKSettingDialog extends DialogWrapper {
     protected JComponent createCenterPanel() {
 
         //basic config panel
-        JPanel mainPanel = new JPanel(new GridLayoutManager(3, 2));
+        JPanel mainPanel = new JPanel(new GridLayoutManager(2, 2));
         mainPanel.setPreferredSize(new Dimension(500, 400));
 
         SDKSettingStorage sdkSetting = SDKSettingStorage.getInstance();
@@ -137,7 +137,7 @@ public class SDKSettingDialog extends DialogWrapper {
 //        copyNewButton.setPreferredSize(buttonSize);
 //        copyNewButton.setMaximumSize(buttonSize);
 //        copyNewButton.setToolTipText("Copy new");
-        JLabel sdkListLabel = new JLabel("SDK List");
+//        JLabel sdkListLabel = new JLabel("SDK List");
 
         JButton addButton = new JButton(AllIcons.General.Add);
         addButton.setOpaque(false);
@@ -156,21 +156,21 @@ public class SDKSettingDialog extends DialogWrapper {
         removeButton.setMargin(JBUI.emptyInsets());
 
 
-        JPanel mappingLabelPanel = new JPanel();
-        mappingLabelPanel.setLayout(new BoxLayout(mappingLabelPanel, BoxLayout.X_AXIS));
-        mappingLabelPanel.add(sdkListLabel);
-        mappingLabelPanel.add(Box.createHorizontalStrut(20));
+        JPanel optPanel = new JPanel();
+        optPanel.setLayout(new BoxLayout(optPanel, BoxLayout.X_AXIS));
+//        optPanel.add(sdkListLabel);
+//        optPanel.add(Box.createHorizontalStrut(20));
 //        mappingLabelPanel.add(copyNewButton);
 //        mappingLabelPanel.add(Box.createHorizontalStrut(10));
-        mappingLabelPanel.add(addButton);
+        optPanel.add(addButton);
 //        mappingLabelPanel.add(Box.createHorizontalStrut(5));
-        mappingLabelPanel.add(removeButton);
+        optPanel.add(removeButton);
 
 
         // Add the new panel to the main panel
-        mainPanel.add(mappingLabelPanel, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_WEST,
-                GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED,
-                GridConstraints.SIZEPOLICY_FIXED, null, null, null));
+//        mainPanel.add(optPanel, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_WEST,
+//                GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED,
+//                GridConstraints.SIZEPOLICY_FIXED, null, null, null));
 
 
 
@@ -267,8 +267,17 @@ public class SDKSettingDialog extends DialogWrapper {
         leftScroll.setMinimumSize(minimumSize);
         rightPanel.setMinimumSize(minimumSize);
 
+
+        JPanel sdkListPanel = new JPanel(new BorderLayout());
+        sdkListPanel.add(optPanel,BorderLayout.NORTH);
+        sdkListPanel.add(splitPane,BorderLayout.CENTER);
+
+        sdkListPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createTitledBorder(etchedBorder, "SDK List"),
+                JBUI.Borders.empty(5)));
+
         // Add split pane to the main panel
-        mainPanel.add(splitPane, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_WEST,
+        mainPanel.add(sdkListPanel, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_WEST,
                 GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW,
                 GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null));
 
