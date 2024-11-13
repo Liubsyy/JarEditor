@@ -42,6 +42,9 @@ public class SDKSettingStorage implements PersistentStateComponent<SDKSettingSto
     //-parameters;
     private boolean parameters;
 
+    //-proc:none
+    private boolean procNone = true;
+
     @Nullable
     @Override
     public SDKSettingStorage getState() {
@@ -114,6 +117,15 @@ public class SDKSettingStorage implements PersistentStateComponent<SDKSettingSto
 
     public void setDecompiledTool(int decompiledTool) {
         this.decompiledTool = decompiledTool;
+    }
+
+
+    public boolean isProcNone() {
+        return procNone;
+    }
+
+    public void setProcNone(boolean procNone) {
+        this.procNone = procNone;
     }
 
     @Tag("item")

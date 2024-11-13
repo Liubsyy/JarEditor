@@ -41,6 +41,7 @@ public class SDKSettingDialog extends DialogWrapper {
     private java.util.List<JComponent> enables = new ArrayList<>();
     private ComboBox<String> decompiledToolComboBox;
     private JCheckBox parameters;
+    private JCheckBox procNone;
 
 
     private Map<String,JCheckBox> genDebugInfosMap = new HashMap<>();
@@ -69,7 +70,7 @@ public class SDKSettingDialog extends DialogWrapper {
 
         //basic config panel
         JPanel mainPanel = new JPanel(new GridLayoutManager(2, 2));
-        mainPanel.setPreferredSize(new Dimension(500, 400));
+        mainPanel.setPreferredSize(new Dimension(500, 420));
 
         SDKSettingStorage sdkSetting = SDKSettingStorage.getInstance();
 
@@ -105,13 +106,22 @@ public class SDKSettingDialog extends DialogWrapper {
         }
 
         //-parameters
-        parameters = new JCheckBox();
+        parameters = new JCheckBox("-parameters");
         parameters.setSelected(sdkSetting.isParameters());
+
+        //-proc:none
+        procNone = new JCheckBox("-proc:none");
+        procNone.setSelected(sdkSetting.isProcNone());
+
+        JPanel args = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        args.add(parameters);
+        args.add(procNone);
+
 
         JPanel preferencePanel = FormBuilder.createFormBuilder()
                 .setVerticalGap(8)
                 .addLabeledComponent("Generate debug info(-g) :", genDebugInfoPanel)
-                .addLabeledComponent("-parameters(since 1.8) :", parameters)
+                .addLabeledComponent("Args :", args)
                 .addLabeledComponent("Decompiled with :", decompiledToolComboBox)
                 .getPanel();
         Border etchedBorder = BorderFactory.createEtchedBorder(EtchedBorder.RAISED);
@@ -414,6 +424,7 @@ public class SDKSettingDialog extends DialogWrapper {
         sdkSettingStorage.setMaxJavaVersion(maxJavaVersion);
         sdkSettingStorage.setDecompiledTool(DecompiledEnum.findByName((String)decompiledToolComboBox.getSelectedItem()).value);
         sdkSettingStorage.setParameters(parameters.isSelected());
+        sdkSettingStorage.setProcNone(procNone.isSelected());
 
         super.doOKAction();
     }

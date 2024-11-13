@@ -78,6 +78,10 @@ public class MyRuntimeCompiler implements IMyCompiler {
 
         options.add("-Xlint:none");
 
+        options.add("-encoding");
+        options.add("UTF");
+
+
         SDKSettingStorage sdkSetting = SDKSettingStorage.getInstance();
         String genDebugInfos = sdkSetting.getGenDebugInfos();
         if(StringUtils.isEmpty(genDebugInfos)) {
@@ -88,6 +92,10 @@ public class MyRuntimeCompiler implements IMyCompiler {
 
         if(sdkSetting.isParameters() && Double.parseDouble(targetVersion)>=8) {
             options.add("-parameters");
+        }
+
+        if(sdkSetting.isProcNone()) {
+            options.add("-proc:none");
         }
 
         DiagnosticCollector<JavaFileObject> diagnostics  = new DiagnosticCollector<>();

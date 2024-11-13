@@ -52,6 +52,8 @@ public class MyJavacCompiler extends ProcessCommandCompiler{
         commands.add("-target");
         commands.add(targetVersion);
         commands.add( "-Xlint:none");
+        commands.add("-encoding");
+        commands.add("UTF-8");
 
         SDKSettingStorage sdkSetting = SDKSettingStorage.getInstance();
         String genDebugInfos = sdkSetting.getGenDebugInfos();
@@ -63,6 +65,10 @@ public class MyJavacCompiler extends ProcessCommandCompiler{
 
         if(sdkSetting.isParameters() && Double.parseDouble(targetVersion)>=8) {
             commands.add("-parameters");
+        }
+
+        if(sdkSetting.isProcNone()) {
+            commands.add("-proc:none");
         }
 
         if(!classPaths.isEmpty()) {
