@@ -7,7 +7,6 @@ import com.liubs.jareditor.util.StringUtils;
 
 import javax.tools.*;
 import java.io.File;
-import java.math.BigDecimal;
 import java.util.*;
 
 /**
