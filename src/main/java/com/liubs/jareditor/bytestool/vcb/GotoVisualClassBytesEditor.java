@@ -29,7 +29,14 @@ public class GotoVisualClassBytesEditor {
 
         if(null== actionPerformed) {
             try {
-                Method actionPerformed = AnAction.class.getDeclaredMethod("actionPerformed", AnActionEvent.class);
+                actionPerformed = AnAction.class.getDeclaredMethod("actionPerformed", AnActionEvent.class);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        if(null != actionPerformed){
+            try {
                 actionPerformed.invoke(openVCBEditor,e);
             } catch (Exception ex) {
                 ex.printStackTrace();
