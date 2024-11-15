@@ -25,7 +25,7 @@
 - 支持SpringBoot jar/嵌套jar
 - 支持kotlin
 - 可导出source jar
-- 支持class字节码修改工具 : javassist
+- 支持class字节码修改工具 : Javassist/VisualClassBytes
 - 反编译器 : Fernflower/CFR/Procyon
 
 ## 快速开始
