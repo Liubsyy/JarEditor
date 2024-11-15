@@ -62,6 +62,9 @@
 
 <img src="./img/JarEditor_javassist.png" width="800" height="600" />
 
+- **Visual ClassBytes** : Class字节码编辑器,基于 ASM 和 BCEL
+
+<img src="./img/vcb_main.png" width="800" height="600" />
 
 ### 4. 其他操作
 在jar包的项目视图中，右键可以看到**JarEditor->New/Delete**等操作，可以在jar内添加/删除/重命名/复制/粘贴/导出文件。

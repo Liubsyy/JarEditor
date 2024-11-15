@@ -5,6 +5,8 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.ui.Messages;
 
+import java.lang.reflect.Method;
+
 /**
  * @author Liubsyy
  * @date 2024/11/15
@@ -12,6 +14,7 @@ import com.intellij.openapi.ui.Messages;
 public class GotoVisualClassBytesEditor {
 
 
+    private static Method actionPerformed = null;
     public static void openVCBEditor(AnActionEvent e){
         AnAction openVCBEditor = ActionManager.getInstance().getAction("vcb.openClassEditor");
         if(null == openVCBEditor) {
@@ -20,7 +23,19 @@ public class GotoVisualClassBytesEditor {
             return;
         }
 
-        openVCBEditor.actionPerformed(e);
+
+        //直击调用会被插件审核标记过期API
+        //openVCBEditor.actionPerformed(e);
+
+        if(null== actionPerformed) {
+            try {
+                Method actionPerformed = AnAction.class.getDeclaredMethod("actionPerformed", AnActionEvent.class);
+                actionPerformed.invoke(openVCBEditor,e);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+
     }
 
 

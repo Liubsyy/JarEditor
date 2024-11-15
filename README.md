@@ -65,6 +65,10 @@ Click the **Class bytes tool** icon to select the tool
 
 <img src="./img/JarEditor_javassist.png" width="800" height="600" />
 
+- **Visual ClassBytes** : Class bytecode editor,based on ASM and BCEL
+
+<img src="./img/vcb_main.png" width="800" height="600" />
+
 
 ### 4. Other operations of JarEditor
 In the project view of the jar package, right-click to see **JarEditor->New/Delete** and other operations, where you can add/delete/rename/copy/paste/export files.
