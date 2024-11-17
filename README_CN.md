@@ -62,7 +62,7 @@
 
 <img src="./img/JarEditor_javassist.png" width="800" height="600" />
 
-- **Visual ClassBytes** : Class字节码编辑器,基于 ASM 和 BCEL
+- [**Visual ClassBytes**](https://github.com/Liubsyy/VisualClassBytes) : Class字节码编辑器,基于 ASM 和 BCEL
 
 <img src="./img/vcb_main.png" width="800" height="600" />
 
