@@ -65,7 +65,7 @@ Click the **Class bytes tool** icon to select the tool
 
 <img src="./img/JarEditor_javassist.png" width="800" height="600" />
 
-- **Visual ClassBytes** : Class bytecode editor,based on ASM and BCEL
+- [**Visual ClassBytes**](https://github.com/Liubsyy/VisualClassBytes) : Class bytecode editor,based on ASM and BCEL
 
 <img src="./img/vcb_main.png" width="800" height="600" />
 
