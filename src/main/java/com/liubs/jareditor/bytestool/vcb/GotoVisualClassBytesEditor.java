@@ -30,6 +30,7 @@ public class GotoVisualClassBytesEditor {
         if(null== actionPerformed) {
             try {
                 actionPerformed = AnAction.class.getDeclaredMethod("actionPerformed", AnActionEvent.class);
+                actionPerformed.setAccessible(true);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
