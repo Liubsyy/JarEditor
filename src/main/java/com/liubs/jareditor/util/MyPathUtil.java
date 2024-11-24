@@ -182,4 +182,15 @@ public class MyPathUtil {
     }
 
 
+    public static String getFileExtension(String name){
+        if(null == name){
+            return null;
+        }
+        int lastIndexOf = name.lastIndexOf(".");
+        if(lastIndexOf>0 && lastIndexOf+1 < name.length()) {
+            return name.substring(lastIndexOf+1);
+        }
+        return name;
+    }
+
 }

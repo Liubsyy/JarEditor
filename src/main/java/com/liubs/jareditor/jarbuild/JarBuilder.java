@@ -125,7 +125,7 @@ public class JarBuilder {
      * @param filePath
      * @return
      */
-    public JarBuildResult addFile(String filePath){
+    public JarBuildResult addFile(String filePath,byte[] content){
         JarBuildResult jarBuildResult;
         File tempJarFile = null;
         try {
@@ -160,6 +160,9 @@ public class JarBuilder {
                 //write a empty file
                for(String eachEntry : allNewEntries) {
                    tempJarOutputStream.putNextEntry(new JarEntry(eachEntry));
+                   if(null != content) {
+                       tempJarOutputStream.write(content);
+                   }
                    tempJarOutputStream.closeEntry();
                }
 

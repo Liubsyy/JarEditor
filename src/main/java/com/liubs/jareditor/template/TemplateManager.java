@@ -33,6 +33,9 @@ public class TemplateManager {
     }
 
     public static String getText(String fileExtension,String filePath) {
+        if(null == fileExtension || null == filePath) {
+            return "";
+        }
         TemplateType templateType = TemplateType.getTemplateType(fileExtension);
         if(null != templateType){
             String text = templateMap.get(templateType);
@@ -43,6 +46,14 @@ public class TemplateManager {
             return text;
         }
         return "";
+    }
+
+    public static boolean isAddContentWhenCreate(String fileExtension) {
+        if(null == fileExtension){
+            return false;
+        }
+        TemplateType templateType = TemplateType.getTemplateType(fileExtension);
+        return null != templateType && templateType.isAddContentWhenCreate();
     }
 
 }

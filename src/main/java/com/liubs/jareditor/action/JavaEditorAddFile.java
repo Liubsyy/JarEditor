@@ -12,9 +12,12 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import com.liubs.jareditor.jarbuild.JarBuildResult;
 import com.liubs.jareditor.jarbuild.JarBuilder;
 import com.liubs.jareditor.sdk.NoticeInfo;
+import com.liubs.jareditor.template.TemplateManager;
 import com.liubs.jareditor.util.JarUtil;
 import com.liubs.jareditor.util.MyPathUtil;
 import org.jetbrains.annotations.NotNull;
+
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author Liubsyy
@@ -79,7 +82,12 @@ public abstract class JavaEditorAddFile  extends AnAction {
                      }
 
                     JarBuilder jarBuilder = new JarBuilder(jarPath);
-                    JarBuildResult jarBuildResult = jarBuilder.addFile(entryPath);
+                    byte[] templateContent = null;
+                    if(TemplateManager.isAddContentWhenCreate(MyPathUtil.getFileExtension(entryPath))) {
+                        templateContent = TemplateManager.getText(MyPathUtil.getFileExtension(entryPath),entryPath)
+                                .getBytes(StandardCharsets.UTF_8);
+                    }
+                    JarBuildResult jarBuildResult = jarBuilder.addFile(entryPath,templateContent);
                     if(!jarBuildResult.isSuccess()) {
                         NoticeInfo.error("Add file err: \n%s",jarBuildResult.getErr());
                         return;
