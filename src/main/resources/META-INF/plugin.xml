@@ -114,6 +114,7 @@
               <action id="jarEditorAddResourceFile" class="com.liubs.jareditor.action.JarEditorAddResourceFile" text="File" description="NewFile" icon="AllIcons.FileTypes.Any_type" />
               <action id="jarEditorAddDirectory" class="com.liubs.jareditor.action.JarEditorAddDirectory" text="Directory" description="NewDirectory" icon="AllIcons.Nodes.Folder" />
               <action id="jarEditorAddManifest" class="com.liubs.jareditor.action.JarEditorAddManifest" text="MANIFEST.MF" description="MANIFEST.MF" icon="AllIcons.FileTypes.Manifest" />
+              <action id="jarEditorAddJar" class="com.liubs.jareditor.action.JarEditorAddJar" text="JAR" description="JAR" icon="AllIcons.Nodes.JarDirectory" />
           </group>
 
           <action id="jarEditorDeleteFiles" class="com.liubs.jareditor.action.JarEditorDeleteFiles" text="Delete" description="Delete"/>

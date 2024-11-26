@@ -81,17 +81,9 @@ public abstract class JavaEditorAddFile  extends AnAction {
                         return;
                      }
 
-                    JarBuilder jarBuilder = new JarBuilder(jarPath);
-                    byte[] templateContent = null;
-                    if(TemplateManager.isAddContentWhenCreate(MyPathUtil.getFileExtension(entryPath))) {
-                        templateContent = TemplateManager.getText(MyPathUtil.getFileExtension(entryPath),entryPath)
-                                .getBytes(StandardCharsets.UTF_8);
-                    }
-                    JarBuildResult jarBuildResult = jarBuilder.addFile(entryPath,templateContent);
-                    if(!jarBuildResult.isSuccess()) {
-                        NoticeInfo.error("Add file err: \n%s",jarBuildResult.getErr());
-                        return;
-                    }
+                     if(!addFileInJar(jarPath,entryPath)) {
+                         return;
+                     }
 
                     VirtualFileManager.getInstance().refreshWithoutFileWatcher(true);
 
@@ -122,5 +114,20 @@ public abstract class JavaEditorAddFile  extends AnAction {
                 }
             }
         });
+    }
+
+    protected boolean addFileInJar(String jarPath,String entryPath){
+        JarBuilder jarBuilder = new JarBuilder(jarPath);
+        byte[] templateContent = null;
+        if(TemplateManager.isAddContentWhenCreate(MyPathUtil.getFileExtension(entryPath))) {
+            templateContent = TemplateManager.getText(MyPathUtil.getFileExtension(entryPath),entryPath)
+                    .getBytes(StandardCharsets.UTF_8);
+        }
+        JarBuildResult jarBuildResult = jarBuilder.addFile(entryPath,templateContent);
+        if(!jarBuildResult.isSuccess()) {
+            NoticeInfo.error("Add file err: \n%s",jarBuildResult.getErr());
+            return false;
+        }
+        return true;
     }
 }
