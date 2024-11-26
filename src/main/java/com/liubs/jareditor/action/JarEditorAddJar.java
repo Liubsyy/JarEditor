@@ -3,13 +3,14 @@ package com.liubs.jareditor.action;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
 import com.liubs.jareditor.jarbuild.JarBuilder;
 import com.liubs.jareditor.sdk.NoticeInfo;
 import com.liubs.jareditor.template.TemplateManager;
@@ -92,8 +93,16 @@ public class JarEditorAddJar extends AnAction {
                         jarOutputStream.closeEntry();
                     }
 
-
-                    VirtualFileManager.getInstance().refreshWithoutFileWatcher(true);
+                    ApplicationManager.getApplication().invokeLater(() -> {
+                        try{
+                            VirtualFile virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByPath(jarPath);
+                            if(null != virtualFile) {
+                                virtualFile.refresh(false, false);
+                            }
+                        }catch (Exception ex){
+                            ex.printStackTrace();
+                        }
+                    });
 
                 }catch (Throwable e) {
                     NoticeInfo.error("New JAR err",e);
