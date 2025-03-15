@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.liubs.jaredit</id>
   <name>JarEditor</name>
-  <version>2.2.0</version>
+  <version>2.2.1</version>
   <vendor email="Liubsyy@gmail.com" url="https://github.com/Liubsyy/JarEditor">Liubsyy</vendor>
 
   <description><![CDATA[
@@ -27,6 +27,8 @@
       <h3>2.2</h3>
       <ul>
          <li>Support VisualClassBytes</li>
+         <li>Support new jar</li>
+         <li>Fix compilation failure: BOOT-INF/classes contains Chinese package</li>
       </ur>
 
      <h3>2.1</h3>
