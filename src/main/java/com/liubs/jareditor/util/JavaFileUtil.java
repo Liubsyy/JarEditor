@@ -16,7 +16,10 @@ import java.util.regex.Pattern;
  */
 public class JavaFileUtil {
 
-    private static Pattern packagePattern = Pattern.compile("^\\s*package\\s+([\\w.]+)\\s*;", Pattern.MULTILINE);
+//    private static Pattern packagePattern = Pattern.compile("^\\s*package\\s+([\\w.]+)\\s*;", Pattern.MULTILINE);
+
+    //[\p{L}\p{N}_.] 匹配任何语言的字母、数字、下划线
+    private static Pattern packagePattern = Pattern.compile("^\\s*package\\s+([\\p{L}\\p{N}_.]+)\\s*;", Pattern.MULTILINE);
 
     /**
      * 根据源码获取包名
@@ -73,5 +76,13 @@ public class JavaFileUtil {
         return result;
     }
 
+    public static void main(String[] args) {
+        System.out.println(extractPackageName("package com.example;"));
+        System.out.println(extractPackageName("package com.中文包.example;"));
+        System.out.println(extractPackageName("package com.中文包23.example;"));
+        System.out.println(extractPackageName("package com.中文包23_1.example;"));
+        System.out.println(extractPackageName("package com.example_233.test;"));
+        System.out.println(extractPackageName("package com._2example.test;"));
+    }
 
 }
