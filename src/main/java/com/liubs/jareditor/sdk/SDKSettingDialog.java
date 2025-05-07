@@ -1,7 +1,7 @@
 package com.liubs.jareditor.sdk;
 
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
+import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.TextBrowseFolderListener;
@@ -235,7 +235,8 @@ public class SDKSettingDialog extends DialogWrapper {
 
         rightPanel.add(new JLabel("SDK Home"));
         TextFieldWithBrowseButton sdkHomeField = new TextFieldWithBrowseButton();
-        sdkHomeField.addBrowseFolderListener(new TextBrowseFolderListener( FileChooserDescriptorFactory.createSingleFileDescriptor(),null));
+        FileChooserDescriptor fileChooserDescriptor = new FileChooserDescriptor(true, true, true, true, false, false);
+        sdkHomeField.addBrowseFolderListener(new TextBrowseFolderListener( fileChooserDescriptor,null));
 
         sdkHomeField.getTextField().getDocument().addDocumentListener(new DocumentListener() {
             @Override
