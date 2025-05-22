@@ -34,4 +34,7 @@ public interface PathConstant {
     //嵌套jar临时目录
     String NESTED_JAR_DIR = "jar_nested";
 
+    //默认备份路径
+    String DEFAULT_BACKUP_PATH = "/jareditor_backup";
+
 }

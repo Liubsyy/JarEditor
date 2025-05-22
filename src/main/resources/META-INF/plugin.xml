@@ -138,6 +138,7 @@
               <action id="CompressionMethod" class="com.liubs.jareditor.action.CompressionMethod" text="Compression Method" description="Compression Method"/>
           </group>
 
+          <action id="jarEditorBackup" class="com.liubs.jareditor.action.JarEditorBackup" text="Backup" description="Backup" icon="AllIcons.Vcs.History"/>
           <action id="jarEditorSearch" class="com.liubs.jareditor.action.JarEditorSearch" text="Search" description="Search" icon="AllIcons.Actions.Search"/>
       </group>
 
