@@ -8,7 +8,7 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.util.ui.FormBuilder;
 import com.intellij.util.ui.JBUI;
-import com.liubs.jareditor.constant.PathConstant;
+import com.liubs.jareditor.persistent.BackupStorage;
 import com.liubs.jareditor.util.MyPathUtil;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,9 +45,10 @@ public class BackupDialog extends DialogWrapper {
         JPanel mainPanel = new JPanel(new GridLayoutManager(2, 2));
         mainPanel.setPreferredSize(new Dimension(600, 500));
 
-        String home = System.getProperty("user.home");
-        String backupDefaultPath = home + PathConstant.DEFAULT_BACKUP_PATH;
-        backupPathText.setText(backupDefaultPath);
+
+
+        String backupPath = BackupStorage.getInstance().getBackupPath();
+        backupPathText.setText(backupPath);
 
         JPanel settingPanel = FormBuilder.createFormBuilder()
                 .setVerticalGap(8)
@@ -59,6 +60,7 @@ public class BackupDialog extends DialogWrapper {
                 BorderFactory.createTitledBorder(etchedBorder, "Setting"),
                 JBUI.Borders.empty(5)));
 
+        enableBackupCheckBox.setSelected(BackupStorage.getInstance().isEnableBackup());
         backupPathText.setEnabled(enableBackupCheckBox.isSelected());
         enableBackupCheckBox.addActionListener(e->{
             backupPathText.setEnabled(enableBackupCheckBox.isSelected());
@@ -160,6 +162,9 @@ public class BackupDialog extends DialogWrapper {
         boolean enableBackup = enableBackupCheckBox.isSelected();
         String backupPath = backupPathText.getText().trim();
 
+        BackupStorage backupStorage = BackupStorage.getInstance();
+        backupStorage.setEnableBackup(enableBackup);
+        backupStorage.setBackupPath(backupPath);
         super.doOKAction();
     }
 }

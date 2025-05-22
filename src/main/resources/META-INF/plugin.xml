@@ -99,6 +99,7 @@
 
       <projectService serviceImplementation="com.liubs.jareditor.structure.NestedJarHolder"/>
       <applicationService serviceImplementation="com.liubs.jareditor.persistent.SDKSettingStorage"/>
+      <applicationService serviceImplementation="com.liubs.jareditor.persistent.BackupStorage"/>
 
   </extensions>
 
