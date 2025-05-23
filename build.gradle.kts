@@ -43,6 +43,8 @@ dependencies {
     // https://mvnrepository.com/artifact/org.bitbucket.mstrobel/procyon-compilertools
     implementation("org.bitbucket.mstrobel:procyon-compilertools:0.6.0")
 
+    // https://mvnrepository.com/artifact/com.google.code.gson/gson
+    implementation("com.google.code.gson:gson:2.8.9")
 }
 
 

@@ -31,7 +31,7 @@ public class MyPathUtil {
 
     public static String getJarPathFromJar(String classNameInJar) {
         String[] split = classNameInJar.split(".jar!/");
-        if(split.length!=2) {
+        if(split.length!=2 && !classNameInJar.endsWith(".jar!/")) {
             return null;
         }
         return split[0]+".jar";
@@ -89,7 +89,9 @@ public class MyPathUtil {
             if(classNameInJar.endsWith(".jar")){
                 return classNameInJar.substring(0,classNameInJar.length()-4)+PathConstant.TEMP_SUFFIX+"/"+ PathConstant.JAR_EDIT_CLASS_PATH;
             }
-            return null;
+            if( !classNameInJar.endsWith(".jar!/") ) {
+                return null;
+            }
         }
 
         return split[0]+PathConstant.TEMP_SUFFIX+"/"+ PathConstant.JAR_EDIT_CLASS_PATH;

@@ -127,6 +127,22 @@ public class JarUtil {
         }
         return copiedFiles;
     }
+    public static void copyJarRelativeEntries(String jarPath, String destPath, Set<String> copyEntries) throws IOException {
+        try (JarFile jarFile = new JarFile(jarPath)) {
+            Enumeration<JarEntry> entries = jarFile.entries();
+            while (entries.hasMoreElements()) {
+                JarEntry entry = entries.nextElement();
+                String entryName = entry.getName();
+                for (String copyEntry : copyEntries) {
+                    if (entryName.startsWith(copyEntry)) {
+                        Path path = Paths.get(destPath, entryName);
+                        createFile(jarFile,entry,path);
+                    }
+                }
+            }
+        }
+    }
+
 
     /**
      *  拷贝jar内class和内部类目标目录

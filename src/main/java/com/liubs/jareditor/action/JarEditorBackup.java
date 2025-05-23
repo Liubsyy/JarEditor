@@ -7,7 +7,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.liubs.jareditor.backup.BackupDialog;
 import com.liubs.jareditor.sdk.NoticeInfo;
-import com.liubs.jareditor.sdk.SDKSettingDialog;
 import com.liubs.jareditor.util.MyPathUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,10 +37,7 @@ public class JarEditorBackup extends AnAction {
             return;
         }
 
-        BackupDialog dialog = new BackupDialog(jarPath);
-        if(dialog.showAndGet()){
-
-        }
-
+        BackupDialog dialog = new BackupDialog(project,jarPath);
+        dialog.showAndGet();
     }
 }

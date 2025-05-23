@@ -10,10 +10,12 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.PathUtil;
+import com.liubs.jareditor.backup.Backup;
 import com.liubs.jareditor.compile.*;
 import com.liubs.jareditor.constant.PathConstant;
 import com.liubs.jareditor.dependency.ExtraDependencyManager;
 import com.liubs.jareditor.dependency.NestedJarDependency;
+import com.liubs.jareditor.persistent.BackupStorage;
 import com.liubs.jareditor.structure.NestedJar;
 import com.liubs.jareditor.jarbuild.JarBuildResult;
 import com.liubs.jareditor.jarbuild.JarBuilder;
@@ -327,9 +329,14 @@ public class JarEditorCore {
                     if(jarPath == null) {
                         return;
                     }
+                    Backup backup = new Backup();
                     String jarEditClassPath = MyPathUtil.getJarEditOutput(file.getPath());
                     JarBuilder jarBuilder = new JarBuilder(jarEditClassPath , jarPath);
 //                    JarBuildResult jarBuildResult = jarBuilder.writeJar(true);
+
+                    if(BackupStorage.getInstance().isEnableBackup()) {
+                        backup.checkBackupFirstVersion(jarPath);
+                    }
                     JarBuildResult jarBuildResult = jarBuilder.writeJar(false);
 
                     if(jarBuildResult.isSuccess()) {
@@ -337,6 +344,9 @@ public class JarEditorCore {
                             file.refresh(false,true);
                             VirtualFileManager.getInstance().refreshWithoutFileWatcher(true);
                         });
+                        if(BackupStorage.getInstance().isEnableBackup()) {
+                            backup.backupJar(jarPath,backup.getChangeDataFromDir(jarEditClassPath));
+                        }
 
                         //删除临时保存的class目录
                         MyFileUtil.deleteDir(MyPathUtil.getJarEditTemp(file.getPath()));
