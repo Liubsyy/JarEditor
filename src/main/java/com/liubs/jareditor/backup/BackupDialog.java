@@ -5,11 +5,9 @@ import com.intellij.diff.DiffManager;
 import com.intellij.diff.requests.SimpleDiffRequest;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.ComboBox;
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.openapi.ui.*;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.ui.components.JBList;
@@ -83,6 +81,9 @@ public class BackupDialog extends DialogWrapper {
 
         String backupPath = BackupStorage.getInstance().getBackupPath();
         backupPathText = new TextFieldWithBrowseButton();
+        FileChooserDescriptor fileChooserDescriptor = new FileChooserDescriptor(true, true, true, true, false, false);
+        backupPathText.addBrowseFolderListener(new TextBrowseFolderListener( fileChooserDescriptor,null));
+
         enableBackupCheckBox = new JCheckBox();
         backupOnceCheckBox = new JCheckBox();
 
