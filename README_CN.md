@@ -67,7 +67,7 @@
 <img src="./img/vcb_main.png" width="800" height="600" />
 
 ### 4. 其他操作
-在jar包的项目视图中，右键可以看到**JarEditor->New/Delete**等操作，可以在jar内添加/删除/重命名/复制/粘贴/导出文件。
+在jar包的项目视图中，右键可以看到**JarEditor->New/Delete**等操作，可以在jar内添加/删除/重命名/复制/粘贴/导出/备份文件。
 
 <img src="./img/JarEditor_new_delete.png" width="600" height="550" />
 
