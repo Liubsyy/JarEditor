@@ -152,7 +152,17 @@ public class BackupDialog extends DialogWrapper {
             private void showPopup(MouseEvent e) {
                 int index = jarHistoryList.locationToIndex(e.getPoint());
                 if (index >= 0) {
-                    jarHistoryList.setSelectedIndex(index); // 设置选中项
+                    int[] selectedIndices = jarHistoryList.getSelectedIndices();
+
+                    // 动态更新右键菜单内容
+                    jarHistoryMenu.removeAll();
+                    jarHistoryMenu.add(deleteBackupJar);
+                    if (selectedIndices.length == 1) {
+                        jarHistoryList.setSelectedIndex(index);
+                        jarHistoryMenu.add(revertJarToThisVersion);
+                    }
+
+                    // 显示菜单
                     jarHistoryMenu.show(jarHistoryList, e.getX(), e.getY());
                 }
             }
@@ -230,11 +240,7 @@ public class BackupDialog extends DialogWrapper {
         showTypeComboBox.addActionListener(e->{
             refreshEntryList();
         });
-        if(backupOnceCheckBox.isSelected()) {
-            showTypeComboBox.setSelectedIndex(1);
-        }else {
-            showTypeComboBox.setSelectedIndex(0);
-        }
+        showTypeComboBox.setSelectedIndex(0);
 
         JButton buildNewJar = new JButton("Build Jar");
         buildNewJar.addActionListener(e->buildJar());
@@ -378,14 +384,25 @@ public class BackupDialog extends DialogWrapper {
     }
 
     private void deleteBackupJar(){
-        int selectedJarIndex = jarHistoryList.getSelectedIndex();
-        if(selectedJarIndex<0) {
+        int[] selectedIndices = jarHistoryList.getSelectedIndices();
+        if(null == selectedIndices) {
             return;
         }
-        BackupData backupData = backupDatas.get(selectedJarIndex);
+        List<Integer> selects = new ArrayList<>();
+        for(int select : selectedIndices) {
+            if(select >= 0) {
+                selects.add(select);
+            }
+        }
+        if(selects.isEmpty()){
+            return;
+        }
+        Collections.sort(selects);
+        List<String> createTimes = selects.stream().map(e -> backupDatas.get(e).getChangeData().getCreateTime()).collect(Collectors.toList());
+
         int response = Messages.showYesNoDialog(
                 project,
-                "Delete backup "+backupData.getChangeData().getCreateTime()+"?", // 消息内容
+                "Delete backup "+createTimes+"?", // 消息内容
                 "Confirmation", // 窗口标题
                 Messages.getQuestionIcon() // 使用一个问号图标
         );
@@ -393,11 +410,15 @@ public class BackupDialog extends DialogWrapper {
             return;
         }
 
-        String versionDir = new File(backupData.getBackupJar()).getParentFile().getAbsolutePath();
-        MyFileUtil.deleteDir(versionDir);
+        for(int i=selects.size()-1; i>=0 ;i--) {
+            int selectedJarIndex = selects.get(i);
+            BackupData backupData = backupDatas.get(selectedJarIndex);
+            String versionDir = new File(backupData.getBackupJar()).getParentFile().getAbsolutePath();
+            MyFileUtil.deleteDir(versionDir);
 
-        jarHistoryListModel.remove(selectedJarIndex);
-        backupDatas.remove(selectedJarIndex);
+            jarHistoryListModel.remove(selectedJarIndex);
+            backupDatas.remove(selectedJarIndex);
+        }
     }
 
     private void revertJar(){
@@ -458,12 +479,14 @@ public class BackupDialog extends DialogWrapper {
         String backupJar = backupData.getBackupJar();
         String currentJar = jarPath;
 
+        String backupVersionText = "";
         VirtualFile backupVersionFile = VirtualFileManager.getInstance().findFileByUrl("jar://" + backupJar + "!/"+entryItem.getEntry());
-        backupVersionFile.refresh(false, false);
+        if(null != backupVersionFile){
+            backupVersionFile.refresh(false, false);
+            backupVersionText = MyJarEditor.getDecompiledText(project, backupVersionFile);
+        }
 
         VirtualFile currentVersionFile = VirtualFileManager.getInstance().findFileByUrl("jar://" + currentJar + "!/"+entryItem.getEntry());
-        String backupVersionText = MyJarEditor.getDecompiledText(project, backupVersionFile);
-
         String currentVersionText = "";
         if(null != currentVersionFile){
             currentVersionFile.refresh(false, false);
@@ -491,10 +514,12 @@ public class BackupDialog extends DialogWrapper {
         BackupData backupData = backupDatas.get(selectedJarIndex);
         BackupData backupPreviousData = selectedJarIndex < backupDatas.size()-1 ? backupDatas.get(selectedJarIndex+1) : null;
 
-        String backupJar = backupData.getBackupJar();
-        VirtualFile backupVersionFile = VirtualFileManager.getInstance().findFileByUrl("jar://" + backupJar + "!/"+entryItem.getEntry());
-        backupVersionFile.refresh(false, false);
-        String backupVersionText = MyJarEditor.getDecompiledText(project, backupVersionFile);
+        String backupVersionText = "";
+        VirtualFile backupVersionFile = VirtualFileManager.getInstance().findFileByUrl("jar://" + backupData.getBackupJar() + "!/"+entryItem.getEntry());
+        if(null != backupVersionFile) {
+            backupVersionFile.refresh(false, false);
+            backupVersionText =  MyJarEditor.getDecompiledText(project, backupVersionFile);
+        }
 
         String previousVersionText = "";
         if(null != backupPreviousData) {

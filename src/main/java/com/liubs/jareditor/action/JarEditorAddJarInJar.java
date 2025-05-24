@@ -2,15 +2,23 @@ package com.liubs.jareditor.action;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import com.liubs.jareditor.backup.Backup;
+import com.liubs.jareditor.backup.ChangeData;
+import com.liubs.jareditor.backup.ChangeItem;
+import com.liubs.jareditor.backup.ChangeType;
 import com.liubs.jareditor.jarbuild.JarBuildResult;
 import com.liubs.jareditor.jarbuild.JarBuilder;
+import com.liubs.jareditor.persistent.BackupStorage;
 import com.liubs.jareditor.sdk.NoticeInfo;
 import com.liubs.jareditor.template.TemplateManager;
+import com.liubs.jareditor.util.DateUtil;
 import com.liubs.jareditor.util.StringUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 
@@ -62,10 +70,21 @@ public class JarEditorAddJarInJar extends JavaEditorAddFile {
 
         byte[] jarBytes = byteArrayOutputStream.toByteArray();
 
+        Backup backup = new Backup();
+        if(BackupStorage.getInstance().isEnableBackup()) {
+            backup.checkBackupFirstVersion(jarPath);
+        }
         JarBuildResult jarBuildResult = jarBuilder.addFile(entryPath,jarBytes);
         if(!jarBuildResult.isSuccess()) {
             NoticeInfo.error("Add file err: \n%s",jarBuildResult.getErr());
             return false;
+        }
+        if(BackupStorage.getInstance().isEnableBackup() && !BackupStorage.getInstance().isBackupOnce()) {
+            ChangeData changeData = new ChangeData();
+            changeData.setCreateTime(DateUtil.formatDate(new Date()));
+            changeData.setChangeList(new ArrayList<>());
+            changeData.getChangeList().add(new ChangeItem(ChangeType.ADD.value,entryPath));
+            backup.backupJar(jarPath,changeData);
         }
         return true;
     }

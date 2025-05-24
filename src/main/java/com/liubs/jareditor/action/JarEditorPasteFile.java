@@ -9,10 +9,12 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.liubs.jareditor.backup.Backup;
 import com.liubs.jareditor.clipboard.ClipboardToFile;
 import com.liubs.jareditor.clipboard.CopyResult;
 import com.liubs.jareditor.jarbuild.JarBuildResult;
 import com.liubs.jareditor.jarbuild.JarBuilder;
+import com.liubs.jareditor.persistent.BackupStorage;
 import com.liubs.jareditor.sdk.NoticeInfo;
 import com.liubs.jareditor.util.MyPathUtil;
 import org.jetbrains.annotations.NotNull;
@@ -82,11 +84,19 @@ public class JarEditorPasteFile extends AnAction {
                     }
 
                     JarBuilder jarBuilder = new JarBuilder(clipboard_to_fileDir,jarPath);
+                    Backup backup = new Backup();
+                    if(BackupStorage.getInstance().isEnableBackup()) {
+                        backup.checkBackupFirstVersion(jarPath);
+                    }
                     JarBuildResult jarBuildResult = jarBuilder.writeJar(false);
                     if(!jarBuildResult.isSuccess()) {
                         NoticeInfo.error("Paste err: \n%s",jarBuildResult.getErr());
                         return;
                     }
+                    if(BackupStorage.getInstance().isEnableBackup() && !BackupStorage.getInstance().isBackupOnce()) {
+                        backup.backupJar(jarPath,backup.getChangeDataFromDir(clipboard_to_fileDir));
+                    }
+
 
                     VirtualFileManager.getInstance().refreshWithoutFileWatcher(true);
 

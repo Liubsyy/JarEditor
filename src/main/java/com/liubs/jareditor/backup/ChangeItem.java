@@ -8,7 +8,13 @@ public class ChangeItem {
     private int changeType;
     private String entry;
 
+    public ChangeItem() {
+    }
 
+    public ChangeItem(int changeType, String entry) {
+        this.changeType = changeType;
+        this.entry = entry;
+    }
 
     public int getChangeType() {
         return changeType;

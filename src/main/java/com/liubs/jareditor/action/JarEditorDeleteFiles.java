@@ -10,12 +10,20 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.liubs.jareditor.backup.Backup;
+import com.liubs.jareditor.backup.ChangeData;
+import com.liubs.jareditor.backup.ChangeItem;
+import com.liubs.jareditor.backup.ChangeType;
 import com.liubs.jareditor.jarbuild.JarBuildResult;
 import com.liubs.jareditor.jarbuild.JarBuilder;
+import com.liubs.jareditor.persistent.BackupStorage;
 import com.liubs.jareditor.sdk.NoticeInfo;
+import com.liubs.jareditor.util.DateUtil;
 import com.liubs.jareditor.util.MyPathUtil;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -96,10 +104,23 @@ public class JarEditorDeleteFiles extends AnAction {
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 try {
                     JarBuilder jarBuilder = new JarBuilder(jarPath);
+                    Backup backup = new Backup();
+                    if(BackupStorage.getInstance().isEnableBackup()) {
+                        backup.checkBackupFirstVersion(jarPath);
+                    }
                     JarBuildResult jarBuildResult = jarBuilder.deleteFiles(deleteEntries);
                     if(!jarBuildResult.isSuccess()) {
                         NoticeInfo.error("Delete file err: \n%s",jarBuildResult.getErr());
                         return;
+                    }
+                    if(BackupStorage.getInstance().isEnableBackup() && !BackupStorage.getInstance().isBackupOnce()) {
+                        ChangeData changeData = new ChangeData();
+                        changeData.setCreateTime(DateUtil.formatDate(new Date()));
+                        changeData.setChangeList(new ArrayList<>());
+                        deleteEntries.forEach(deleteEntry->{
+                            changeData.getChangeList().add(new ChangeItem(ChangeType.DELETE.value,deleteEntry));
+                        });
+                        backup.backupJar(jarPath,changeData);
                     }
 
                     VirtualFileManager.getInstance().refreshWithoutFileWatcher(true);
