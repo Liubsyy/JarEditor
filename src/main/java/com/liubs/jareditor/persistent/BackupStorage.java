@@ -19,6 +19,7 @@ import org.jetbrains.annotations.Nullable;
 )
 public class BackupStorage implements PersistentStateComponent<BackupStorage> {
     private boolean enableBackup;
+    private boolean backupOnce; //只备份第一版
     private String backupPath;
 
     @Nullable
@@ -42,6 +43,14 @@ public class BackupStorage implements PersistentStateComponent<BackupStorage> {
 
     public void setEnableBackup(boolean enableBackup) {
         this.enableBackup = enableBackup;
+    }
+
+    public boolean isBackupOnce() {
+        return backupOnce;
+    }
+
+    public void setBackupOnce(boolean backupOnce) {
+        this.backupOnce = backupOnce;
     }
 
     public String getBackupPath() {

@@ -105,20 +105,6 @@ public class Backup {
         ChangeData changeData = new ChangeData();
         changeData.setCreateTime(DateUtil.formatDate(DateUtil.addSecond(new Date(),-1)));  //错开一秒
         changeData.setChangeList(new ArrayList<>());
-        try (JarFile jarFile = new JarFile(jarPath)) {
-            Enumeration<JarEntry> entries = jarFile.entries();
-            while (entries.hasMoreElements()) {
-                JarEntry entry = entries.nextElement();
-
-                ChangeItem changeItem = new ChangeItem();
-                changeItem.setChangeType(ChangeType.ADD.value);
-                changeItem.setEntry(entry.getName());
-                changeData.getChangeList().add(changeItem);
-            }
-        }catch (Throwable e) {
-            e.printStackTrace();
-            return;
-        }
         this.backupJar(jarPath, changeData);
     }
 

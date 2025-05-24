@@ -241,12 +241,17 @@ public class JarEditorCore {
                     public void run(@NotNull ProgressIndicator progressIndicator) {
 
                         try {
+                            Backup backup = new Backup();
                             JarBuildResult jarBuildResult = null;
                             for(int i = 0; i <= selectedIndex ;i++) {
                                 //一层一层构建jar
                                 String jarPath = nestedJars.get(i).getCurrentPath();
                                 String jarEditOutput = MyPathUtil.getJarEditOutput(jarPath);
                                 JarBuilder jarBuilder = new JarBuilder(jarEditOutput , jarPath);
+
+                                if(BackupStorage.getInstance().isEnableBackup()) {
+                                    backup.checkBackupFirstVersion(jarPath);
+                                }
 
                                 jarBuildResult = jarBuilder.writeJar(false, (jarEditOutDir, tempJarOutputStream) -> {
                                     try {
@@ -277,6 +282,10 @@ public class JarEditorCore {
                                 });
 
                                 if(jarBuildResult.isSuccess()) {
+                                    if(BackupStorage.getInstance().isEnableBackup() && !BackupStorage.getInstance().isBackupOnce()) {
+                                        backup.backupJar(jarPath,backup.getChangeDataFromDir(jarEditOutput));
+                                    }
+
                                     if(i == selectedIndex && selectedIndex == nestedJars.size()-1){
                                         //删除临时保存的目录
                                         MyFileUtil.deleteDir(MyPathUtil.getJarEditTemp(jarPath));
@@ -344,7 +353,7 @@ public class JarEditorCore {
                             file.refresh(false,true);
                             VirtualFileManager.getInstance().refreshWithoutFileWatcher(true);
                         });
-                        if(BackupStorage.getInstance().isEnableBackup()) {
+                        if(BackupStorage.getInstance().isEnableBackup() && !BackupStorage.getInstance().isBackupOnce()) {
                             backup.backupJar(jarPath,backup.getChangeDataFromDir(jarEditClassPath));
                         }
 
