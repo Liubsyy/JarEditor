@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.liubs.jaredit</id>
   <name>JarEditor</name>
-  <version>2.3.1</version>
+  <version>2.3.2</version>
   <vendor email="Liubsyy@gmail.com" url="https://github.com/Liubsyy/JarEditor">Liubsyy</vendor>
 
   <description><![CDATA[
@@ -27,6 +27,7 @@
       <h3>2.3</h3>
       <ul>
          <li>Support backup</li>
+         <li>Show entry size</li>
       </ur>
 
       <h3>2.2</h3>
@@ -146,6 +147,7 @@
 
           <action id="jarEditorBackup" class="com.liubs.jareditor.action.JarEditorBackup" text="Backup" description="Backup" icon="AllIcons.Vcs.History"/>
           <action id="jarEditorSearch" class="com.liubs.jareditor.action.JarEditorSearch" text="Search" description="Search" icon="AllIcons.Actions.Search"/>
+          <action id="ShowEntrySize" class="com.liubs.jareditor.action.ShowEntrySize" text="Size" description="Size"/>
       </group>
 
       <action id="jarEditorClear" class="com.liubs.jareditor.action.JarEditorClear" text="Clear saved files" description="Clear saved files" icon="MyIcons.CLEAN"/>
