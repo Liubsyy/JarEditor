@@ -67,8 +67,8 @@ public class ShowSizeDialog extends DialogWrapper {
                 .setVerticalGap(8)
                 .addLabeledComponent("Jar total size: ", new JLabel(jarSize))
                 .addLabeledComponent("Entry : ", new JLabel(entryName))
-                .addLabeledComponent("Uncompressed Size : ", new JLabel(entrySize))
-                .addLabeledComponent("Compressed Size : ", new JLabel(compressedSize))
+                .addLabeledComponent("Uncompressed size : ", new JLabel(entrySize))
+                .addLabeledComponent("Compressed size : ", new JLabel(compressedSize))
                 .getPanel();
 
         return panel;
