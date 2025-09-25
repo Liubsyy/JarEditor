@@ -78,7 +78,7 @@ public class MyRuntimeCompiler implements IMyCompiler {
         options.add("-Xlint:none");
 
         options.add("-encoding");
-        options.add("UTF");
+        options.add("UTF-8");
 
 
         SDKSettingStorage sdkSetting = SDKSettingStorage.getInstance();
