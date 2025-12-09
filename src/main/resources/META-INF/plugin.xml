@@ -28,6 +28,7 @@
       <ul>
          <li>Support backup</li>
          <li>Show entry size</li>
+         <li>First guide</li>
       </ur>
 
       <h3>2.2</h3>
@@ -114,6 +115,13 @@
     <projectListeners>
         <listener class="com.liubs.jareditor.structure.NestedJarChangedListener" topic="com.intellij.openapi.vfs.newvfs.BulkFileListener"/>
     </projectListeners>
+
+    <applicationListeners>
+        <listener
+                class="com.liubs.jareditor.firstguide.FirstGuideListener"
+                topic="com.intellij.ide.plugins.PluginStateListener"
+        />
+    </applicationListeners>
 
   <actions>
 
