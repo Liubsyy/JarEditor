@@ -13,9 +13,14 @@ public class FirstGuideListener implements PluginStateListener {
     public void install(@NotNull IdeaPluginDescriptor ideaPluginDescriptor) {
 
         //安装完插件后弹出引导
-        if(ideaPluginDescriptor.getPluginId().getIdString().equals("com.liubs.jaredit")) {
-            FirstGuideStartup.run();
+        try{
+            if(ideaPluginDescriptor.getPluginId().getIdString().equals("com.liubs.jaredit")) {
+                FirstGuideStartup.run();
+            }
+        }catch (Throwable e){
+            e.printStackTrace();
         }
+
     }
 
     @Override

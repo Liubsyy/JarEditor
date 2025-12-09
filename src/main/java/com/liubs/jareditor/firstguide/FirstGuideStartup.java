@@ -29,7 +29,7 @@ public class FirstGuideStartup {
         if(GuideStorage.getInstance().isShowed()){
             return;
         }
-        //GuideStorage.getInstance().setShowed(true);
+        GuideStorage.getInstance().setShowed(true);
 
         ApplicationManager.getApplication().invokeLater(() -> {
             try{
