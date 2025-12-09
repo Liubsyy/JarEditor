@@ -106,7 +106,9 @@
       <projectService serviceImplementation="com.liubs.jareditor.structure.NestedJarHolder"/>
       <applicationService serviceImplementation="com.liubs.jareditor.persistent.SDKSettingStorage"/>
       <applicationService serviceImplementation="com.liubs.jareditor.persistent.BackupStorage"/>
+      <applicationService serviceImplementation="com.liubs.jareditor.persistent.GuideStorage"/>
 
+      <postStartupActivity implementation="com.liubs.jareditor.firstguide.MyStartupActivity"/>
   </extensions>
 
     <projectListeners>
@@ -148,6 +150,7 @@
           <action id="jarEditorBackup" class="com.liubs.jareditor.action.JarEditorBackup" text="Backup" description="Backup" icon="AllIcons.Vcs.History"/>
           <action id="jarEditorSearch" class="com.liubs.jareditor.action.JarEditorSearch" text="Search" description="Search" icon="AllIcons.Actions.Search"/>
           <action id="ShowEntrySize" class="com.liubs.jareditor.action.ShowEntrySize" text="Size" description="Size"/>
+          <action id="jarEditorFirstGuide" class="com.liubs.jareditor.action.JarEditorFirstGuide" text="Help" description="Help"/>
       </group>
 
       <action id="jarEditorClear" class="com.liubs.jareditor.action.JarEditorClear" text="Clear saved files" description="Clear saved files" icon="MyIcons.CLEAN"/>
