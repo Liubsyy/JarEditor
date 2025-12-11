@@ -20,6 +20,7 @@ public class GuideStorage implements PersistentStateComponent<GuideStorage> {
 
     private boolean showed;
     private String version;
+    private int count = 0;
 
     @Nullable
     @Override
@@ -50,5 +51,13 @@ public class GuideStorage implements PersistentStateComponent<GuideStorage> {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
     }
 }

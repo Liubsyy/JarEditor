@@ -11,30 +11,33 @@ import com.liubs.jareditor.util.ClientVersions;
 public class FirstGuideStartup {
     private static volatile boolean alreadyCreated = false;
 
-    public static void run() {
-
-        //只创建一次，每个窗口都共用一个
-        if(alreadyCreated){
-            return;
-        }
-        synchronized (FirstGuideStartup.class) {
-            if(alreadyCreated) {
-                return;
+    public static void showGuide(){
+        //只创建一次，所有窗口都共用一个
+        if(!alreadyCreated) {
+            synchronized (FirstGuideStartup.class) {
+                if(!alreadyCreated) {
+                    alreadyCreated = true;
+                    run();
+                }
             }
-            alreadyCreated = true;
         }
+    }
+
+    public static void run() {
 
         GuideStorage.getInstance().setVersion(ClientVersions.getCurrentPluginVersion());
 
-        if(GuideStorage.getInstance().isShowed()){
+        if(GuideStorage.getInstance().isShowed() || GuideStorage.getInstance().getCount() >=3){
             return;
         }
-        GuideStorage.getInstance().setShowed(true);
+        GuideStorage.getInstance().setCount(GuideStorage.getInstance().getCount()+1);
 
         ApplicationManager.getApplication().invokeLater(() -> {
             try{
                 FirstGuideDialog dialog = new FirstGuideDialog();
-                dialog.show();
+                if(dialog.showAndGet()){
+                    GuideStorage.getInstance().setShowed(true);
+                }
             }catch (Throwable e) {
                 e.printStackTrace();
             }

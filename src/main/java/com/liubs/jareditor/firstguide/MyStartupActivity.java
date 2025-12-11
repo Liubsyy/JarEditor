@@ -12,7 +12,7 @@ public class MyStartupActivity implements StartupActivity {
     @Override
     public void runActivity(@NotNull Project project) {
         try{
-            FirstGuideStartup.run();
+            FirstGuideStartup.showGuide();
         }catch (Throwable e) {
             e.printStackTrace();
         }
