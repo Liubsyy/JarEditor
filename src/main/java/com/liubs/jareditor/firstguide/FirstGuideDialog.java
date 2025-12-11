@@ -50,8 +50,6 @@ public class FirstGuideDialog extends DialogWrapper {
         init();
         setTitle("JarEditor First Guide");
         pack(); //调整窗口大小以适应其子组件
-
-        setModal(false);
     }
 
     @Override
