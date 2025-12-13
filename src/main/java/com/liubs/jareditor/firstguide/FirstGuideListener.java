@@ -19,7 +19,7 @@ public class FirstGuideListener implements PluginStateListener {
             if(null != pluginId) {
                 String idString = pluginId.getIdString();
                 if("com.liubs.jaredit".equals(idString)) {
-                    FirstGuideStartup.run();
+                    FirstGuideStartup.showGuide(true);
                 }
             }
         }catch (Throwable e){

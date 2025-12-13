@@ -3,7 +3,6 @@ package com.liubs.jareditor.action;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.liubs.jareditor.firstguide.FirstGuideDialog;
-import com.liubs.jareditor.persistent.GuideStorage;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -14,8 +13,7 @@ public class JarEditorFirstGuide extends AnAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         FirstGuideDialog dialog = new FirstGuideDialog();
-        if(dialog.showAndGet()){
-            GuideStorage.getInstance().setShowed(true);
-        }
+        dialog.setModal(true);
+        dialog.show();
     }
 }

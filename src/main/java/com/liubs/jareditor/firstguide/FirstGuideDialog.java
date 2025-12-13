@@ -3,6 +3,7 @@ package com.liubs.jareditor.firstguide;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.util.ui.JBUI;
+import com.liubs.jareditor.persistent.GuideStorage;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -99,5 +100,11 @@ public class FirstGuideDialog extends DialogWrapper {
         Action okAction = getOKAction();
         okAction.putValue(Action.NAME, "I have read and learned it");
         return new Action[]{ okAction };
+    }
+
+    @Override
+    protected void doOKAction() {
+        super.doOKAction();
+        GuideStorage.getInstance().setShowed(true);
     }
 }
