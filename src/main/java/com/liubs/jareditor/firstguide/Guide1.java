@@ -20,7 +20,7 @@ public class Guide1 extends JPanel {
         JLabel icon2 = new JLabel(IconUtil.scale(IconLoader.getIcon("/icons/guide1_2.png",
                 getClass()), null, 0.4f));
 
-        JLabel textLabel = new JLabel("<html><div style='margin-top:5px;'>If you cannot see the expanded files in JAR, try the following steps:</div>"
+        JLabel textLabel = new JLabel("<html><div style='margin-top:5px;'>If you cannot see the contents of the files in JAR, try the following steps:</div>"
                 + "<br><div style='margin-bottom:10px;color:orange'> File → Project Structure → Libraries → + → Java</div>"
                 +"</html>"
         );
