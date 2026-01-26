@@ -10,10 +10,12 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.PathUtil;
+import com.liubs.jareditor.backup.Backup;
 import com.liubs.jareditor.compile.*;
 import com.liubs.jareditor.constant.PathConstant;
 import com.liubs.jareditor.dependency.ExtraDependencyManager;
 import com.liubs.jareditor.dependency.NestedJarDependency;
+import com.liubs.jareditor.persistent.BackupStorage;
 import com.liubs.jareditor.structure.NestedJar;
 import com.liubs.jareditor.jarbuild.JarBuildResult;
 import com.liubs.jareditor.jarbuild.JarBuilder;
@@ -239,12 +241,17 @@ public class JarEditorCore {
                     public void run(@NotNull ProgressIndicator progressIndicator) {
 
                         try {
+                            Backup backup = new Backup();
                             JarBuildResult jarBuildResult = null;
                             for(int i = 0; i <= selectedIndex ;i++) {
                                 //一层一层构建jar
                                 String jarPath = nestedJars.get(i).getCurrentPath();
                                 String jarEditOutput = MyPathUtil.getJarEditOutput(jarPath);
                                 JarBuilder jarBuilder = new JarBuilder(jarEditOutput , jarPath);
+
+                                if(BackupStorage.getInstance().isEnableBackup()) {
+                                    backup.checkBackupFirstVersion(jarPath);
+                                }
 
                                 jarBuildResult = jarBuilder.writeJar(false, (jarEditOutDir, tempJarOutputStream) -> {
                                     try {
@@ -275,12 +282,16 @@ public class JarEditorCore {
                                 });
 
                                 if(jarBuildResult.isSuccess()) {
+                                    if(BackupStorage.getInstance().isEnableBackup() && !BackupStorage.getInstance().isBackupOnce()) {
+                                        backup.backupJar(jarPath,backup.getChangeDataFromDir(jarEditOutput));
+                                    }
+
                                     if(i == selectedIndex && selectedIndex == nestedJars.size()-1){
                                         //删除临时保存的目录
                                         MyFileUtil.deleteDir(MyPathUtil.getJarEditTemp(jarPath));
                                     }else {
                                         //拷贝生成的jar到父层的jar_edit_out目录
-                                        String parentJarTemp = MyPathUtil.getJarEditTemp(nestedJar.getParentPath());
+                                        String parentJarTemp = MyPathUtil.getJarEditTemp(nestedJars.get(i).getParentPath());
                                         String relaPath = jarPath.replace(parentJarTemp, "")
                                                 .replaceFirst(PathConstant.NESTED_JAR_DIR, PathConstant.JAR_EDIT_CLASS_PATH);
                                         String parentDestinationPath = Paths.get(parentJarTemp, relaPath).toString();
@@ -327,9 +338,14 @@ public class JarEditorCore {
                     if(jarPath == null) {
                         return;
                     }
+                    Backup backup = new Backup();
                     String jarEditClassPath = MyPathUtil.getJarEditOutput(file.getPath());
                     JarBuilder jarBuilder = new JarBuilder(jarEditClassPath , jarPath);
 //                    JarBuildResult jarBuildResult = jarBuilder.writeJar(true);
+
+                    if(BackupStorage.getInstance().isEnableBackup()) {
+                        backup.checkBackupFirstVersion(jarPath);
+                    }
                     JarBuildResult jarBuildResult = jarBuilder.writeJar(false);
 
                     if(jarBuildResult.isSuccess()) {
@@ -337,6 +353,9 @@ public class JarEditorCore {
                             file.refresh(false,true);
                             VirtualFileManager.getInstance().refreshWithoutFileWatcher(true);
                         });
+                        if(BackupStorage.getInstance().isEnableBackup() && !BackupStorage.getInstance().isBackupOnce()) {
+                            backup.backupJar(jarPath,backup.getChangeDataFromDir(jarEditClassPath));
+                        }
 
                         //删除临时保存的class目录
                         MyFileUtil.deleteDir(MyPathUtil.getJarEditTemp(file.getPath()));

@@ -39,6 +39,12 @@ public class SDKSettingStorage implements PersistentStateComponent<SDKSettingSto
      */
     private int decompiledTool;
 
+    //-parameters;
+    private boolean parameters;
+
+    //-proc:none
+    private boolean procNone = true;
+
     @Nullable
     @Override
     public SDKSettingStorage getState() {
@@ -72,6 +78,14 @@ public class SDKSettingStorage implements PersistentStateComponent<SDKSettingSto
     }
 
 
+    public boolean isParameters() {
+        return parameters;
+    }
+
+    public void setParameters(boolean parameters) {
+        this.parameters = parameters;
+    }
+
     public static List<MyItem> getMySdksDefaultProjectSdks(){
         List<MyItem> mySdks = SDKSettingStorage.getInstance().getMySdks();
         if(mySdks.isEmpty()) {
@@ -103,6 +117,15 @@ public class SDKSettingStorage implements PersistentStateComponent<SDKSettingSto
 
     public void setDecompiledTool(int decompiledTool) {
         this.decompiledTool = decompiledTool;
+    }
+
+
+    public boolean isProcNone() {
+        return procNone;
+    }
+
+    public void setProcNone(boolean procNone) {
+        this.procNone = procNone;
     }
 
     @Tag("item")

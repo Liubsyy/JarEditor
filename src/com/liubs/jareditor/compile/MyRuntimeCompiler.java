@@ -77,13 +77,25 @@ public class MyRuntimeCompiler implements IMyCompiler {
 
         options.add("-Xlint:none");
 
-        String genDebugInfos = SDKSettingStorage.getInstance().getGenDebugInfos();
+        options.add("-encoding");
+        options.add("UTF-8");
+
+
+        SDKSettingStorage sdkSetting = SDKSettingStorage.getInstance();
+        String genDebugInfos = sdkSetting.getGenDebugInfos();
         if(StringUtils.isEmpty(genDebugInfos)) {
             options.add("-g");
         }else {
             options.add("-g:"+genDebugInfos);
         }
 
+        if(sdkSetting.isParameters() && Double.parseDouble(targetVersion)>=8) {
+            options.add("-parameters");
+        }
+
+        if(sdkSetting.isProcNone()) {
+            options.add("-proc:none");
+        }
 
         DiagnosticCollector<JavaFileObject> diagnostics  = new DiagnosticCollector<>();
         StandardJavaFileManager standardFileManager = compiler.getStandardFileManager(diagnostics, null, null);

@@ -52,12 +52,23 @@ public class MyJavacCompiler extends ProcessCommandCompiler{
         commands.add("-target");
         commands.add(targetVersion);
         commands.add( "-Xlint:none");
+        commands.add("-encoding");
+        commands.add("UTF-8");
 
-        String genDebugInfos = SDKSettingStorage.getInstance().getGenDebugInfos();
+        SDKSettingStorage sdkSetting = SDKSettingStorage.getInstance();
+        String genDebugInfos = sdkSetting.getGenDebugInfos();
         if(StringUtils.isEmpty(genDebugInfos)) {
             commands.add("-g");
         }else {
             commands.add("-g:"+genDebugInfos);
+        }
+
+        if(sdkSetting.isParameters() && Double.parseDouble(targetVersion)>=8) {
+            commands.add("-parameters");
+        }
+
+        if(sdkSetting.isProcNone()) {
+            commands.add("-proc:none");
         }
 
         if(!classPaths.isEmpty()) {

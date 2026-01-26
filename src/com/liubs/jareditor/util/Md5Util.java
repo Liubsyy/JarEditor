@@ -8,6 +8,9 @@ import java.security.NoSuchAlgorithmException;
  * @date 2024/5/11
  */
 public class Md5Util {
+    public static String md5(String input) {
+        return md5(input.getBytes());
+    }
     public static String md5(byte[] inputBytes) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");

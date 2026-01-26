@@ -8,18 +8,21 @@ import java.util.Map;
  * @date 2024/5/14
  */
 public enum TemplateType {
-   JAVA_TEMPLATE("java","template/java.template",new JavaTextParser()),
-   CLASS_TEMPLATE("class","template/java.template",new JavaTextParser()),
-   XML_TEMPLATE("xml","template/xml.template", DefaultParser.INSTANCE),
-   KOTLIN_TEMPLATE("kt","template/kotlin.template", new KotlinTextParser()),
+   JAVA_TEMPLATE("java","template/java.template",new JavaTextParser(),false),
+   CLASS_TEMPLATE("class","template/java.template",new JavaTextParser(),false),
+   XML_TEMPLATE("xml","template/xml.template", DefaultParser.INSTANCE,false),
+   KOTLIN_TEMPLATE("kt","template/kotlin.template", new KotlinTextParser(),false),
+   MANIFEST_TEMPLATE("MF","template/MANIFEST.template", DefaultParser.INSTANCE,true),
 
 
 
     ;
 
+
     private String fileExtension;
     private String templateFile;
     private ITextParser textParser;
+    private boolean addContentWhenCreate;   //jar内新增文件时就写入文本模版
 
     private static final Map<String,TemplateType> templateTypeMap = new HashMap<>();
     static {
@@ -28,10 +31,11 @@ public enum TemplateType {
         }
     }
 
-    TemplateType(String fileExtension, String templateFile,ITextParser textParser) {
+    TemplateType(String fileExtension, String templateFile,ITextParser textParser,boolean addContentWhenCreate) {
         this.fileExtension = fileExtension;
         this.templateFile = templateFile;
         this.textParser = textParser;
+        this.addContentWhenCreate = addContentWhenCreate;
     }
 
     public static TemplateType getTemplateType(String fileExtension) {
@@ -44,5 +48,9 @@ public enum TemplateType {
 
     public ITextParser getTextParser() {
         return textParser;
+    }
+
+    public boolean isAddContentWhenCreate() {
+        return addContentWhenCreate;
     }
 }

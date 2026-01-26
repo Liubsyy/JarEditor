@@ -49,6 +49,9 @@ public class JarBuilder {
             if (!Files.exists(jarPath)) {
                 return new JarBuildResult(false, "File does not exist: " + jarFile);
             }
+            if( !Files.isWritable(jarPath) ){
+                return new JarBuildResult(false, "This JAR file is read-only. Please change the file permissions (e.g., using chmod) to allow write operations.");
+            }
 
 
             Map<String, byte[]> oldEntryMap = null;
@@ -125,7 +128,7 @@ public class JarBuilder {
      * @param filePath
      * @return
      */
-    public JarBuildResult addFile(String filePath){
+    public JarBuildResult addFile(String filePath,byte[] content){
         JarBuildResult jarBuildResult;
         File tempJarFile = null;
         try {
@@ -160,6 +163,9 @@ public class JarBuilder {
                 //write a empty file
                for(String eachEntry : allNewEntries) {
                    tempJarOutputStream.putNextEntry(new JarEntry(eachEntry));
+                   if(null != content) {
+                       tempJarOutputStream.write(content);
+                   }
                    tempJarOutputStream.closeEntry();
                }
 
@@ -358,6 +364,7 @@ public class JarBuilder {
 
     private void copyExistingEntries(JarFile originalJar, JarOutputStream tempJarOutputStream, Set<String> excludeEntries,boolean resoleDir) throws IOException {
         Enumeration<JarEntry> entries = originalJar.entries();
+        final Set<String> entrySet = new HashSet<>();
         while (entries.hasMoreElements()) {
             JarEntry entry = entries.nextElement();
 
@@ -381,6 +388,13 @@ public class JarBuilder {
                     continue;
                 }
             }
+
+            //判断重复，有的jar有重复元素
+            if(entrySet.contains(entry.getName())) {
+                continue;
+            }
+            entrySet.add(entry.getName());
+
             JarEntry newEntry = copyNewEntry(originalJar,entry);
             tempJarOutputStream.putNextEntry(newEntry);
 

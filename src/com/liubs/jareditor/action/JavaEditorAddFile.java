@@ -9,12 +9,23 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.liubs.jareditor.backup.Backup;
+import com.liubs.jareditor.backup.ChangeData;
+import com.liubs.jareditor.backup.ChangeItem;
+import com.liubs.jareditor.backup.ChangeType;
 import com.liubs.jareditor.jarbuild.JarBuildResult;
 import com.liubs.jareditor.jarbuild.JarBuilder;
+import com.liubs.jareditor.persistent.BackupStorage;
 import com.liubs.jareditor.sdk.NoticeInfo;
+import com.liubs.jareditor.template.TemplateManager;
+import com.liubs.jareditor.util.DateUtil;
 import com.liubs.jareditor.util.JarUtil;
 import com.liubs.jareditor.util.MyPathUtil;
 import org.jetbrains.annotations.NotNull;
+
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * @author Liubsyy
@@ -78,12 +89,9 @@ public abstract class JavaEditorAddFile  extends AnAction {
                         return;
                      }
 
-                    JarBuilder jarBuilder = new JarBuilder(jarPath);
-                    JarBuildResult jarBuildResult = jarBuilder.addFile(entryPath);
-                    if(!jarBuildResult.isSuccess()) {
-                        NoticeInfo.error("Add file err: \n%s",jarBuildResult.getErr());
-                        return;
-                    }
+                     if(!addFileInJar(jarPath,entryPath)) {
+                         return;
+                     }
 
                     VirtualFileManager.getInstance().refreshWithoutFileWatcher(true);
 
@@ -114,5 +122,32 @@ public abstract class JavaEditorAddFile  extends AnAction {
                 }
             }
         });
+    }
+
+    protected boolean addFileInJar(String jarPath,String entryPath){
+        JarBuilder jarBuilder = new JarBuilder(jarPath);
+        byte[] templateContent = null;
+
+        Backup backup = new Backup();
+        if(BackupStorage.getInstance().isEnableBackup()) {
+            backup.checkBackupFirstVersion(jarPath);
+        }
+        if(TemplateManager.isAddContentWhenCreate(MyPathUtil.getFileExtension(entryPath))) {
+            templateContent = TemplateManager.getText(MyPathUtil.getFileExtension(entryPath),entryPath)
+                    .getBytes(StandardCharsets.UTF_8);
+        }
+        JarBuildResult jarBuildResult = jarBuilder.addFile(entryPath,templateContent);
+        if(!jarBuildResult.isSuccess()) {
+            NoticeInfo.error("Add file err: \n%s",jarBuildResult.getErr());
+            return false;
+        }
+        if(BackupStorage.getInstance().isEnableBackup() && !BackupStorage.getInstance().isBackupOnce()) {
+            ChangeData changeData = new ChangeData();
+            changeData.setCreateTime(DateUtil.formatDate(new Date()));
+            changeData.setChangeList(new ArrayList<>());
+            changeData.getChangeList().add(new ChangeItem(ChangeType.ADD.value,entryPath));
+            backup.backupJar(jarPath,changeData);
+        }
+        return true;
     }
 }

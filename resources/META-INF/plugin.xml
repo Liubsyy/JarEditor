@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.liubs.jaredit</id>
   <name>JarEditor</name>
-  <version>2.1.5</version>
+  <version>2.3.6</version>
   <vendor email="Liubsyy@gmail.com" url="https://github.com/Liubsyy/JarEditor">Liubsyy</vendor>
 
   <description><![CDATA[
@@ -17,13 +17,27 @@
         <li>Support SpringBoot jar/Nested jar</li>
         <li>Support kotlin</li>
         <li>Export source jar</li>
-        <li>Support class bytes tool : javassist</li>
+        <li>Support class bytes tool : Javassist/VisualClassBytes</li>
         <li>Decompilers : Fernflower/CFR/Procyon </li>
     </ul>
 
     ]]></description>
 
   <change-notes><![CDATA[
+      <h3>2.3</h3>
+      <ul>
+         <li>Support backup</li>
+         <li>Show entry size</li>
+         <li>First guide</li>
+      </ur>
+
+      <h3>2.2</h3>
+      <ul>
+         <li>Support VisualClassBytes</li>
+         <li>Support new jar</li>
+         <li>Fix compilation failure: BOOT-INF/classes contains Chinese package</li>
+         <li>Fix Building jar: duplicate entry</li>
+      </ur>
 
      <h3>2.1</h3>
       <ul>
@@ -92,12 +106,22 @@
 
       <projectService serviceImplementation="com.liubs.jareditor.structure.NestedJarHolder"/>
       <applicationService serviceImplementation="com.liubs.jareditor.persistent.SDKSettingStorage"/>
+      <applicationService serviceImplementation="com.liubs.jareditor.persistent.BackupStorage"/>
+      <applicationService serviceImplementation="com.liubs.jareditor.persistent.GuideStorage"/>
 
+      <postStartupActivity implementation="com.liubs.jareditor.firstguide.MyStartupActivity"/>
   </extensions>
 
     <projectListeners>
         <listener class="com.liubs.jareditor.structure.NestedJarChangedListener" topic="com.intellij.openapi.vfs.newvfs.BulkFileListener"/>
     </projectListeners>
+
+    <applicationListeners>
+        <listener
+                class="com.liubs.jareditor.firstguide.FirstGuideListener"
+                topic="com.intellij.ide.plugins.PluginStateListener"
+        />
+    </applicationListeners>
 
   <actions>
 
@@ -109,6 +133,8 @@
               <action id="jarEditorAddKotlinFile" class="com.liubs.jareditor.action.JarEditorAddKotlinFile" text="Kotlin" description="NewKotlin" icon="MyIcons.KOTLIN_CLASS" />
               <action id="jarEditorAddResourceFile" class="com.liubs.jareditor.action.JarEditorAddResourceFile" text="File" description="NewFile" icon="AllIcons.FileTypes.Any_type" />
               <action id="jarEditorAddDirectory" class="com.liubs.jareditor.action.JarEditorAddDirectory" text="Directory" description="NewDirectory" icon="AllIcons.Nodes.Folder" />
+              <action id="jarEditorAddManifest" class="com.liubs.jareditor.action.JarEditorAddManifest" text="MANIFEST.MF" description="MANIFEST.MF" icon="AllIcons.FileTypes.Manifest" />
+              <action id="jarEditorAddJar" class="com.liubs.jareditor.action.JarEditorAddJar" text="JAR" description="JAR" icon="AllIcons.Nodes.PpJar" />
           </group>
 
           <action id="jarEditorDeleteFiles" class="com.liubs.jareditor.action.JarEditorDeleteFiles" text="Delete" description="Delete"/>
@@ -124,12 +150,15 @@
           </group>
 
           <group id="Structure"  text="Structure" description="Structure" popup="true">
-              <action id="ExpandNestedJarAction" class="com.liubs.jareditor.action.ExpandNestedJarAction" text="Expand Nested Jar" description="Nested Nested Jar" />
+              <action id="ExpandNestedJarAction" class="com.liubs.jareditor.action.ExpandNestedJarAction" text="Expand Nested Jar" description="Expand Nested Jar" />
               <action id="RefreshFileTree" class="com.liubs.jareditor.action.RefreshFileTree" text="Refresh File Tree" description="Refresh File Tree" />
               <action id="CompressionMethod" class="com.liubs.jareditor.action.CompressionMethod" text="Compression Method" description="Compression Method"/>
           </group>
 
+          <action id="jarEditorBackup" class="com.liubs.jareditor.action.JarEditorBackup" text="Backup" description="Backup" icon="AllIcons.Vcs.History"/>
           <action id="jarEditorSearch" class="com.liubs.jareditor.action.JarEditorSearch" text="Search" description="Search" icon="AllIcons.Actions.Search"/>
+          <action id="ShowEntrySize" class="com.liubs.jareditor.action.ShowEntrySize" text="Size" description="Size"/>
+          <action id="jarEditorFirstGuide" class="com.liubs.jareditor.action.JarEditorFirstGuide" text="Help" description="Help"/>
       </group>
 
       <action id="jarEditorClear" class="com.liubs.jareditor.action.JarEditorClear" text="Clear saved files" description="Clear saved files" icon="MyIcons.CLEAN"/>
@@ -137,7 +166,8 @@
 
       <!--class bytes tool -->
       <group id="classBytesTool" text="Class bytes tool" description="Class bytes tool" icon="MyIcons.TOOL"  popup="true">
-          <action id="javassistAction" class="com.liubs.jareditor.action.JavassistAction" text="Javassist" description="Javassist"/>
+          <action id="jareditor.javassistAction" class="com.liubs.jareditor.action.JavassistAction" text="Javassist" description="Javassist"/>
+          <action id="jareditor.openVcbAction" class="com.liubs.jareditor.action.VcbEditorAction" text="Visual ClassBytes" description="VisualClassBytes"/>
       </group>
 
 
