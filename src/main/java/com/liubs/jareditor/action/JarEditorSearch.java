@@ -8,6 +8,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.liubs.jareditor.constant.JarLikeSupports;
 import com.liubs.jareditor.search.JarFileSearchDialog;
 import com.liubs.jareditor.sdk.NoticeInfo;
 import com.liubs.jareditor.util.MyPathUtil;
@@ -40,8 +41,8 @@ public class JarEditorSearch extends AnAction {
 
         VirtualFile jarRoot = null;
         if(null != selectedFile) {
-            final String jarPath = "jar".equals(selectedFile.getExtension()) ?
-                    selectedFile.getPath().replace(".jar!/",".jar") : MyPathUtil.getJarPathFromJar(selectedFile.getPath());
+            final String jarPath = JarLikeSupports.FILE_EXT.contains(selectedFile.getExtension()) ?
+                    selectedFile.getPath() : MyPathUtil.getJarPathFromJar(selectedFile.getPath());
             if(null != jarPath) {
                 jarRoot = VirtualFileManager.getInstance().findFileByUrl("jar://" + jarPath + "!/");
             }

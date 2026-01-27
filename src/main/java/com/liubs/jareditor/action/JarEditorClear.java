@@ -5,6 +5,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.liubs.jareditor.constant.JarLikeSupports;
 import com.liubs.jareditor.sdk.NoticeInfo;
 import com.liubs.jareditor.util.MyFileUtil;
 import com.liubs.jareditor.util.MyPathUtil;
@@ -23,8 +24,7 @@ public class JarEditorClear extends MyToolbarAction {
             return;
         }
 
-        final String jarPath = "jar".equals(selectedFile.getExtension()) ?
-                selectedFile.getPath().replace(".jar!/",".jar") : MyPathUtil.getJarPathFromJar(selectedFile.getPath());
+        final String jarPath = JarLikeSupports.FILE_EXT.contains(selectedFile.getExtension()) ? selectedFile.getPath(): MyPathUtil.getJarPathFromJar(selectedFile.getPath());
         if(null == jarPath) {
             NoticeInfo.warning("This operation only in JAR !!!");
             return;

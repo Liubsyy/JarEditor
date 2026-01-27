@@ -14,6 +14,7 @@ import com.liubs.jareditor.backup.Backup;
 import com.liubs.jareditor.backup.ChangeData;
 import com.liubs.jareditor.backup.ChangeItem;
 import com.liubs.jareditor.backup.ChangeType;
+import com.liubs.jareditor.constant.JarLikeSupports;
 import com.liubs.jareditor.jarbuild.JarBuildResult;
 import com.liubs.jareditor.jarbuild.JarBuilder;
 import com.liubs.jareditor.persistent.BackupStorage;
@@ -50,7 +51,7 @@ public class JarEditorDeleteFiles extends AnAction {
 
         Set<String> deleteEntries = new HashSet<>();
         for (VirtualFile file : selectedFiles) {
-            if(!file.getPath().contains(".jar!/")) {
+            if(!file.getPath().matches(JarLikeSupports.MATCHER)) {
                 NoticeInfo.warning("Ony files in JAR can be deleted !!!");
                 return;
             }

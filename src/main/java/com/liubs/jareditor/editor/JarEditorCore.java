@@ -13,8 +13,10 @@ import com.intellij.util.PathUtil;
 import com.liubs.jareditor.backup.Backup;
 import com.liubs.jareditor.compile.*;
 import com.liubs.jareditor.constant.PathConstant;
+import com.liubs.jareditor.constant.JarLikeSupports;
 import com.liubs.jareditor.dependency.ExtraDependencyManager;
 import com.liubs.jareditor.dependency.NestedJarDependency;
+import com.liubs.jareditor.entity.SplitResult;
 import com.liubs.jareditor.persistent.BackupStorage;
 import com.liubs.jareditor.structure.NestedJar;
 import com.liubs.jareditor.jarbuild.JarBuildResult;
@@ -65,10 +67,10 @@ public class JarEditorCore {
         String jarRelativePath;
 
         // 分离 jar 文件路径和相对路径（使用 .jar!）
-        if (filePath.contains(".jar!")) {
-            String[] parts = filePath.split(".jar!");
-            jarPath = parts[0] + ".jar";
-            jarRelativePath = parts[1].substring(1); // 去掉前导的 '/'
+        if (filePath.matches(JarLikeSupports.MATCHER)) {
+            SplitResult splitResult = JarLikeSupports.split(filePath);
+            jarPath = splitResult.filePath0();
+            jarRelativePath = splitResult.split1();
         } else {
             NoticeInfo.warning("File is not inside a jar archive.");
             return;

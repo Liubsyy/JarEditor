@@ -6,6 +6,7 @@ import com.intellij.openapi.fileEditor.FileEditorPolicy;
 import com.intellij.openapi.fileEditor.FileEditorProvider;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.liubs.jareditor.constant.JarLikeSupports;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
@@ -21,8 +22,7 @@ public class MyFileEditorProvider implements FileEditorProvider {
     @Override
     public boolean accept(@NotNull Project project, @NotNull VirtualFile file) {
         // 只扩展jar内文件
-        //return "class".equalsIgnoreCase(file.getExtension())
-        return file.getPath().contains(".jar!/");
+        return file.getPath().matches(JarLikeSupports.MATCHER);
     }
 
     @NotNull

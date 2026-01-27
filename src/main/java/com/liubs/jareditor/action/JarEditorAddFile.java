@@ -13,6 +13,7 @@ import com.liubs.jareditor.backup.Backup;
 import com.liubs.jareditor.backup.ChangeData;
 import com.liubs.jareditor.backup.ChangeItem;
 import com.liubs.jareditor.backup.ChangeType;
+import com.liubs.jareditor.constant.JarLikeSupports;
 import com.liubs.jareditor.jarbuild.JarBuildResult;
 import com.liubs.jareditor.jarbuild.JarBuilder;
 import com.liubs.jareditor.persistent.BackupStorage;
@@ -31,7 +32,7 @@ import java.util.Date;
  * @author Liubsyy
  * @date 2024/5/12
  */
-public abstract class JavaEditorAddFile  extends AnAction {
+public abstract class JarEditorAddFile extends AnAction {
 
     protected abstract String preInput( Project project,String entryPathFromJar);
 
@@ -50,7 +51,7 @@ public abstract class JavaEditorAddFile  extends AnAction {
         }
 
         //当在一个文件a上右键新增文件b时，取a所在的文件夹进行新增b
-        if(!"jar".equals(selectedFile.getExtension()) && !selectedFile.isDirectory()) {
+        if(!JarLikeSupports.FILE_EXT.contains(selectedFile.getExtension()) && !selectedFile.isDirectory()) {
             selectedFile = selectedFile.getParent();
             if(null == selectedFile) {
                 NoticeInfo.warning("You need choose a folder in jar !");
@@ -58,9 +59,9 @@ public abstract class JavaEditorAddFile  extends AnAction {
             }
         }
 
-        boolean isJarRoot = "jar".equals(selectedFile.getExtension());
+        boolean isJarRoot = JarLikeSupports.FILE_EXT.contains(selectedFile.getExtension());
         final String jarPath = isJarRoot ?
-                selectedFile.getPath().replace(".jar!/",".jar") : MyPathUtil.getJarPathFromJar(selectedFile.getPath());
+                selectedFile.getPath() : MyPathUtil.getJarPathFromJar(selectedFile.getPath());
         final String entryPathFromJar = MyPathUtil.getEntryPathFromJar(selectedFile.getPath());
         if(null == jarPath) {
             NoticeInfo.warning("This operation only in JAR !!!");

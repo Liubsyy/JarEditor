@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project;
  * @author Liubsyy
  * @date 2024/10/15
  */
-public class JarEditorAddManifest extends JavaEditorAddFile {
+public class JarEditorAddManifest extends JarEditorAddFile {
 
     @Override
     protected String preInput(Project project, String entryPathFromJar) {

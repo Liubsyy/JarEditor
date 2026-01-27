@@ -9,7 +9,7 @@ import com.liubs.jareditor.util.StringUtils;
  * @author Liubsyy
  * @date 2024/5/12
  */
-public class JarEditorAddResourceFile  extends JavaEditorAddFile {
+public class JarEditorAddResourceFile  extends JarEditorAddFile {
     @Override
     protected String preInput(Project project, String entryPathFromJar) {
         String userInput = Messages.showInputDialog(

@@ -6,6 +6,7 @@ import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.liubs.jareditor.backup.BackupDialog;
+import com.liubs.jareditor.constant.JarLikeSupports;
 import com.liubs.jareditor.sdk.NoticeInfo;
 import com.liubs.jareditor.util.MyPathUtil;
 import org.jetbrains.annotations.NotNull;
@@ -29,9 +30,9 @@ public class JarEditorBackup extends AnAction {
             return;
         }
 
-        boolean isJarRoot = "jar".equals(selectedFile.getExtension());
+        boolean isJarRoot = JarLikeSupports.FILE_EXT.contains(selectedFile.getExtension());
         final String jarPath = isJarRoot ?
-                selectedFile.getPath().replace(".jar!/",".jar") : MyPathUtil.getJarPathFromJar(selectedFile.getPath());
+                selectedFile.getPath() : MyPathUtil.getJarPathFromJar(selectedFile.getPath());
         if(null == jarPath) {
             NoticeInfo.warning("This operation only in JAR !!!");
             return;

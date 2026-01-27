@@ -9,7 +9,7 @@ import com.liubs.jareditor.util.StringUtils;
  * @author Liubsyy
  * @date 2024/6/2
  */
-public class JarEditorAddKotlinFile extends JavaEditorAddFile {
+public class JarEditorAddKotlinFile extends JarEditorAddFile {
 
     @Override
     protected String preInput(Project project, String entryPathFromJar) {

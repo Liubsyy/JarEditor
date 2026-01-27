@@ -11,6 +11,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.liubs.jareditor.constant.JarLikeSupports;
 import com.liubs.jareditor.jarbuild.JarBuilder;
 import com.liubs.jareditor.sdk.NoticeInfo;
 import com.liubs.jareditor.template.TemplateManager;
@@ -41,7 +42,8 @@ public class JarEditorAddJar extends AnAction {
         }
 
         //jar内新增jar
-        if("jar".equals(selectedFile.getExtension()) || selectedFile.getPath().contains(".jar!/")) {
+        if(JarLikeSupports.FILE_EXT.contains(selectedFile.getExtension())
+                || selectedFile.getPath().matches(JarLikeSupports.MATCHER)) {
             jarEditorAddJarInJar.actionPerformed(e);
             return;
         }

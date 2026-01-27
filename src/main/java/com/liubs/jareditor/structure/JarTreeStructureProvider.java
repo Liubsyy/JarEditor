@@ -10,6 +10,8 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiManager;
+import com.liubs.jareditor.constant.JarLikeSupports;
+import com.liubs.jareditor.entity.SplitResult;
 import com.liubs.jareditor.util.MyPathUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -51,7 +53,8 @@ public class JarTreeStructureProvider implements TreeStructureProvider {
 
                 if (isNestedJar(file)) {
                     String nestedJarBasePath = MyPathUtil.getNestedJarPath(file.getPath());
-                    String relatePath = file.getPath().substring(file.getPath().indexOf(".jar!") + ".jar!".length());
+                    SplitResult splitResult = JarLikeSupports.split(file.getPath());
+                    String relatePath = splitResult.getParts().get(1);
                     if(null != nestedJarBasePath) {
                         Path destinationPath = Paths.get(nestedJarBasePath, relatePath);
 
@@ -81,7 +84,7 @@ public class JarTreeStructureProvider implements TreeStructureProvider {
 
     private boolean isNestedJar(VirtualFile file){
         ////包含.jar!/并且当前文件是.jar，那么一定是嵌套jar
-        return null != file && file.getPath().contains(".jar!/")
+        return null != file && file.getPath().matches(JarLikeSupports.MATCHER)
                 && "jar".equalsIgnoreCase(file.getExtension());
     }
 

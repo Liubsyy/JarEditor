@@ -12,6 +12,7 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import com.liubs.jareditor.backup.Backup;
 import com.liubs.jareditor.clipboard.ClipboardToFile;
 import com.liubs.jareditor.clipboard.CopyResult;
+import com.liubs.jareditor.constant.JarLikeSupports;
 import com.liubs.jareditor.jarbuild.JarBuildResult;
 import com.liubs.jareditor.jarbuild.JarBuilder;
 import com.liubs.jareditor.persistent.BackupStorage;
@@ -46,7 +47,7 @@ public class JarEditorPasteFile extends AnAction {
             return;
         }
 
-        if(!selectedFile.isDirectory()) {
+        if(!JarLikeSupports.FILE_EXT.contains(selectedFile.getExtension()) && !selectedFile.isDirectory()) {
             selectedFile = selectedFile.getParent();
             if(null == selectedFile) {
                 NoticeInfo.warning("You need choose a folder in jar !");
@@ -54,9 +55,8 @@ public class JarEditorPasteFile extends AnAction {
             }
         }
 
-        boolean isJarRoot = "jar".equals(selectedFile.getExtension());
-        final String jarPath = isJarRoot ?
-                selectedFile.getPath().replace(".jar!/",".jar") : MyPathUtil.getJarPathFromJar(selectedFile.getPath());
+        boolean isJarRoot = JarLikeSupports.FILE_EXT.contains(selectedFile.getExtension());
+        final String jarPath = isJarRoot ? selectedFile.getPath() : MyPathUtil.getJarPathFromJar(selectedFile.getPath());
         final String filePath = selectedFile.getPath();
         final String entryPathFromJar = MyPathUtil.getEntryPathFromJar(selectedFile.getPath());
         if(null == jarPath) {

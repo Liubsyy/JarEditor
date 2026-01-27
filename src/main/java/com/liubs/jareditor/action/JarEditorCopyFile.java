@@ -9,6 +9,7 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.liubs.jareditor.clipboard.CopyResult;
 import com.liubs.jareditor.clipboard.FileToClipBoard;
+import com.liubs.jareditor.constant.JarLikeSupports;
 import com.liubs.jareditor.sdk.NoticeInfo;
 import com.liubs.jareditor.util.JarUtil;
 import com.liubs.jareditor.util.MyPathUtil;
@@ -40,7 +41,7 @@ public class JarEditorCopyFile extends AnAction {
 
         Set<String> copyEntries = new HashSet<>();
         for (VirtualFile file : selectedFiles) {
-            if(!file.getPath().contains(".jar!/")) {
+            if(!file.getPath().matches(JarLikeSupports.MATCHER)) {
                 NoticeInfo.warning("Ony files in JAR can be copy !!!");
                 return;
             }

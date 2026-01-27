@@ -1,6 +1,8 @@
 package com.liubs.jareditor.dependency;
 
+import com.liubs.jareditor.constant.JarLikeSupports;
 import com.liubs.jareditor.constant.PathConstant;
+import com.liubs.jareditor.entity.SplitResult;
 import com.liubs.jareditor.util.MyPathUtil;
 import com.liubs.jareditor.util.StringUtils;
 
@@ -29,15 +31,24 @@ public class ExtraDependencyManager {
                     if(!externalPrefix.startsWith("/")) {
                         externalPrefix  = "/"+externalPrefix;
                     }
-                    registryNotStandardJarHandlersDefault();
+                    registryNotStandardJarHandlersDefault(path);
                 }
             }
         }
         return externalPrefix;
     }
 
-    public void registryNotStandardJarHandlersDefault(){
-        this.registryNotStandardJarHandler(new SpringBootDependency());
+    public void registryNotStandardJarHandlersDefault(String path){
+        SplitResult splitResult = JarLikeSupports.split(path);
+        if(!splitResult.getSeparators().isEmpty()) {
+            String fileExt = splitResult.getSeparators().get(0);
+            if(fileExt.contains(JarLikeSupports.WAR)) {
+                this.registryNotStandardJarHandler(new WarDependency());
+            }else if(fileExt.contains(JarLikeSupports.JAR)){
+                this.registryNotStandardJarHandler(new SpringBootDependency());
+            }
+        }
+
     }
     public void registryNotStandardJarHandler(IDependencyHandler dependencyHandler){
         dependencyHandlerList.add(dependencyHandler);

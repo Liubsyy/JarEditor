@@ -1,6 +1,10 @@
 package com.liubs.jareditor.util;
 
+import com.liubs.jareditor.constant.JarLikeSupports;
 import com.liubs.jareditor.constant.PathConstant;
+import com.liubs.jareditor.entity.SplitResult;
+
+import java.util.List;
 
 /**
  * @author Liubsyy
@@ -15,11 +19,12 @@ public class MyPathUtil {
      * @return
      */
     public static String getClassNameFromJar(String classNameInJar) {
-        String[] split = classNameInJar.split(".jar!/");
-        if(split.length!=2) {
+        SplitResult splitResult = JarLikeSupports.split(classNameInJar);
+        List<String> split = splitResult.getParts();
+        if(split.size()!=2) {
             return null;
         }
-        String classFullName = split[1];
+        String classFullName = split.get(1);
         int lastIndex = classFullName.lastIndexOf('.');
         if(lastIndex > 0) {
             classFullName = classFullName.substring(0,lastIndex);
@@ -30,52 +35,23 @@ public class MyPathUtil {
     }
 
     public static String getJarPathFromJar(String classNameInJar) {
-        String[] split = classNameInJar.split(".jar!/");
-        if(split.length!=2 && !classNameInJar.endsWith(".jar!/")) {
+        SplitResult splitResult = JarLikeSupports.split(classNameInJar);
+        List<String> split = splitResult.getParts();
+        if(split.size()<2 && splitResult.getSeparators().isEmpty()) {
             return null;
         }
-        return split[0]+".jar";
+        return splitResult.filePath0();
     }
 
 
     public static String getEntryPathFromJar(String fullPath) {
-        String[] split = fullPath.split(".jar!/");
-        if(split.length!=2) {
+        SplitResult splitResult = JarLikeSupports.split(fullPath);
+        if(splitResult.getParts().size()<2) {
             return null;
         }
-        return split[1];
+        return splitResult.getParts().get(1);
     }
 
-    /**
-     * /path/a.jar!/com/liubs/AAA.class===>AAA
-     * @param classNameInJar
-     * @return
-     */
-    public static String getJarNameFromClassJar(String classNameInJar) {
-        String[] split = classNameInJar.split(".jar!/");
-        if(split.length!=2) {
-            return null;
-        }
-        int i = split[0].lastIndexOf("/");
-        if(i > -1) {
-            return split[0].substring(i+1);
-        }
-        return split[0];
-    }
-
-
-    /**
-     * find jar path
-     * /path/a.jar!/com/liubs/A.class转换成/path
-     * @return
-     */
-    private static String getJarRootPath(String classNameInJar) {
-        String[] split = classNameInJar.split(".jar!/");
-        if(split.length!=2) {
-            return null;
-        }
-        return split[0].substring(0, split[0].lastIndexOf("/"));
-    }
 
     /**
      * 获取编译输出目录
@@ -84,62 +60,48 @@ public class MyPathUtil {
      * @return
      */
     public static String getJarEditOutput(String classNameInJar){
-        String[] split = classNameInJar.split(".jar!/");
-        if(split.length<2) {
-            if(classNameInJar.endsWith(".jar")){
-                return classNameInJar.substring(0,classNameInJar.length()-4)+PathConstant.TEMP_SUFFIX+"/"+ PathConstant.JAR_EDIT_CLASS_PATH;
+        SplitResult splitResult = JarLikeSupports.split(classNameInJar);
+        List<String> parts = splitResult.getParts();
+        if(parts.size()<2) {
+            for(String fileExt : JarLikeSupports.FILE_EXT2) {
+                if(classNameInJar.endsWith(fileExt)) {
+                    return classNameInJar.substring(0,classNameInJar.length()-fileExt.length())+PathConstant.TEMP_SUFFIX+"/"+ PathConstant.JAR_EDIT_CLASS_PATH;
+                }
             }
-            if( !classNameInJar.endsWith(".jar!/") ) {
-                return null;
-            }
+            return null;
         }
 
-        return split[0]+PathConstant.TEMP_SUFFIX+"/"+ PathConstant.JAR_EDIT_CLASS_PATH;
+        return parts.get(0)+PathConstant.TEMP_SUFFIX+"/"+ PathConstant.JAR_EDIT_CLASS_PATH;
     }
 
     public static String getCLIPBOARD_TO_FILE(String classNameInJar){
         String jarEditTemp = getJarEditTemp(classNameInJar);
         return null == jarEditTemp ? null : jarEditTemp+"/"+PathConstant.CLIPBOARD_TO_FILE;
-//        if(classNameInJar.endsWith(".jar!/")) {
-//            return classNameInJar.replace(".jar!/","")+"_temp/"+PathConstant.CLIPBOARD_TO_FILE;
-//        }
-//        String[] split = classNameInJar.split(".jar!/");
-//        if(split.length!=2) {
-//            return null;
-//        }
-//
-//        return split[0]+"_temp/"+PathConstant.CLIPBOARD_TO_FILE;
     }
     public static String getFILE_TO_CLIPBOARD(String classNameInJar){
         String jarEditTemp = getJarEditTemp(classNameInJar);
         return null == jarEditTemp ? null : jarEditTemp+"/"+PathConstant.FILE_TO_CLIPBOARD;
-
-//        if(classNameInJar.endsWith(".jar!/")) {
-//            return classNameInJar.replace(".jar!/","")+"_temp/"+PathConstant.FILE_TO_CLIPBOARD;
-//        }
-//        String[] split = classNameInJar.split(".jar!/");
-//        if(split.length!=2) {
-//            return null;
-//        }
-//
-//        return split[0]+"_temp/"+PathConstant.FILE_TO_CLIPBOARD;
     }
 
 
     public static String getJarEditTemp(String classNameInJar){
-
-        String[] split = classNameInJar.split(".jar!/");
-        if(split.length<2) {
-            if(classNameInJar.endsWith(".jar")){
-                return classNameInJar.substring(0,classNameInJar.length()-4)+PathConstant.TEMP_SUFFIX;
+        SplitResult splitResult = JarLikeSupports.split(classNameInJar);
+        List<String> split = splitResult.getParts();
+        if(split.size()<2) {
+            for(String fileExt : JarLikeSupports.FILE_EXT2) {
+                if(classNameInJar.endsWith(fileExt)) {
+                    return classNameInJar.substring(0,classNameInJar.length()-fileExt.length())+PathConstant.TEMP_SUFFIX;
+                }
             }
-            if(classNameInJar.endsWith(".jar!/")) {
-                return classNameInJar.substring(0,classNameInJar.length()-6)+PathConstant.TEMP_SUFFIX;
+            for(String fileExt : JarLikeSupports.FILE_EXT3) {
+                if(classNameInJar.endsWith(fileExt)) {
+                    return classNameInJar.substring(0,classNameInJar.length()-fileExt.length())+PathConstant.TEMP_SUFFIX;
+                }
             }
             return null;
         }
 
-        return split[0]+PathConstant.TEMP_SUFFIX;
+        return split.get(0)+PathConstant.TEMP_SUFFIX;
     }
 
 
@@ -147,19 +109,17 @@ public class MyPathUtil {
         return null != classNameInJar && classNameInJar.contains("-sources.jar!");
     }
 
-    public static String wrapString(String str) {
-        return "\"" + str + "\"";
-    }
-
     public static String getJarFullPath(String classNameInJar) {
-        if(classNameInJar.endsWith(".jar!/")) {
-            return classNameInJar.substring(0,classNameInJar.length()-2);
+        for(String endExt : JarLikeSupports.FILE_EXT3) {
+            if(classNameInJar.endsWith(endExt)) {
+                return classNameInJar.substring(0,classNameInJar.length()-2);
+            }
         }
-        String[] split = classNameInJar.split(".jar!/");
-        if(split.length<2) {
+        SplitResult splitResult = JarLikeSupports.split(classNameInJar);
+        if(splitResult.getParts().size()<2) {
             return null;
         }
-        return split[0]+".jar";
+        return splitResult.filePath0();
     }
     public static String getJarSingleName(String classNameInJar) {
         String jarFullPath = getJarFullPath(classNameInJar);

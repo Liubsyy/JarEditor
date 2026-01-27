@@ -451,7 +451,7 @@ public class JavassistDialog extends DialogWrapper {
         editor.getDocument().setReadOnly(false);
 
         PsiFile psiFile = getJarEditorPsiFile();
-        java.util.List<PsiMember> psiMembers = PsiTreeUtil.findChildrenOfType(psiFile, PsiMember.class)
+        List<PsiMember> psiMembers = PsiTreeUtil.findChildrenOfType(psiFile, PsiMember.class)
                     .stream().filter(selectedItem::isSameTarget).collect(Collectors.toList());
         String text = "" ;
         if(!psiMembers.isEmpty() ){

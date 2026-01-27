@@ -27,7 +27,7 @@ import java.util.jar.JarOutputStream;
  * @author Liubsyy
  * @date 2024/11/26
  */
-public class JarEditorAddJarInJar extends JavaEditorAddFile {
+public class JarEditorAddJarInJar extends JarEditorAddFile {
 
     @Override
     protected String preInput(Project project, String entryPathFromJar) {

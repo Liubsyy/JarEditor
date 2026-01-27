@@ -5,6 +5,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.liubs.jareditor.constant.JarLikeSupports;
 import com.liubs.jareditor.sdk.NoticeInfo;
 import com.liubs.jareditor.structure.ShowSizeDialog;
 import com.liubs.jareditor.util.MyPathUtil;
@@ -30,9 +31,9 @@ public class ShowEntrySize extends AnAction {
             return;
         }
 
-        boolean isJarRoot = "jar".equals(selectedFile.getExtension()) && !selectedFile.getPath().contains(".jar!/");
+        boolean isJarRoot = JarLikeSupports.FILE_EXT.contains(selectedFile.getExtension());
         final String jarPath = isJarRoot ?
-                selectedFile.getPath().replace(".jar!/",".jar") : MyPathUtil.getJarPathFromJar(selectedFile.getPath());
+                selectedFile.getPath() : MyPathUtil.getJarPathFromJar(selectedFile.getPath());
         if(null == jarPath) {
             NoticeInfo.warning("This operation only in JAR !!!");
             return;

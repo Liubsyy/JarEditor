@@ -18,7 +18,7 @@ public class JavaTextParser implements ITextParser{
         String className =classNameFromJar.substring(classNameFromJar.lastIndexOf(".")+1);
 
         ExtraDependencyManager extraDependencyManager = new ExtraDependencyManager();
-        extraDependencyManager.registryNotStandardJarHandlersDefault();
+        extraDependencyManager.registryNotStandardJarHandlersDefault(filePath);
         packageName = extraDependencyManager.replacePackage(filePath,packageName);
 
         packageName = packageName.isEmpty() ? packageName : ("package "+packageName);
