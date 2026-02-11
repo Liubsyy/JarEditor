@@ -6,7 +6,7 @@ import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.liubs.jareditor.backup.BackupDialog;
-import com.liubs.jareditor.constant.JarLikeSupports;
+import com.liubs.jareditor.ext.JarLikeSupports;
 import com.liubs.jareditor.sdk.NoticeInfo;
 import com.liubs.jareditor.util.MyPathUtil;
 import org.jetbrains.annotations.NotNull;

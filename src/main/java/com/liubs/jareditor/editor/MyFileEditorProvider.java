@@ -6,7 +6,7 @@ import com.intellij.openapi.fileEditor.FileEditorPolicy;
 import com.intellij.openapi.fileEditor.FileEditorProvider;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.liubs.jareditor.constant.JarLikeSupports;
+import com.liubs.jareditor.ext.JarLikeSupports;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;

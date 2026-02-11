@@ -10,7 +10,7 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiManager;
-import com.liubs.jareditor.constant.JarLikeSupports;
+import com.liubs.jareditor.ext.JarLikeSupports;
 import com.liubs.jareditor.entity.SplitResult;
 import com.liubs.jareditor.util.MyPathUtil;
 import org.jetbrains.annotations.NotNull;

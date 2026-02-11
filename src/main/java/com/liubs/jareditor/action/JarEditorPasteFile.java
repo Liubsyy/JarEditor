@@ -12,7 +12,7 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import com.liubs.jareditor.backup.Backup;
 import com.liubs.jareditor.clipboard.ClipboardToFile;
 import com.liubs.jareditor.clipboard.CopyResult;
-import com.liubs.jareditor.constant.JarLikeSupports;
+import com.liubs.jareditor.ext.JarLikeSupports;
 import com.liubs.jareditor.jarbuild.JarBuildResult;
 import com.liubs.jareditor.jarbuild.JarBuilder;
 import com.liubs.jareditor.persistent.BackupStorage;

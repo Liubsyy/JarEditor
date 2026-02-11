@@ -1,6 +1,6 @@
 package com.liubs.jareditor.dependency;
 
-import com.liubs.jareditor.constant.JarLikeSupports;
+import com.liubs.jareditor.ext.JarLikeSupports;
 import com.liubs.jareditor.constant.PathConstant;
 import com.liubs.jareditor.entity.SplitResult;
 import com.liubs.jareditor.util.MyPathUtil;

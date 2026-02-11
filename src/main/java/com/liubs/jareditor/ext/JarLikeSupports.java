@@ -1,4 +1,4 @@
-package com.liubs.jareditor.constant;
+package com.liubs.jareditor.ext;
 
 import com.liubs.jareditor.entity.SplitResult;
 

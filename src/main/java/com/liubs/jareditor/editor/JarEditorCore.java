@@ -13,7 +13,7 @@ import com.intellij.util.PathUtil;
 import com.liubs.jareditor.backup.Backup;
 import com.liubs.jareditor.compile.*;
 import com.liubs.jareditor.constant.PathConstant;
-import com.liubs.jareditor.constant.JarLikeSupports;
+import com.liubs.jareditor.ext.JarLikeSupports;
 import com.liubs.jareditor.dependency.ExtraDependencyManager;
 import com.liubs.jareditor.dependency.NestedJarDependency;
 import com.liubs.jareditor.entity.SplitResult;
