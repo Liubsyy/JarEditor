@@ -294,8 +294,14 @@ public class JarEditorCore {
                                     }else {
                                         //拷贝生成的jar到父层的jar_edit_out目录
                                         String parentJarTemp = MyPathUtil.getJarEditTemp(nestedJars.get(i).getParentPath());
-                                        String relaPath = jarPath.replace(parentJarTemp, "")
-                                                .replaceFirst(PathConstant.NESTED_JAR_DIR, PathConstant.JAR_EDIT_CLASS_PATH);
+                                        String relaPath = jarPath.replace(parentJarTemp, "");
+                                        for(String ext : JarLikeSupports.FILE_EXT) {
+                                            if(relaPath.startsWith("/"+ext+PathConstant.NESTED_JAR_SUFFIX)) {
+                                                relaPath = relaPath.replaceFirst(ext+PathConstant.NESTED_JAR_SUFFIX, PathConstant.JAR_EDIT_CLASS_PATH);
+                                                break;
+                                            }
+                                        }
+
                                         String parentDestinationPath = Paths.get(parentJarTemp, relaPath).toString();
                                         File destinationFile = new File(parentDestinationPath);
                                         destinationFile.getParentFile().mkdirs();

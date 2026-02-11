@@ -32,7 +32,11 @@ public interface PathConstant {
     String EXPORT_SOURCE_NAME_SUFFIX = "-sources-export.jar";
 
     //嵌套jar临时目录
-    String NESTED_JAR_DIR = "jar_nested";
+    String NESTED_JAR_DIR_DEFAULT = "jar_nested";
+
+    //jar_nested,war_nested...
+    String NESTED_JAR_SUFFIX = "_nested";
+
 
     //默认备份路径
     String DEFAULT_BACKUP_PATH = "/jareditor_backup";

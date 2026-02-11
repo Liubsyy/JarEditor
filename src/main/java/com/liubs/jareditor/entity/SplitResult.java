@@ -9,10 +9,12 @@ import java.util.List;
 public class SplitResult {
     private List<String> parts;
     private List<String> separators;
+    private List<Integer> indexOfs;
 
-    public SplitResult(List<String> parts, List<String> separators) {
+    public SplitResult(List<String> parts, List<String> separators, List<Integer> indexOfs) {
         this.parts = parts;
         this.separators = separators;
+        this.indexOfs = indexOfs;
     }
 
     public List<String> getParts() {
@@ -45,13 +47,16 @@ public class SplitResult {
         return split0()+s.substring(0,s.length()-2);
     }
 
-
+    public List<Integer> getIndexOfs() {
+        return indexOfs;
+    }
 
     @Override
     public String toString() {
         return "SplitResult{" +
                 "parts=" + parts +
                 ", separators=" + separators +
+                ", indexOfs=" + indexOfs +
                 '}';
     }
 }

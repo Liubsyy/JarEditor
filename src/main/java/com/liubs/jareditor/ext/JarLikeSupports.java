@@ -1,5 +1,6 @@
 package com.liubs.jareditor.ext;
 
+import com.liubs.jareditor.constant.PathConstant;
 import com.liubs.jareditor.entity.SplitResult;
 
 import java.util.ArrayList;
@@ -30,18 +31,37 @@ public class JarLikeSupports {
     //类jar匹配
     public static String MATCHER = String.format(".*%s.*", PATTERN_STR);
 
+    //嵌套jar文件夹匹配
+    //aaa/bbb_temp/jar_nested/bbb/ccc，aaa/bbb_temp/war_nested/bbb/ccc
+    public static Pattern PATTERN_TEMP_NESTED_JAR;
+
+    static {
+        List<String> nestedJarDirs = FILE_EXT.stream()
+                .map(f -> PathConstant.TEMP_SUFFIX+"/"+f+PathConstant.NESTED_JAR_SUFFIX)
+                .collect(Collectors.toList());
+        PATTERN_TEMP_NESTED_JAR = Pattern.compile(String.join("|",nestedJarDirs));
+    }
 
     public static SplitResult split(String str) {
-        Matcher matcher = PATTERN.matcher(str);
+        return split(PATTERN,str);
+    }
+
+    public static SplitResult split(Pattern pattern,String str) {
+        Matcher matcher = pattern.matcher(str);
 
         List<String> parts = new ArrayList<>();
         List<String> seps = new ArrayList<>();
+        List<Integer> indexOfs = new ArrayList<>();
 
         int lastEnd = 0;
 
         while (matcher.find()) {
+            int start  = matcher.start();
+
+            indexOfs.add(start);
+
             // 分隔符前的内容
-            parts.add(str.substring(lastEnd, matcher.start()));
+            parts.add(str.substring(lastEnd,start));
 
             // 分隔符本身
             seps.add(matcher.group());
@@ -52,13 +72,15 @@ public class JarLikeSupports {
         // 最后一段
         parts.add(str.substring(lastEnd));
 
-        return new SplitResult(parts,seps);
+        return new SplitResult(parts,seps,indexOfs);
     }
 
     public static void main(String[] args) {
         System.out.println(split("aaa/bbb.txt"));
         System.out.println(split("aaa/bbb.jar"));
         System.out.println(split("aaa/bbb.jar!/ccc.class"));
+        System.out.println(split("aaa/bbb.jar!/ccc/ddd.jar!/e/f/g.class"));
         System.out.println(split("aaa/bbb.war!/ccc/lib/ddd.jar!/e/f/g.class"));
+        System.out.println(split(PATTERN_TEMP_NESTED_JAR,"aaa/bbb_temp/jar_nested/ccc/lib/ddd.jar!/e/f/g.class"));
     }
 }

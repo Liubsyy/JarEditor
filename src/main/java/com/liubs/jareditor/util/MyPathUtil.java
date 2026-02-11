@@ -140,7 +140,18 @@ public class MyPathUtil {
 
     public static String getNestedJarPath(String filePath){
         String jarEditTemp = getJarEditTemp(filePath);
-        return null == jarEditTemp ? null : jarEditTemp+"/"+PathConstant.NESTED_JAR_DIR;
+        String nestedJarDir = PathConstant.NESTED_JAR_DIR_DEFAULT;
+
+        SplitResult splitResult = JarLikeSupports.split(filePath);
+        if(!splitResult.getSeparators().isEmpty()) {
+            String extType = splitResult.getSeparators().get(0)
+                    .replace(".","")
+                    .replace("!/","");
+            if(JarLikeSupports.FILE_EXT.contains(extType)) {
+                nestedJarDir = extType+PathConstant.NESTED_JAR_SUFFIX;
+            }
+        }
+        return null == jarEditTemp ? null : jarEditTemp+"/"+nestedJarDir;
     }
 
 
