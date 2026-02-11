@@ -22,7 +22,7 @@ IDEA plugin for modifying files in jar directly without decompression, including
 - Add/Delete/Rename file/directory in jar
 - Search the contents of the jar package
 - Copy/Paste file/directory to/from clipboard
-- Support SpringBoot jar/nested jar
+- Support SpringBoot jar/nested jar/war
 - Support kotlin
 - Export source jar
 - Support class bytes tool : Javassist/VisualClassBytes

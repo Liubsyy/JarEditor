@@ -22,7 +22,7 @@
 - 添加/删除/重命名jar包内文件/文件夹
 - 搜索jar包的内容
 - jar内复制/粘贴文件到外部剪切板
-- 支持SpringBoot jar/嵌套jar
+- 支持SpringBoot jar/嵌套jar/war包
 - 支持kotlin
 - 可导出source jar
 - 支持class字节码修改工具 : Javassist/VisualClassBytes
