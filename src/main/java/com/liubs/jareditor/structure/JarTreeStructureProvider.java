@@ -10,6 +10,7 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiManager;
+import com.liubs.jareditor.ext.MyJarFileSystem;
 import com.liubs.jareditor.ext.JarLikeSupports;
 import com.liubs.jareditor.entity.SplitResult;
 import com.liubs.jareditor.util.MyPathUtil;
@@ -41,51 +42,72 @@ public class JarTreeStructureProvider implements TreeStructureProvider {
 
         NestedJarHolder nestedJarHolder = NestedJarHolder.getInstance(project);
 
-
         List<AbstractTreeNode<?>> newChildren = new ArrayList<>();
         final PsiManager psiManager = PsiManager.getInstance(project);
         for (AbstractTreeNode<?> child : children) {
-            boolean isEffectNestedJar = false;
-
             if(child instanceof PsiFileNode) {
                 PsiFileNode psiFileNode = (PsiFileNode)child;
-                VirtualFile file = psiFileNode.getVirtualFile();
+                VirtualFile vf = psiFileNode.getVirtualFile();
+                if(null != vf) {
 
-                if (isNestedJar(file)) {
-                    String nestedJarBasePath = MyPathUtil.getNestedJarPath(file.getPath());
-                    SplitResult splitResult = JarLikeSupports.split(file.getPath());
-                    String relatePath = splitResult.getParts().get(1);
-                    if(null != nestedJarBasePath) {
-                        Path destinationPath = Paths.get(nestedJarBasePath, relatePath);
+                    //嵌套jar
+                    if (isNestedJar(vf)) {
+                        String nestedJarBasePath = MyPathUtil.getNestedJarPath(vf.getPath());
+                        SplitResult splitResult = JarLikeSupports.split(vf.getPath());
+                        String relatePath = splitResult.getParts().get(1);
+                        if(null != nestedJarBasePath) {
+                            Path destinationPath = Paths.get(nestedJarBasePath, relatePath);
 
-                        VirtualFile virtualFile = LocalFileSystem.getInstance().findFileByPath(destinationPath.toString());
-                        if(null != virtualFile) {
-                            VirtualFile nestedJarVirtualFile = JarFileSystem.getInstance().getJarRootForLocalFile(virtualFile);
-                            if(null != nestedJarVirtualFile) {
-                                final PsiDirectory psiDir = psiManager.findDirectory(nestedJarVirtualFile);
-                                if(null != psiDir) {
-                                    newChildren.add(new NestedJarDirNode(nestedJarVirtualFile,project,psiDir,settings));
-                                    nestedJarHolder.addExpandPath(destinationPath.toString());
+                            VirtualFile virtualFile = LocalFileSystem.getInstance().findFileByPath(destinationPath.toString());
+                            if(null != virtualFile) {
+                                VirtualFile nestedJarVirtualFile = JarFileSystem.getInstance().getJarRootForLocalFile(virtualFile);
+                                if(null != nestedJarVirtualFile) {
+                                    final PsiDirectory psiDir = psiManager.findDirectory(nestedJarVirtualFile);
+                                    if(null != psiDir) {
+                                        newChildren.add(new NestedJarDirNode(nestedJarVirtualFile,project,psiDir,settings));
+                                        nestedJarHolder.addExpandPath(destinationPath.toString());
 
-                                    isEffectNestedJar = true;
+                                        continue;
+                                    }
                                 }
+                            }
+                        }
+                    }
+
+                    //扩展zip类文件
+                    if (isZip(vf)) {
+                        // 映射到 xxx.zip!/ 的归档根（directory）
+                        VirtualFile root = MyJarFileSystem.getInstance().getJarRootForLocalFile(vf);
+                        if (root != null) {
+                            PsiDirectory psiDir = psiManager.findDirectory(root);
+                            if (psiDir != null) {
+                                // 用目录节点替换 zip 文件节点 => 可展开
+                                newChildren.add(new NestedJarDirNode(root,project, psiDir, settings));
+                                continue;
                             }
                         }
                     }
                 }
             }
-            if(!isEffectNestedJar) {
-                newChildren.add(child);
-            }
+
+            newChildren.add(child);
         }
 
         return newChildren;
     }
 
+
+
     private boolean isNestedJar(VirtualFile file){
         ////包含.jar!/并且当前文件是.jar，那么一定是嵌套jar
         return null != file && file.getPath().matches(JarLikeSupports.MATCHER)
                 && "jar".equalsIgnoreCase(file.getExtension());
+    }
+
+    //zip类文件扩展
+    private boolean isZip(@NotNull VirtualFile vf) {
+        String ext = vf.getExtension();
+        return ext != null && (ext.equalsIgnoreCase("zip")||ext.equalsIgnoreCase("aar"));
     }
 
 

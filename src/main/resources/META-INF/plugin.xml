@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.liubs.jaredit</id>
   <name>JarEditor</name>
-  <version>2.3.7</version>
+  <version>2.3.8-SNAPSHOT</version>
   <vendor email="Liubsyy@gmail.com" url="https://github.com/Liubsyy/JarEditor">Liubsyy</vendor>
 
   <description><![CDATA[
@@ -29,7 +29,7 @@
          <li>Support backup</li>
          <li>Show entry size</li>
          <li>First guide</li>
-         <li>Support war</li>
+         <li>Support war/zip/aar</li>
       </ur>
 
       <h3>2.2</h3>
@@ -109,6 +109,7 @@
       <applicationService serviceImplementation="com.liubs.jareditor.persistent.SDKSettingStorage"/>
       <applicationService serviceImplementation="com.liubs.jareditor.persistent.BackupStorage"/>
       <applicationService serviceImplementation="com.liubs.jareditor.persistent.GuideStorage"/>
+      <applicationService serviceImplementation="com.liubs.jareditor.ext.MyJarFileSystem"/>
 
       <postStartupActivity implementation="com.liubs.jareditor.firstguide.MyStartupActivity"/>
   </extensions>

@@ -20,18 +20,18 @@ import java.util.Collection;
  */
 public class NestedJarDirNode extends PsiDirectoryNode {
 
-    private VirtualFile entryFile;
+    private VirtualFile jarvf;
     private PsiManager psiManager;
 
-    public NestedJarDirNode(VirtualFile entryFile, Project project, @NotNull PsiDirectory value, ViewSettings viewSettings) {
+    public NestedJarDirNode(VirtualFile jarvf, Project project, @NotNull PsiDirectory value, ViewSettings viewSettings) {
         super(project, value, viewSettings);
-        this.entryFile = entryFile;
+        this.jarvf = jarvf;
         this.psiManager = PsiManager.getInstance(project);
     }
 
     @Override
     public Collection<AbstractTreeNode<?>> getChildrenImpl() {
-        VirtualFile[] subChildren = entryFile.getChildren();
+        VirtualFile[] subChildren = jarvf.getChildren();
         Collection<AbstractTreeNode<?>> children = new ArrayList<>(subChildren.length);
         for(VirtualFile sub : subChildren) {
             if(sub.isDirectory()) {
