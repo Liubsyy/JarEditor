@@ -18,11 +18,12 @@ import java.util.stream.Collectors;
 public class JarLikeSupports {
     public static String JAR = "jar";
     public static String WAR = "war";
+    public static String EAR = "ear";
     public static String ZIP = "zip";
     public static String AAR = "aar";
 
     //类jar文件格式
-    public static List<String> FILE_EXT = Arrays.asList(JAR,WAR,ZIP,AAR);
+    public static List<String> FILE_EXT = Arrays.asList(JAR,WAR,EAR,ZIP,AAR);
     public static List<String> FILE_EXT2 = FILE_EXT.stream().map(f->"."+f).collect(Collectors.toList());
     public static List<String> FILE_EXT3 = FILE_EXT2.stream().map(f->f+"!/").collect(Collectors.toList());
 

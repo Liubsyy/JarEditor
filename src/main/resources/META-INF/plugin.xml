@@ -14,7 +14,7 @@
         <li>Add/Delete/Rename file/directory in jar</li>
         <li>Search the contents of the jar package</li>
         <li>Copy/Paste file/directory to/from clipboard</li>
-        <li>Support SpringBoot jar/Nested jar/war</li>
+        <li>Support SpringBoot jar/Nested jar/war/ear/zip/aar</li>
         <li>Support kotlin</li>
         <li>Export source jar</li>
         <li>Support class bytes tool : Javassist/VisualClassBytes</li>
@@ -29,7 +29,7 @@
          <li>Support backup</li>
          <li>Show entry size</li>
          <li>First guide</li>
-         <li>Support war/zip/aar</li>
+         <li>Support war/ear/zip/aar</li>
       </ur>
 
       <h3>2.2</h3>
