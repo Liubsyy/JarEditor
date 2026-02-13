@@ -1,15 +1,19 @@
 package com.liubs.jareditor.decompile;
 
+import com.liubs.jareditor.constant.PathConstant;
 import com.liubs.jareditor.entity.SplitResult;
 import com.liubs.jareditor.ext.JarLikeSupports;
 import com.liubs.jareditor.util.ExceptionUtil;
 import com.liubs.jareditor.util.JarUtil;
+import com.liubs.jareditor.util.JavaFileUtil;
 import jadx.api.JadxArgs;
 import jadx.api.JadxDecompiler;
 import jadx.api.JavaClass;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 import com.intellij.openapi.project.Project;
@@ -33,7 +37,23 @@ public class JadXDecompiler implements IDecompiler{
         try{
             SplitResult splitResult = JarLikeSupports.split(virtualFile.getPath());
             if(splitResult.getParts().size() <= 1) {
-                return "";
+                if(virtualFile.getPath().contains(PathConstant.TEMP_SUFFIX) && virtualFile.getPath().contains(PathConstant.JAR_EDIT_CLASS_PATH)){
+                    String className = virtualFile.getPath().split(PathConstant.TEMP_SUFFIX+"/"+ PathConstant.JAR_EDIT_CLASS_PATH+"/")[1];
+                    if(className.endsWith(".class")) {
+                        className = className.substring(0,className.lastIndexOf(".class"));
+                    }
+                    className = className.replace("/", ".");
+                    List<String> fullClassFiles = JavaFileUtil.getFullClassFiles(virtualFile.getPath());
+
+                    Map<String, byte[]> classBytes = new HashMap<>();
+                    for(String classFile : fullClassFiles) {
+                        classBytes.put(classFile, Files.readAllBytes(Paths.get(classFile)));
+                    }
+
+                    return decompileClassFromJar(classBytes,className);
+                }else {
+                    return "";
+                }
             }else {
                 String jarPath = splitResult.filePath0();
                 String className = splitResult.getParts().get(1);
