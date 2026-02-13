@@ -52,6 +52,59 @@ public class JarUtil {
         return allClassBytes;
     }
 
+    public static Map<String,byte[]> readJarClasses(String jarPath, String classFullName) throws IOException {
+        byte[] jarBytes = Files.readAllBytes(Paths.get(jarPath));
+        return readJarClasses(jarBytes,classFullName);
+    }
+
+    /**
+     * 从 jar 的 byte[] 中提取指定类及其所有内部类
+     *
+     * @param jarBytes      jar 文件的字节数组
+     * @param classFullName 类的完整名，如 "com.foo.Bar"
+     * @return Map<entryName, classBytes>
+     */
+    public static Map<String, byte[]> readJarClasses(byte[] jarBytes, String classFullName) throws IOException {
+
+        Map<String, byte[]> result = new LinkedHashMap<>();
+
+        // 转成 jar entry 路径
+        String basePath = classFullName.replace('.', '/');
+
+        try (JarInputStream jis = new JarInputStream(new ByteArrayInputStream(jarBytes))) {
+            JarEntry entry;
+
+            while ((entry = jis.getNextJarEntry()) != null) {
+                String name = entry.getName();
+                if (!name.endsWith(".class")) {
+                    continue;
+                }
+
+                // 精确匹配：
+                // 1) 本类
+                // 2) 所有内部类
+                if (name.equals(basePath + ".class") ||
+                        name.startsWith(basePath + "$")) {
+
+                    byte[] bytes = readAllBytes(jis);
+                    result.put(name, bytes);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private static byte[] readAllBytes(InputStream in) throws IOException {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        byte[] tmp = new byte[4096];
+        int len;
+        while ((len = in.read(tmp)) != -1) {
+            buffer.write(tmp, 0, len);
+        }
+        return buffer.toByteArray();
+    }
+
 
     public static Map<String,byte[]> readEntryData(String jarPath) throws IOException {
         byte[] jarBytes = Files.readAllBytes(Paths.get(jarPath));

@@ -45,6 +45,11 @@ dependencies {
 
     // https://mvnrepository.com/artifact/com.google.code.gson/gson
     implementation("com.google.code.gson:gson:2.8.9")
+
+    //https://mvnrepository.com/artifact/io.github.skylot/jadx-core
+    implementation("io.github.skylot:jadx-core:1.5.3")
+    //https://mvnrepository.com/artifact/io.github.skylot/jadx-java-input
+    implementation("io.github.skylot:jadx-java-input:1.5.3")
 }
 
 

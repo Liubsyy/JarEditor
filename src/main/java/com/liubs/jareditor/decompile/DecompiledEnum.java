@@ -9,6 +9,7 @@ public enum DecompiledEnum {
     FERNFLOWER(0,"Fernflower(Default)", new IdeaDecompiler()),
     CFR(1,"CFR", new CFRDecompiler()),
     Procyon(2,"Procyon", new ProcyonDecompiler()),
+    JADX(3,"Jadx", new JadXDecompiler()),
 
     ;
     public int value;
