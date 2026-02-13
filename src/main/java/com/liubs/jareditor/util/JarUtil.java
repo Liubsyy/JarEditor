@@ -66,7 +66,7 @@ public class JarUtil {
      */
     public static Map<String, byte[]> readJarClasses(byte[] jarBytes, String classFullName) throws IOException {
 
-        Map<String, byte[]> result = new LinkedHashMap<>();
+        Map<String, byte[]> result = new HashMap<>();
 
         // 转成 jar entry 路径
         String basePath = classFullName.replace('.', '/');
