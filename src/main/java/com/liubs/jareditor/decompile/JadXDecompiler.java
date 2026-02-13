@@ -149,27 +149,11 @@ public class JadXDecompiler implements IDecompiler{
             jadx.addCustomCodeLoader(JavaInputPlugin.wrapClassReaders(readers));
 
             jadx.load();
-
             List<JavaClass> classes = jadx.getClasses();
-
-            // 1) 优先按 fullName 精确匹配（通常就是你传的 "com.example.Foo"）
-            Optional<JavaClass> hit = classes.stream()
-                    .filter(c -> className.equals(c.getFullName()))
-                    .findFirst();
-
-            // 2) 有些情况下 fullName 可能不完全一致，再尝试“后缀匹配”
-            if (hit.isEmpty()) {
-                String suffix = "." + className;
-                hit = classes.stream()
-                        .filter(c -> {
-                            String fn = c.getFullName();
-                            return fn != null && (fn.equals(className) || fn.endsWith(suffix));
-                        })
-                        .findFirst();
+            if(classes.isEmpty()) {
+                throw new IllegalArgumentException("Class not found in jar: " + className);
             }
-
-            JavaClass jc = hit.orElseThrow(() ->
-                    new IllegalArgumentException("Class not found in jar: " + className));
+            JavaClass jc =  classes.get(0);
 
             //直接拿源码字符串（不写文件）
             String code = jc.getCode();
