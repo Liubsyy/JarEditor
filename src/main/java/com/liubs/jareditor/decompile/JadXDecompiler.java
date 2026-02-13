@@ -140,15 +140,16 @@ public class JadXDecompiler implements IDecompiler{
 
         try (JadxDecompiler jadx = new JadxDecompiler(args)) {
 
-            JavaInputLoader javaInputLoader = new JavaInputLoader();
-            List<JavaClassReader> readers = new ArrayList<>();
-            for(Map.Entry<String,byte[]> entry : classBytes.entrySet()) {
-                JavaClassReader reader = javaInputLoader.loadClass(entry.getValue(), entry.getKey());
-                readers.add(reader);
-            }
-            jadx.addCustomCodeLoader(JavaInputPlugin.wrapClassReaders(readers));
+            jadx.addCustomCodeLoader(JavaInputPlugin.load(loader -> {
+                List<JavaClassReader> readers = new ArrayList<>();
+                for (Map.Entry<String, byte[]> entry : classBytes.entrySet()) {
+                    readers.add(loader.loadClass(entry.getValue(), entry.getKey()));
+                }
+                return readers;
+            }));
 
             jadx.load();
+
             List<JavaClass> classes = jadx.getClasses();
             if(classes.isEmpty()) {
                 throw new IllegalArgumentException("Class not found in jar: " + className);
