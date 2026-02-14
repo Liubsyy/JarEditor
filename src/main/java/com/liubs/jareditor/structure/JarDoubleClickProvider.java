@@ -61,8 +61,7 @@ public class JarDoubleClickProvider implements FileEditorProvider {
                 }catch (Throwable e){}
             });
         }catch (Throwable e){}
-
-        return new EmptyFileEditor();
+        return new EmptyFileEditor(file);
     }
 
     private void handleOpenJarView(@NotNull Project project, @NotNull VirtualFile file) {
@@ -141,6 +140,10 @@ public class JarDoubleClickProvider implements FileEditorProvider {
     // 简单空编辑器
     static class EmptyFileEditor implements FileEditor {
         private final JPanel panel = new JPanel();
+        private VirtualFile file;
+        public EmptyFileEditor(VirtualFile file) {
+            this.file = file;
+        }
         @Override public @NotNull JComponent getComponent() { return panel; }
         @Override public JComponent getPreferredFocusedComponent() { return null; }
         @Override public @NotNull String getName() { return "JarPrint"; }
@@ -156,5 +159,8 @@ public class JarDoubleClickProvider implements FileEditorProvider {
         public <T>  T getUserData(@NotNull Key<T> key) { return null; }
         @Override
         public <T> void putUserData(@NotNull Key<T> key, @Nullable T t) {}
+
+        @Override
+        public @Nullable VirtualFile getFile() { return file; }
     }
 }
