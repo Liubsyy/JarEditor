@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.liubs.jaredit</id>
   <name>JarEditor</name>
-  <version>2.3.8-pre</version>
+  <version>3.0.0</version>
   <vendor email="Liubsyy@gmail.com" url="https://github.com/Liubsyy/JarEditor">Liubsyy</vendor>
 
   <description><![CDATA[
@@ -18,18 +18,26 @@
         <li>Support kotlin</li>
         <li>Export source jar</li>
         <li>Support class bytes tool : Javassist/VisualClassBytes</li>
-        <li>Decompilers : Fernflower/CFR/Procyon </li>
+        <li>Decompilers : Fernflower/CFR/Procyon/Jadx </li>
     </ul>
 
     ]]></description>
 
   <change-notes><![CDATA[
+
+      <h3>3.0</h3>
+      <ul>
+         <li>Support ear/zip/aar</li>
+         <li>Decompilers: Jadx</li>
+         <li>Double-click to expand the jar contents</li>
+      </ur>
+
       <h3>2.3</h3>
       <ul>
          <li>Support backup</li>
          <li>Show entry size</li>
          <li>First guide</li>
-         <li>Support war/ear/zip/aar</li>
+         <li>Support war</li>
       </ur>
 
       <h3>2.2</h3>
