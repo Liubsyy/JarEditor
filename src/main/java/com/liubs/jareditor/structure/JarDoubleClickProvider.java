@@ -89,38 +89,42 @@ public class JarDoubleClickProvider implements FileEditorProvider {
                                                            @NotNull Path jarPath,
                                                            @NotNull String libraryName) {
         WriteAction.run(() -> {
-            // 1) 找到 Project-level LibraryTable
-            LibraryTable libraryTable =
-                    LibraryTablesRegistrar.getInstance().getLibraryTable(project); // Project Libraries :contentReference[oaicite:1]{index=1}
+            try{
+                // 1) 找到 Project-level LibraryTable
+                LibraryTable libraryTable =
+                        LibraryTablesRegistrar.getInstance().getLibraryTable(project); // Project Libraries :contentReference[oaicite:1]{index=1}
 
-            // 2) 如果已存在同名库，复用；否则创建
-            Library library = libraryTable.getLibraryByName(libraryName);
-            if (library == null) {
-                LibraryTable.ModifiableModel tableModel = libraryTable.getModifiableModel();
-                library = tableModel.createLibrary(libraryName);               // 创建库 :contentReference[oaicite:2]{index=2}
-                tableModel.commit();
-            }
+                // 2) 如果已存在同名库，复用；否则创建
+                Library library = libraryTable.getLibraryByName(libraryName);
+                if (library == null) {
+                    LibraryTable.ModifiableModel tableModel = libraryTable.getModifiableModel();
+                    library = tableModel.createLibrary(libraryName);               // 创建库 :contentReference[oaicite:2]{index=2}
+                    tableModel.commit();
+                }
 
-            // 3) 把 jar 加到 library roots（CLASSES）
-            VirtualFile jarLocal = LocalFileSystem.getInstance()
-                    .refreshAndFindFileByPath(jarPath.toString().replace('\\', '/'));
-            if (jarLocal == null) {
-                throw new IllegalArgumentException("Jar not found in VFS: " + jarPath);
-            }
+                // 3) 把 jar 加到 library roots（CLASSES）
+                VirtualFile jarLocal = LocalFileSystem.getInstance()
+                        .refreshAndFindFileByPath(jarPath.toString().replace('\\', '/'));
+                if (jarLocal == null) {
+                    throw new IllegalArgumentException("Jar not found in VFS: " + jarPath);
+                }
 
-            VirtualFile jarRoot = JarFileSystem.getInstance().getJarRootForLocalFile(jarLocal);
-            if (jarRoot == null) {
-                throw new IllegalStateException("Not a valid jar: " + jarPath);
-            }
+                VirtualFile jarRoot = JarFileSystem.getInstance().getJarRootForLocalFile(jarLocal);
+                if (jarRoot == null) {
+                    throw new IllegalStateException("Not a valid jar: " + jarPath);
+                }
 
-            Library.ModifiableModel libModel = library.getModifiableModel();
-            libModel.addRoot(jarRoot, OrderRootType.CLASSES);                // addRoot/commit :contentReference[oaicite:3]{index=3}
-            libModel.commit();
+                Library.ModifiableModel libModel = library.getModifiableModel();
+                libModel.addRoot(jarRoot, OrderRootType.CLASSES);                // addRoot/commit :contentReference[oaicite:3]{index=3}
+                libModel.commit();
 
-            // 4) 把这个 library 加到 module dependencies
+                // 4) 把这个 library 加到 module dependencies
 //            ModuleRootModificationUtil.addDependency(module, library);       // 推荐的加依赖方式 :contentReference[oaicite:4]{index=4}
-            for(com.intellij.openapi.module.Module module : ModuleManager.getInstance(project).getModules()){
-                ModuleRootModificationUtil.addDependency(module, library);
+                for(com.intellij.openapi.module.Module module : ModuleManager.getInstance(project).getModules()){
+                    ModuleRootModificationUtil.addDependency(module, library);
+                }
+            }catch (Throwable e){
+                e.printStackTrace();
             }
         });
     }
