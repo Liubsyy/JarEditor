@@ -22,6 +22,26 @@ val targetVersion: String by project
 
 group = pluginGroup
 
+fun readPluginVersion(): String {
+    val pluginXml = file("src/main/resources/META-INF/plugin.xml")
+
+    require(pluginXml.exists()) {
+        "plugin.xml not found at ${pluginXml.absolutePath}"
+    }
+    val document = javax.xml.parsers.DocumentBuilderFactory
+            .newInstance()
+            .newDocumentBuilder()
+            .parse(pluginXml)
+
+    document.documentElement.normalize()
+    val versionNode = document.getElementsByTagName("version").item(0)
+            ?: error("<version> tag not found in plugin.xml")
+
+    return versionNode.textContent.trim()
+}
+var plugin_version = readPluginVersion()
+
+
 // Configure project's dependencies
 repositories {
     mavenCentral()
@@ -83,5 +103,10 @@ tasks {
 
     publishPlugin {
         token(System.getenv("PUBLISH_TOKEN"))
+    }
+
+    buildPlugin {
+        archiveBaseName.set(project.name)
+        archiveVersion.set(plugin_version)
     }
 }

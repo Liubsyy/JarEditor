@@ -53,8 +53,29 @@ public class JarUtil {
     }
 
     public static Map<String,byte[]> readJarClasses(String jarPath, String classFullName) throws IOException {
-        byte[] jarBytes = Files.readAllBytes(Paths.get(jarPath));
-        return readJarClasses(jarBytes,classFullName);
+        String basePath = classFullName.replace('.', '/');
+
+        Map<String, byte[]> result = new HashMap<>();
+
+        try (JarFile jarFile = new JarFile(jarPath)) {
+            Enumeration<JarEntry> entries = jarFile.entries();
+
+            while (entries.hasMoreElements()) {
+                JarEntry entry = entries.nextElement();
+                if (entry.isDirectory()) continue;
+
+                String name = entry.getName();
+                if (!name.endsWith(".class")) continue;
+
+                if (name.equals(basePath + ".class") || name.startsWith(basePath + "$")) {
+                    try (InputStream in = jarFile.getInputStream(entry)) {
+                        result.put(name, in.readAllBytes());
+                    }
+                }
+            }
+        }
+
+        return result;
     }
 
     /**
