@@ -99,6 +99,7 @@
 
   <extensions defaultExtensionNs="com.intellij">
       <fileEditorProvider implementation="com.liubs.jareditor.editor.MyFileEditorProvider"/>
+      <fileEditorProvider implementation="com.liubs.jareditor.structure.JarDoubleClickProvider"/>
       <treeStructureProvider implementation="com.liubs.jareditor.structure.JarTreeStructureProvider"/>
 
       <notificationGroup id="JarEditorNotice"

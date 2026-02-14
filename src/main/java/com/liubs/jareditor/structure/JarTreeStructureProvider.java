@@ -98,7 +98,7 @@ public class JarTreeStructureProvider implements TreeStructureProvider {
 
 
 
-    private boolean isNestedJar(VirtualFile file){
+    public static boolean isNestedJar(VirtualFile file){
         ////包含.jar!/并且当前文件是.jar，那么一定是嵌套jar
         return null != file && file.getPath().matches(JarLikeSupports.MATCHER)
                 && "jar".equalsIgnoreCase(file.getExtension());

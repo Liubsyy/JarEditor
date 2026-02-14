@@ -41,6 +41,10 @@ public class ExpandNestedJarAction extends AnAction {
             return;
         }
 
+
+    }
+
+    public static void expandNestedJar(Project project,VirtualFile selectedFile){
         boolean isDirectory = selectedFile.isDirectory();
         if(!isDirectory && !JarLikeSupports.FILE_EXT.contains(selectedFile.getExtension())) {
             return;
