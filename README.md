@@ -44,6 +44,9 @@ After installation , you can see a tab page to switch to Jar Editor in the .clas
 > **External jar** : File->Project Structure->Libraries->Add Library , then you can see the decompiled jar.<br>
 > **Nested jar** : Right click on nested jar->JarEditor->Structure->Expand Nested Jar
 
+🌟**New optimization : Double-click a JAR file or a nested JAR file to expand the jar contents.**
+
+
 <img src="./img/JarEditor_main.png" width="800" height="506" />
 
 After modification, click **Save(Compile)** to compile and save the currently modified java content. 

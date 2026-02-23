@@ -42,6 +42,8 @@
 > **外部jar** ：File->Project Structure->Libraries->Add Library，然后就可以看到反编译的jar了。<br>
 > **嵌套jar** : 嵌套jar上右键->JarEditor->Structure->Expand Nested Jar
 
+🌟**最新优化 : 双击jar或者嵌套jar即可展开jar内文件。**
+
 <img src="./img/JarEditor_main.png" width="800" height="506" />
 
 修改完成后，点击**Save（Compile）**，编译并保存当前修改的java内容。
