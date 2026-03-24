@@ -17,6 +17,8 @@ IDEA plugin for modifying files in jar directly without decompression, including
 
 **Plugin marketplace** : [https://plugins.jetbrains.com/plugin/24397-jareditor](https://plugins.jetbrains.com/plugin/24397-jareditor)
 
+> This project is a JetBrains plugin. If you are using VSCode, you can install it from the VSCode Extensions Marketplace; for details, please see https://github.com/Liubsyy/jar-editor-vscode.
+
 ## Features
 - Edit class/resource file in jar directly without decompression
 - Add/Delete/Rename file/directory in jar

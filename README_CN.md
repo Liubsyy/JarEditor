@@ -17,6 +17,8 @@
 
 **Plugin marketplace** : [https://plugins.jetbrains.com/plugin/24397-jareditor](https://plugins.jetbrains.com/plugin/24397-jareditor)
 
+> 本项目为Jetbrains插件，如果是VSCode可在VSCode扩展市场安装，详见 https://github.com/Liubsyy/jar-editor-vscode
+
 ## 功能
 - 直接编辑jar包内class/resource文件，无需解压
 - 添加/删除/重命名jar包内文件/文件夹
