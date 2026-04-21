@@ -67,7 +67,11 @@ public class JarDoubleClickProvider implements FileEditorProvider {
     private void handleOpenJarView(@NotNull Project project, @NotNull VirtualFile file) {
         if(JarTreeStructureProvider.isNestedJar(file)) {
             //嵌套jar直接触发展开操作
-            ExpandNestedJarAction.expandNestedJar(project,file);
+            ApplicationManager.getApplication().invokeLater(() ->{
+                try{
+                    ExpandNestedJarAction.expandNestedJar(project,file);
+                }catch (Throwable e){}
+            });
         }else {
             //普通jar添加到依赖Libraries
             String jarSimpleName = MyPathUtil.getSingleFileName(file.getPath());
