@@ -41,7 +41,7 @@ public class ExpandNestedJarAction extends AnAction {
             return;
         }
 
-
+        expandNestedJar(project,selectedFile);
     }
 
     public static void expandNestedJar(Project project,VirtualFile selectedFile){

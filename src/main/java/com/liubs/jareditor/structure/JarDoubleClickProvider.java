@@ -75,7 +75,11 @@ public class JarDoubleClickProvider implements FileEditorProvider {
             if(i>0) {
                 jarSimpleName = jarSimpleName.substring(0,i);
             }
-            addJarAsProjectLibraryAndDependency(project, Paths.get(file.getPath()),jarSimpleName);
+            String finalJarSimpleName = jarSimpleName;
+            ApplicationManager.getApplication().invokeLater(() -> {
+                addJarAsProjectLibraryAndDependency(project, Paths.get(file.getPath()), finalJarSimpleName);
+            });
+
         }
     }
 
